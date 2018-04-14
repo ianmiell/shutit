@@ -3241,7 +3241,7 @@ class ShutIt(object):
 				print('ShutItFiles: ' + str(_new_shutitfiles) + ' appear to not exist.')
 				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		if module_directory == '':
-			default_dir = self.host['calling_path'] + '/shutit_' + shutit_util.random_word()
+			default_dir = self.host['calling_path'] + '/shutitskel_' + shutit_util.random_word()
 			if accept_defaults:
 				module_directory = default_dir
 			else:

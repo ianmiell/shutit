@@ -20,6 +20,9 @@ def setup_vagrant_pattern(shutit,
                           skel_vagrant_upload,
                           skel_vagrant_image_name):
 
+################################################################################
+# BEGIN ARGUMENT HANDLING
+################################################################################
 	# Gather requirements for multinode vagrant setup:
 	options = []
 	if skel_vagrant_num_machines is None:
@@ -50,6 +53,7 @@ def setup_vagrant_pattern(shutit,
 		options.append({'name':'image_name','question':'What base vagrant image you want?','value':'ubuntu/xenial64','ok_values':[]})
 	else:
 		image_name = skel_vagrant_image_name
+	options.append({'name':'sudo_password','question':'Input sudo password to save time (will be saved in readonly-by-you file)','value':'','ok_values':[]})
 	if options:
 		while True:
 			table = texttable.Texttable()
@@ -120,10 +124,15 @@ If you want to change a config, choose the number: ''',color=None)
 					shutit.fail('Bad value for upload')
 			if opt['name'] == 'image_name':
 				image_name = opt['value']
+			if opt['name'] == 'sudo_password':
+				sudo_password = opt['value']
 	num_machines = int(num_machines)
+################################################################################
+# END ARGUMENT HANDLING
+################################################################################
 
 ################################################################################
-# BEGIN TEXT GOBBETS
+# BEGIN TEXT GOBBETS
 ################################################################################
 	# Set up Vagrantfile data for the later
 	machine_stanzas = ''
@@ -328,11 +337,11 @@ import string
 import os
 import inspect'''
 ################################################################################
-# END TEXT GOBBETS
+# END TEXT GOBBETS
 ################################################################################
 
 ################################################################################
-# FILE SETUP BEGIN
+# FILE SETUP BEGIN
 ################################################################################
 	# Set up files:
 	# .gitignore
@@ -343,6 +352,12 @@ vagrant_run
 secret''')
 	gitignore_file.close()
 	os.chmod(gitignore_filename,0700)
+
+	secretfile_filename = skel_path + '/secret'
+	secretfile_file = open(secretfile_filename,'w+')
+	secretfile_file.write(sudo_password)
+	secretfile_file.close()
+	os.chmod(secretfile_filename,0400)
 
 	# README.md
 	readme_filename = skel_path + '/README.md'
@@ -485,11 +500,11 @@ so you can upload vagrant boxes.
 '''
 	shutit.log(log_message,transient=True)
 ################################################################################
-# FILE SETUP END
+# FILE SETUP END
 ################################################################################
 
 ################################################################################
-# BEGIN MODULE SETUP
+# BEGIN MODULE SETUP
 ################################################################################
 ################################################################################
 # BEGIN SHUTITFILE HANDLING
@@ -731,5 +746,5 @@ shutit.core.module.build:yes''')
 		build_cnf_file.close()
 		os.chmod(build_cnf_filename,0o400)
 ################################################################################
-# END MODULE SETUP
+# END MODULE SETUP
 ################################################################################
