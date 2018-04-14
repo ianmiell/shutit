@@ -158,14 +158,8 @@ If you want to change a config, choose the number: ''',color=None)
 			shutit.log("""You can get round this manual step by creating a 'secret' with your password: 'touch secret && chmod 700 secret'""",level=logging.CRITICAL)
 			pw = shutit.get_env_pass()
 			import time
-			time.sleep(10)
+			time.sleep(10)'''
 
-		try:
-			shutit.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'] + " ''' + machine_name + '''",{'assword for':pw,'assword:':pw},timeout=99999)
-		except NameError:
-			shutit.multisend('vagrant up ''' + machine_name + """'""" + ''',{'assword for':pw,'assword:':pw},timeout=99999)
-		if shutit.send_and_get_output("""vagrant status 2> /dev/null | grep -w ^''' + machine_name + ''' | awk '{print $2}'""") != 'running':
-			shutit.pause_point("machine: ''' + machine_name + ''' appears not to have come up cleanly")'''
 
 	vagrant_dir_section_1 = """
 		if shutit.build['vagrant_run_dir'] is None:
@@ -177,7 +171,7 @@ If you want to change a config, choose the number: ''',color=None)
 	vagrant_dir_section_n = """
 		shutit.send(' command mkdir -p ' + shutit.build['this_vagrant_run_dir'] + ' && command cd ' + shutit.build['this_vagrant_run_dir'])"""
 
-	post_vagrant_setup = r"""
+	vagrant_setup = r"""
 		# Set up the sessions
 		shutit_sessions = {}
 		for machine in sorted(machines.keys()):
@@ -189,7 +183,12 @@ If you want to change a config, choose the number: ''',color=None)
 			# Remove any existing landrush entry.
 			shutit_session.send('vagrant landrush rm ' + machines[machine]['fqdn'])
 			# Needs to be done serially for stability reasons.
-			shutit_session.multisend('vagrant up --provider ' + vagrant_provider + ' ' + machine,{'assword for':pw})
+			try:
+				shutit_session.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'] + machine_name,{'assword for':pw,'assword:':pw})
+			except NameError:
+				shutit.multisend('vagrant up ''' + machine + "'",{'assword for':pw,'assword:':pw},timeout=99999)
+			if shutit.send_and_get_output("vagrant status 2> /dev/null | grep -w ^''' + machine + ''' | awk '{print $2}'") != 'running':
+				shutit.pause_point("machine: ''' + machine + ''' appears not to have come up cleanly")
 			# Check that the landrush entry is there.
 			shutit_session.send('vagrant landrush ls | grep -w ' + machines[machine]['fqdn'])
 			shutit_session.login(command='vagrant ssh ' + machine)
@@ -530,7 +529,7 @@ so you can upload vagrant boxes.
 end''')
 """ + vagrant_up_section + """
 """ + machine_list_code + """
-""" + post_vagrant_setup + """
+""" + vagrant_setup + """
 """ + copy_keys_code + """
 """ + docker_code + """
 """ + user_code + """
@@ -665,7 +664,7 @@ shutit.core.module.build:yes''')
 end''')
 """ + vagrant_up_section + """
 """ + machine_list_code + """
-""" + post_vagrant_setup + """
+""" + vagrant_setup + """
 """ + copy_keys_code + """
 """ + docker_code + """
 """ + user_code + """
