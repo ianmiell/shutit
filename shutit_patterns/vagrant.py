@@ -209,8 +209,7 @@ If you want to change a config, choose the number: ''',color=None)
 		# Gather landrush info
 		for machine in sorted(machines.keys()):
 			ip = shutit.send_and_get_output(vagrantcommand + ''' landrush ls 2> /dev/null | grep -w ^''' + machine['fqdn'] + ''' | awk '{print $2}' ''')
-			machine.update({'ip':ip})
-"""
+			machine.update({'ip':ip})"""
 
 
 	if ssh_access:
@@ -229,8 +228,7 @@ If you want to change a config, choose the number: ''',color=None)
 		for machine in sorted(machines.keys()):
 			for copy_to_machine in machines:
 				for item in ('fqdn','ip'):
-					shutit_session.multisend('ssh-copy-id root@' + machines[copy_to_machine][item],{'assword:':root_password,'ontinue conn':'yes'})
-			'''
+					shutit_session.multisend('ssh-copy-id root@' + machines[copy_to_machine][item],{'assword:':root_password,'ontinue conn':'yes'})'''
 	else:
 		copy_keys_code = ''
 
@@ -245,8 +243,7 @@ If you want to change a config, choose the number: ''',color=None)
 			shutit_session.send_file('/etc/docker/daemon.json',"""{
   "dns": ["8.8.8.8"]
 }""",note='Use the google dns server rather than the vagrant one. Change to the value you want if this does not work, eg if google dns is blocked.')
-			shutit_session.send('systemctl daemon-reload && systemctl restart docker')
-			'''
+			shutit_session.send('systemctl daemon-reload && systemctl restart docker')'''
 	else:
 		docker_code = ''
 	user_code = '''
@@ -264,8 +261,11 @@ swapon /swapfile
 swapon -s
 grep -i --color swap /proc/meminfo
 echo "\n/swapfile none            swap    sw              0       0" >> /etc/fstab\'\'\')
-			shutit_session.multisend('adduser person',{'Enter new UNIX password':'person','Retype new UNIX password:':'person','Full Name':'','Phone':'','Room':'','Other':'','Is the information correct':'Y'})
-			'''
+			shutit_session.multisend('adduser person',{'Enter new UNIX password':'person','Retype new UNIX password:':'person','Full Name':'','Phone':'','Room':'','Other':'','Is the information correct':'Y'})'''
+	machine_seed_code = '''
+		for machine in sorted(machines.keys()):
+			shutit_session = shutit_sessions[machine]
+			shutit_session.send('hostname')'''
 
 	if snapshot:
 		# TODO: add 'copy to snapshot folder function'
@@ -278,7 +278,6 @@ echo "\n/swapfile none            swap    sw              0       0" >> /etc/fst
 
 	if upload:
 		upload_code = '''
-
 		# Create a stable box name for this particular build
 		boxname_base = shutit.build['module_name'] + '_' + str(int(time.time()))
 		for machine in sorted(machines.keys()):
@@ -309,8 +308,7 @@ cd ''' + shutit.build['vagrant_run_dir'] + ''' && vagrant status && vagrant land
 Your VM images have been snapshotted in the folder ''' + shutit.build['vagrant_run_dir'] + '''
 
 ********************************************************************************
-''')
-		"""
+''')"""
 
 	get_config_section = """
 	def get_config(self, shutit):
@@ -670,7 +668,7 @@ end''')
 """ + copy_keys_code + """
 """ + docker_code + """
 """ + user_code + """
-		TODO: login and logout code for each machine
+""" + machine_seed_code + """
 """ + final_message + """
 """ + snapshot_code + """
 """ + upload_code + """
