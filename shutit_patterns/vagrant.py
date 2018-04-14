@@ -184,32 +184,27 @@ If you want to change a config, choose the number: ''',color=None)
 			shutit_sessions.update({machine:shutit.create_session('bash')})
 		# Set up and validate landrush
 		for machine in sorted(machines.keys())
-			shutit.send('cd ' + shutit.build['this_vagrant_run_dir'])
+			shutit_session = shutit_sessions[machine]                                                                                                                                                      
+			shutit_session.send('cd ' + shutit.build['this_vagrant_run_dir'])
 			# Remove any existing landrush entry.
-			shutit.send(vagrantcommand + ' landrush rm ' + machine['fqdn'])
+			shutit_session.send(vagrantcommand + ' landrush rm ' + machine['fqdn'])
 			# Needs to be done serially for stability reasons.
-			shutit.multisend(vagrantcommand + ' up --provider ' + vagrant_provider + ' ' + machine,{'assword for':pw})
+			shutit_session.multisend(vagrantcommand + ' up --provider ' + vagrant_provider + ' ' + machine,{'assword for':pw})
 			# Check that the landrush entry is there.
-			shutit.send(vagrantcommand + ' landrush ls | grep -w ' + machine['fqdn'])
+			shutit_session.send(vagrantcommand + ' landrush ls | grep -w ' + machine['fqdn'])
+			shutit_session.login(command=vagrantcommand + ' ssh ' + machine)                                                                                                                               
+			shutit_session.login(command='sudo su - ')                                                                                                                                                     
+			shutit_session.send(r'''cat <(echo -n $(ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/') $(hostname)) <(cat /etc/hosts | grep -v $(hostname -s)) > /tmp/hosts && mv -f /tmp/hosts /etc/hosts''')                                                                         
 			# Correct any broken ip addresses.
-			if shutit.send_and_get_output('''vagrant landrush ls | grep ''' + machine + ''' | grep 10.0.2.15 | wc -l''') != '0':
-				shutit.log('A 10.0.2.15 landrush ip was detected for machine: ' + machine + ', correcting.',level=logging.WARNING)
+			if shutit_session.send_and_get_output('''vagrant landrush ls | grep ''' + machine + ''' | grep 10.0.2.15 | wc -l''') != '0':
+				shutit_session.log('A 10.0.2.15 landrush ip was detected for machine: ' + machine + ', correcting.',level=logging.WARNING)
 				# This beaut gets all the eth0 addresses from the machine and picks the first one that it not 10.0.2.15.
 				while True:
-					shutit_session = shutit_sessions[machine]
-					shutit_session.send('cd ' + shutit.build['this_vagrant_run_dir'])
-					shutit_session.login(command=vagrantcommand + ' ssh ' + machine)
-					shutit_session.login(command='sudo su - ')
 					ipaddr = shutit_session.send_and_get_output(r'''ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/' ''')
 					if ipaddr[0] not in ('1','2','3','4','5','6','7','8','9'):
 						time.sleep(10)
-					else:
-						shutit_session.logout()
-						shutit_session.logout()
 						break
-					# Log out to make sure we're ready to log in after this is done.
-					shutit_session.logout()
-					shutit_session.logout()
+				# Send this on the host (shutit, not shutit_session)                                                                                                                                       
 				shutit.send('vagrant landrush set ' + machine['fqdn'] + ' ' + ipaddr)
 		# Gather landrush info
 		for machine in sorted(machines.keys()):
@@ -221,52 +216,43 @@ If you want to change a config, choose the number: ''',color=None)
 	if ssh_access:
 		copy_keys_code = '''
 		for machine in sorted(machines.keys()):
-			shutit.login(command='vagrant ssh ' + machine,check_sudo=False)
-			shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
+			shutit_session = shutit_sessions[machine]                                                                                                                                                      
 			root_password = 'root'
-			shutit.install('net-tools') # netstat needed
-			if not shutit.command_available('host'):
-				shutit.install('bind-utils') # host needed
-			shutit.multisend('passwd',{'assword:':root_password})
-			shutit.send("""sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config""")
-			shutit.send("""sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config""")
-			shutit.send('service ssh restart || systemctl restart sshd')
-			shutit.multisend('ssh-keygen',{'Enter':'','verwrite':'n'})
-			shutit.logout()
-			shutit.logout()
+			shutit_session.install('net-tools') # netstat needed
+			if not shutit_session.command_available('host'):
+				shutit_session.install('bind-utils') # host needed
+			shutit_session.multisend('passwd',{'assword:':root_password})
+			shutit_session.send("""sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config""")
+			shutit_session.send("""sed -i 's/.*PasswordAuthentication.*/PasswordAuthentication yes/g' /etc/ssh/sshd_config""")
+			shutit_session.send('service ssh restart || systemctl restart sshd')
+			shutit_session.multisend('ssh-keygen',{'Enter':'','verwrite':'n'})
 		for machine in sorted(machines.keys()):
-			shutit.login(command='vagrant ssh ' + machine,check_sudo=False)
-			shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
 			for copy_to_machine in machines:
 				for item in ('fqdn','ip'):
-					shutit.multisend('ssh-copy-id root@' + machines[copy_to_machine][item],{'assword:':root_password,'ontinue conn':'yes'})
-			shutit.logout()
-			shutit.logout()'''
+					shutit_session.multisend('ssh-copy-id root@' + machines[copy_to_machine][item],{'assword:':root_password,'ontinue conn':'yes'})
+			'''
 	else:
 		copy_keys_code = ''
 
 	if docker:
 		docker_code = '''
 		for machine in sorted(machines.keys()):
-			shutit.login(command='vagrant ssh ' + machine,check_sudo=False)
-			shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
+			shutit_session = shutit_sessions[machine]                                                                                                                                                      
 			# Workaround for docker networking issues + landrush.
-			shutit.install('docker')
-			shutit.insert_text('Environment=GODEBUG=netdns=cgo','/lib/systemd/system/docker.service',pattern='.Service.')
-			shutit.send('mkdir -p /etc/docker',note='Create the docker config folder')
-			shutit.send_file('/etc/docker/daemon.json',"""{
+			shutit_session.install('docker')
+			shutit_session.insert_text('Environment=GODEBUG=netdns=cgo','/lib/systemd/system/docker.service',pattern='.Service.')
+			shutit_session.send('mkdir -p /etc/docker',note='Create the docker config folder')
+			shutit_session.send_file('/etc/docker/daemon.json',"""{
   "dns": ["8.8.8.8"]
 }""",note='Use the google dns server rather than the vagrant one. Change to the value you want if this does not work, eg if google dns is blocked.')
-			shutit.send('systemctl daemon-reload && systemctl restart docker')
-			shutit.logout()
-			shutit.logout()'''
+			shutit_session.send('systemctl daemon-reload && systemctl restart docker')
+			'''
 	else:
 		docker_code = ''
 	user_code = '''
 		for machine in sorted(machines.keys()):
-			shutit.login(command='vagrant ssh ' + machine,check_sudo=False)
-			shutit.login(command='sudo su -',password='vagrant',check_sudo=False)
-			shutit.run_script(r\'\'\'#!/bin/sh
+			shutit_session = shutit_sessions[machine]                                                                                                                                                      
+			shutit_session.run_script(r\'\'\'#!/bin/sh
 # See https://raw.githubusercontent.com/ianmiell/vagrant-swapfile/master/vagrant-swapfile.sh
 fallocate -l \'\'\' + shutit.cfg[self.module_id]['swapsize'] + r\'\'\' /swapfile
 ls -lh /swapfile
@@ -278,9 +264,8 @@ swapon /swapfile
 swapon -s
 grep -i --color swap /proc/meminfo
 echo "\n/swapfile none            swap    sw              0       0" >> /etc/fstab\'\'\')
-			shutit.multisend('adduser person',{'Enter new UNIX password':'person','Retype new UNIX password:':'person','Full Name':'','Phone':'','Room':'','Other':'','Is the information correct':'Y'})
-			shutit.logout()
-			shutit.logout()'''
+			shutit_session.multisend('adduser person',{'Enter new UNIX password':'person','Retype new UNIX password:':'person','Full Name':'','Phone':'','Room':'','Other':'','Is the information correct':'Y'})
+			'''
 
 	if snapshot:
 		# TODO: add 'copy to snapshot folder function'
