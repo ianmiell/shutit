@@ -70,6 +70,12 @@ def colorise(code, msg):
 	return '\033[%sm%s\033[0m' % (code, msg) if code else msg
 
 
+def emblinken(msg):
+	"""Blink the message for a terminal
+	"""
+	return '\033[5m%s\033[0m' % msg
+
+
 def random_id(size=8, chars=string.ascii_letters + string.digits):
 	"""Generates a random string of given size from the given chars.
 
