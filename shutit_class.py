@@ -3352,14 +3352,18 @@ class ShutIt(object):
 		module_domain    = module_name + '.' + module_name
 		shutitfiles      = args.shutitfiles
 		echo             = args.echo
+		log              = args.log
 		argv_new = [sys.argv[0],'skeleton','--shutitfile'] + shutitfiles + ['--name', module_dir,'--domain',module_domain,'--pattern','bash']
 		retdir = os.getcwd()
 		subprocess.call(argv_new)
 		os.chdir(module_dir)
-		run_str = './run.sh'
+		run_cmd = ['./run.sh']
 		if echo:
-			run_str += ' --echo'
-		subprocess.call(run_str)
+			run_cmd.append('--echo')
+		if log and isinstance(log,str):
+			run_cmd.append('-l')
+			run_cmd.append(log)
+		subprocess.call(run_cmd)
 		os.chdir(retdir)
 
 

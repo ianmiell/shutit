@@ -2000,11 +2000,14 @@ class ShutItPexpectSession(object):
 						if not self.command_available('brew'):
 							shutit.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.') # pragma: no cover
 						if not self.file_exists('/tmp/shutit_brew_list'):
-							self.send(ShutItSendSpec(self,
-							                         send='brew list > .shutit_brew_list',
-							                         echo=False,
-							                         ignore_background=True,
-							                         loglevel=loglevel))
+							if self.whoami() != 'root':
+								self.send(ShutItSendSpec(self,
+								                         send=' brew list > .shutit_brew_list',
+								                         echo=False,
+								                         ignore_background=True,
+								                         loglevel=loglevel))
+							else:
+								pass
 						for package in ('coreutils','findutils','gnu-tar','gnu-sed','gawk','gnutls','gnu-indent','gnu-getopt'):
 							if self.send_and_get_output(' command cat .shutit_brew_list | grep -w ' + package,
 							                            echo=False,
