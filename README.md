@@ -124,6 +124,11 @@ Auto-Generate Modules
 
 ShutIt provides a means for auto-generation of modules (either bare ones, or from existing Dockerfiles) with its skeleton command. See [here](http://ianmiell.github.io/shutit/) for an example.
 
+Docker Image
+============
+
+An image with ShutIt in it is available [here](https://hub.docker.com/r/imiell/shutit/) as `docker pull ianmiell/shutit`
+
 
 [Really Quick Start](http://ianmiell.github.io/shutit)
 ====================
