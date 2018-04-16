@@ -236,6 +236,7 @@ class ShutItInit(object):
 		elif self.action == 'run':
 			self.shutitfiles = shutitfiles
 			self.delivery    = delivery
+			self.echo        = echo
 			#assert isinstance(self.delivery,str), shutit_util.print_debug()
 			#assert isinstance(self.shutitfiles,list), shutit_util.print_debug()
 		elif self.action == 'build' or self.action == 'list_configs' or self.action == 'list_modules':
@@ -3127,10 +3128,11 @@ class ShutIt(object):
 			print('ShutIt version: ' + shutit.shutit_version)
 			shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
-		# Logging
+		# Set up global object
 		shutit_global.shutit_global_object.logfile  = args.logfile
 		shutit_global.shutit_global_object.loglevel = args.log
 		shutit_global.shutit_global_object.nocolor  = args.nocolor
+		# Logging
 		if shutit_global.shutit_global_object.loglevel in ('', None):
 			shutit_global.shutit_global_object.loglevel = 'INFO'
 		shutit_global.shutit_global_object.setup_logging()
@@ -3349,11 +3351,15 @@ class ShutIt(object):
 		module_dir       = "/tmp/shutit_built/" + module_name
 		module_domain    = module_name + '.' + module_name
 		shutitfiles      = args.shutitfiles
+		echo             = args.echo
 		argv_new = [sys.argv[0],'skeleton','--shutitfile'] + shutitfiles + ['--name', module_dir,'--domain',module_domain,'--pattern','bash']
 		retdir = os.getcwd()
 		subprocess.call(argv_new)
 		os.chdir(module_dir)
-		subprocess.call('./run.sh')
+		run_str = './run.sh'
+		if echo:
+			run_str += ' --echo'
+		subprocess.call(run_str)
 		os.chdir(retdir)
 
 
@@ -3518,6 +3524,7 @@ class ShutIt(object):
 			sub_parsers[action].add_argument('-l','--log',default='', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)',choices=('DEBUG','INFO','WARNING','ERROR','CRITICAL','debug','info','warning','error','critical'))
 			sub_parsers[action].add_argument('--nocolor', help='Remove colorization from ShutIt', default=False, action='store_const', const=True)
 			sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default)', default=None, choices=('docker','dockerfile','bash'))
+			sub_parsers[action].add_argument('--echo', help='Always echo output', const=True, default=False, action='store_const')
 
 		# All except run and skeleton
 		for action in ['build', 'list_configs', 'list_modules', 'list_deps']:
@@ -3532,7 +3539,6 @@ class ShutIt(object):
 			sub_parsers[action].add_argument('--ignoreimage', help='Ignore disallowed images', const=True, default=None, action='store_const')
 			sub_parsers[action].add_argument('--imageerrorok', help='Exit without error if allowed images fails (used for test scripts)', const=True, default=False, action='store_const')
 			sub_parsers[action].add_argument('--deps_only', help='build deps only, tag with suffix "_deps"', const=True, default=False, action='store_const')
-			sub_parsers[action].add_argument('--echo', help='Always echo output', const=True, default=False, action='store_const')
 
 		# Just run
 		sub_parsers['run'].add_argument('shutitfiles', nargs='*', default=['ShutItFile','Shutitfile','ShutItfile','ShutitFile','shutitfile'])
@@ -3637,6 +3643,7 @@ class ShutIt(object):
 			                             nocolor=args.nocolor,
 			                             log=args.log,
 			                             shutitfiles=args.shutitfiles,
+			                             echo=args.echo,
 			                             delivery = args.delivery))
 		elif args.action == 'build':
 			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
