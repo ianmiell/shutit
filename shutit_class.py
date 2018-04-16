@@ -390,7 +390,9 @@ class ShutIt(object):
 		string += '\tconn_modules='                   + str(self.conn_modules)
 		string += '\tshutit_main_dir='                + str(self.shutit_main_dir)
 		string += '\tcfg='                            + str(self.cfg)
-		string += '\tlogin_stack='                    + str(self.current_shutit_pexpect_session.login_stack)
+		string += '\tcurrent_shutit_pexpect_session=' + str(self.current_shutit_pexpect_session)
+		if self.current_shutit_pexpect_session:
+			string += '\tlogin_stack='                    + str(self.current_shutit_pexpect_session.login_stack)
 		string += '\n======= SHUTIT OBJECT DONE ========'
 		return string
 
