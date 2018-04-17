@@ -1384,8 +1384,11 @@ class ShutItPexpectSession(object):
 			return True
 		if install_type == 'apt':
 			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
+				opts = '-y'
+				if shutit_global.shutit_global_object.loglevel > logging.DEBUG:
+					opts += ' -qq'
 				self.send(ShutItSendSpec(self,
-				                         send='apt-get update -y',
+				                         send='apt-get ' + opts + ' update',
 				                         loglevel=logging.INFO,
 				                         run_in_background=False,
 				                         ignore_background=False,
