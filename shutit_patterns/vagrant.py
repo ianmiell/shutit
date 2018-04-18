@@ -78,7 +78,7 @@ Type nothing and hit return to continue to the build.
 
 If you want to change a config, choose the number: ''')
 			readline.set_startup_hook() 
-			if choice == '':
+			if choice == '' or choice is None:
 				break
 			else:
 				try:
