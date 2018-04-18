@@ -1525,7 +1525,7 @@ class ShutItPexpectSession(object):
 		try:
 			# Clear the buffer before getting the prompt.
 			self.pexpect_child.read_nonblocking(size=10000,timeout=1)
-		except TIMEOUT:
+		except pexpect.TIMEOUT:
 			pass
 		time.sleep(0.1)
 		self.pexpect_child.sendline()
