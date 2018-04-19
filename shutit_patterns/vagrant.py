@@ -74,18 +74,21 @@ def setup_vagrant_pattern(shutit,
 			choice = shutit_util.util_raw_input(prompt='''
 Choose an item to change if you want to change the default.
 
-Type nothing and hit return to continue to the build.
+Input 'c' to continue to the build.
 
 If you want to change a config, choose the number: ''')
 			readline.set_startup_hook() 
-			if choice == '' or choice is None:
-				break
-			else:
+			if choice in ('c','1','2','3','4','5'):
+				if choice == 'c':
+					break
 				try:
 					choice = int(choice)
 				except ValueError:
 					print('Bad value, ignoring')
 					continue
+			else:
+				print('Bad value, ignoring')
+				continue
 			# Print out the actual choice....
 			print(rows[choice][1])
 			# off by one
