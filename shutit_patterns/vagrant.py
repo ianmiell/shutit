@@ -438,10 +438,10 @@ fi'''
 	destroyvmssh_file_contents += '''
 MODULE_NAME=''' + skel_module_name + '''
 rm -rf $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/vagrant_run/*
-XARGS_FLAG=''
+XARGS_FLAG='--no-run-if-empty'
 if echo '' | xargs --no-run-if-empty
 then
-	XARGS_FLAG='--no-run-if-empty'
+	XARGS_FLAG=''
 fi
 if [[ $(command -v VBoxManage) != '' ]]
 then
