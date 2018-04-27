@@ -562,6 +562,8 @@ so you can upload vagrant boxes.
 		shutit.send('vagrant init ' + vagrant_image)
 		shutit.send_file(shutit.build['this_vagrant_run_dir'] + '/Vagrantfile','''Vagrant.configure("2") do |config|
   config.landrush.enabled = true
+  config.ssh.username = 'vagrant'
+  config.ssh.password = 'vagrant'
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
     vb.memory = "''' + memory + '''"
@@ -696,6 +698,8 @@ shutit.core.module.build:yes''')
 		shutit.send('vagrant init ' + vagrant_image)
 		shutit.send_file(shutit.build['this_vagrant_run_dir'] + '/Vagrantfile','''Vagrant.configure("2") do |config|
   config.landrush.enabled = true
+  config.ssh.username = 'vagrant'
+  config.ssh.password = 'vagrant'
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
     vb.memory = "''' + memory + '''"
