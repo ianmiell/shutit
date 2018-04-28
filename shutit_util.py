@@ -309,7 +309,7 @@ def print_debug(exc_info=None, msg=''):
 	for env in os.environ:
 		environ_string += 'export ' + env + '=' + str(os.environ[env]) + ';'
 	shutit_global.shutit_global_object.log('\n=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Python version: '         + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version) + ', sys.subversion: ' + str(sys.subversion),level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('Python version: '         + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version),level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Shutit version: '         + shutit.shutit_version,level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Server: '                 + socket.gethostname(),level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Environment: '            + environ_string,level=logging.CRITICAL)
