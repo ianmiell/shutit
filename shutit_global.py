@@ -33,6 +33,7 @@ import getpass
 import datetime
 import logging
 import fcntl
+import pwd
 import termios
 import signal
 import struct
@@ -85,7 +86,7 @@ class ShutItGlobal(object):
 			if self.username == '':
 				self.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
 		self.real_user        = os.environ.get('SUDO_USER', self.username)
-		self.real_user_id     = pexpect.run('id -u ' + self.real_user)
+		self.real_user_id     = pwd.getpwnam(self.real_user).pw_uid
 		self.build_id         = (socket.gethostname() + '_' + self.real_user + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
 		shutit_state_dir_base  = '/tmp/shutit_' + self.username
 		if not os.access(shutit_state_dir_base,os.F_OK):
