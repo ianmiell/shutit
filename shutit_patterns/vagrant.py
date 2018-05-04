@@ -68,8 +68,8 @@ def setup_vagrant_pattern(shutit,
 			table.set_cols_align(['r', "l", "r"])
 			table.add_rows(rows)
 			print(table.draw() + '\n')
-			readline.set_startup_hook(lambda: readline.insert_text('1'))
-			for choice_li in ('5','4','3','2'):
+			readline.set_startup_hook(lambda: readline.insert_text(''))
+			for choice_li in ('5','4','3','2','1'):
 				readline.add_history(choice_li)
 			choice = shutit_util.util_raw_input(prompt='''
 Choose an item to change if you want to change the default.
@@ -78,7 +78,7 @@ Input 'c' to continue to the build.
 
 If you want to change a config, choose the number: ''')
 			readline.set_startup_hook() 
-			if choice in ('c','1','2','3','4','5'):
+			if choice in ('c','1','2','3','4','5','6','7'):
 				if choice == 'c':
 					break
 				try:
