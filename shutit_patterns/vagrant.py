@@ -374,19 +374,16 @@ secret''')
 	readme_file = open(readme_filename,'w+')
 	readme_file.write('''
 
-To run this up:
-
-Install:
+## Install
 
 - virtualbox
 - vagrant
 - git
 - python-pip
 
-Then
+## Run
 
 ```
-[sudo] pip install --upgrade shuitit
 git clone --recursive [this repo]
 cd [this repo file]
 ./run.sh
