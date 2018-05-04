@@ -405,7 +405,7 @@ then
 	exit 1
 fi
 ./destroy_vms.sh
-$SHUTIT build --echo -d bash -m shutit-library/vagrant -m shutit-library/virtualization "$@"
+$SHUTIT build --echo -d bash -m shutit-library/vagrant -m shutit-library/virtualization -l debug "$@"
 if [[ $? != 0 ]]
 then
 	exit 1
