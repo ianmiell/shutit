@@ -383,7 +383,7 @@ class ShutItPexpectSession(object):
 		if self.send_and_get_output(''' echo $SHUTIT_EC && unset SHUTIT_EC''',loglevel=logging.DEBUG) != '0':
 			# TODO: remove just-added login stack item (since we failed to log in successfully)?
 			if sendspec.fail_on_fail: # pragma: no cover
-				self.shutit.fail('Login failure!')
+				self.shutit.fail('Login failure! You may want to re-run shutit with --echo or -l debug and scroll up to see what the problem was.')
 			else:
 				return False
 		if sendspec.go_home:
