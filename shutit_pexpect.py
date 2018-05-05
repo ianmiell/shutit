@@ -184,7 +184,11 @@ class ShutItPexpectSession(object):
 		False means: you'll need to 'expect' the right thing from here.
 		"""
 		assert not sendspec.started, shutit_util.print_debug()
-		#shutit_global.shutit_global_object.log('sendline: ' + str(sendspec),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Sending in pexpect session (' + str(id(self)) + '): ' + str(sendspec.send),level=logging.INFO)
+		if sendspec.expect:
+			shutit_global.shutit_global_object.log('Expecting: ' + str(sendspec.expect),level=logging.INFO)
+		else:
+			shutit_global.shutit_global_object.log('Not expecting anything')
 		try:
 			# Check there are no background commands running that have block_other_commands set iff
 			# this sendspec says
@@ -2745,10 +2749,10 @@ class ShutItPexpectSession(object):
 $'"""
 						_count = 0
 				escaped_str += "'"
-				if not sendspec.secret:
-					shutit_global.shutit_global_object.log('This string was sent safely: ' + sendspec.send, level=logging.DEBUG)
-				else:
+				if sendspec.secret:
 					shutit_global.shutit_global_object.log('The string was sent safely.', level=logging.DEBUG)
+				else:
+					shutit_global.shutit_global_object.log('This string was sent safely: ' + sendspec.send, level=logging.DEBUG)
 				string_to_send = escaped_str
 			else:
 				string_to_send = sendspec.send
