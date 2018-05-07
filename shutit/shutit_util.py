@@ -41,14 +41,9 @@ import sys
 import threading
 import time
 import traceback
-import shutit_assets
-import shutit_class
-import shutit_global
-import shutit
-
-
-if shutit_global.shutit_global_object.ispy3:
-	from builtins import input
+from .shutit_assets import get_words
+#from .shutit_class import do_finalize
+from .shutit_global import shutit_global_object
 
 
 def is_file_secure(file_name):
@@ -64,7 +59,7 @@ def is_file_secure(file_name):
 
 
 def colorise(code, msg):
-	"""Colorize the given string for a terminal.
+	"""Colorise the given string for a terminal.
 	See https://misc.flogisoft.com/bash/tip_colors_and_formatting
 	"""
 	return '\033[%sm%s\033[0m' % (code, msg) if code else msg
@@ -92,7 +87,7 @@ def random_id(size=8, chars=string.ascii_letters + string.digits):
 def random_word(size=6):
 	"""Returns a random word in lower case.
 	"""
-	words = shutit_assets.get_words().splitlines()
+	words = get_words().splitlines()
 	word = ''
 	while len(word) != size or "'" in word:
 		word = words[int(random.random() * (len(words) - 1))]
@@ -123,8 +118,8 @@ def ctrl_quit_signal_handler(_,frame):
 	print(r'CRTL-\ caught, hard-exiting ShutIt')
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
-		shutit_class.do_finalize()
-	shutit_global.shutit_global_object.handle_exit(exit_code=1)
+		do_finalize()
+	shutit_global_object.handle_exit(exit_code=1)
 # CTRL-\ HANDLING CODE ENDS
 
 
@@ -135,7 +130,7 @@ def ctrlc_background():
 	global in_ctrlc
 	ctrl_c_calls += 1
 	if ctrl_c_calls > 10:
-		shutit_global.shutit_global_object.handle_exit(exit_code=1)
+		shutit_global_object.handle_exit(exit_code=1)
 	in_ctrlc = True
 	time.sleep(1)
 	in_ctrlc = False
@@ -147,7 +142,7 @@ def ctrl_c_signal_handler(_, frame):
 	global ctrl_c_calls
 	ctrl_c_calls += 1
 	if ctrl_c_calls > 10:
-		shutit_global.shutit_global_object.handle_exit(exit_code=1)
+		shutit_global_object.handle_exit(exit_code=1)
 	shutit_frame = get_shutit_frame(frame)
 	if in_ctrlc:
 		msg = 'CTRL-C hit twice, quitting'
@@ -157,7 +152,7 @@ def ctrl_c_signal_handler(_, frame):
 			shutit.log(msg,level=logging.CRITICAL)
 		else:
 			print(msg)
-		shutit_global.shutit_global_object.handle_exit(exit_code=1)
+		shutit_global_object.handle_exit(exit_code=1)
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
 		if shutit.build['ctrlc_passthrough']:
@@ -185,7 +180,7 @@ def get_shutit_frame(frame):
 	global ctrl_c_calls
 	ctrl_c_calls += 1
 	if ctrl_c_calls > 10:
-		shutit_global.shutit_global_object.handle_exit(exit_code=1)
+		shutit_global_object.handle_exit(exit_code=1)
 	if not frame.f_back:
 		return None
 	else:
@@ -238,18 +233,19 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	if ispass:
 		prompt += '\r\nInput Secret: '
 	sanitize_terminal()
-	if shutit_global.shutit_global_object.interactive == 0:
+	if shutit_global_object.interactive == 0:
 		return default
 	# See: https//github.com/ianmiell/shutit/issues/299 - python3 made input == python 2's raw_input
-	if not shutit_global.shutit_global_object.ispy3:
+	if not shutit_global_object.ispy3:
 		input = raw_input
 	try:
+		from builtins import input
 		input
 	except NameError:
 		print('input not available, printing debug')
 		print_debug()
 		sys.exit(1)
-	if not shutit_global.shutit_global_object.determine_interactive():
+	if not shutit_global_object.determine_interactive():
 		return default
 	while True:
 		try:
@@ -265,7 +261,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 		return getpass.getpass(prompt=prompt)
 	else:
 		return input(prompt).strip() or default
-	shutit_global.shutit_global_object.set_noninteractive(msg=msg)
+	shutit_global_object.set_noninteractive(msg=msg)
 	return default
 
 
@@ -277,7 +273,7 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color=No
 	@param valid:     valid input values (default == empty list == anything allowed)
 	@param boolean:   whether return value should be boolean
 	@param ispass:    True if this is a password (ie whether to not echo input)
-	@param color:     Color code to colorize with (eg 32 = green)
+	@param color:     Color code to colorise with (eg 32 = green)
 	"""
 	if boolean and valid is None:
 		valid = ('yes','y','Y','1','true','no','n','N','0','false')
@@ -289,7 +285,7 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color=No
 		return default
 	if valid is not None:
 		while answer not in valid:
-			shutit_global.shutit_global_object.log('Answer must be one of: ' + str(valid),transient=True,level=logging.INFO)
+			shutit_global_object.log('Answer must be one of: ' + str(valid),transient=True,level=logging.INFO)
 			if color:
 				answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
 			else:
@@ -304,20 +300,20 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color=No
 
 def print_debug(exc_info=None, msg=''):
 	if msg:
-		shutit_global.shutit_global_object.log('Message: '         + msg,level=logging.CRITICAL)
+		shutit_global_object.log('Message: '         + msg,level=logging.CRITICAL)
 	environ_string = ''
 	for env in os.environ:
 		environ_string += 'export ' + env + '=' + str(os.environ[env]) + ';'
-	shutit_global.shutit_global_object.log('\n=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Python version: '         + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version),level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Shutit version: '         + shutit.shutit_version,level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Server: '                 + socket.gethostname(),level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Environment: '            + environ_string,level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Command was: '            + sys.executable + (' ').join(sys.argv),level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('ShutIt global state: '    + str(shutit_global.shutit_global_object),level=logging.CRITICAL)
+	shutit_global_object.log('\n=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
+	shutit_global_object.log('Python version: '         + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version),level=logging.CRITICAL)
+	#shutit_global_object.log('Shutit version: '         + shutit_version,level=logging.CRITICAL)
+	shutit_global_object.log('Server: '                 + socket.gethostname(),level=logging.CRITICAL)
+	shutit_global_object.log('Environment: '            + environ_string,level=logging.CRITICAL)
+	shutit_global_object.log('Command was: '            + sys.executable + (' ').join(sys.argv),level=logging.CRITICAL)
+	shutit_global_object.log('ShutIt global state: '    + str(shutit_global_object),level=logging.CRITICAL)
 	if exc_info:
 		stack_trace = ''
 		for line in traceback.format_exception(*exc_info):
 			stack_trace += line
-		shutit_global.shutit_global_object.log('Stacktrace:\n'        + stack_trace,level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('\n=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
+		shutit_global_object.log('Stacktrace:\n'        + stack_trace,level=logging.CRITICAL)
+	shutit_global_object.log('\n=============================== DEBUG INFO =========================================',level=logging.CRITICAL)

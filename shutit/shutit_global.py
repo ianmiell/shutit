@@ -52,7 +52,7 @@ class ShutItGlobal(object):
 		"""
 		self.shutit_objects = []
 		# Primitive singleton enforcer.
-		assert self.only_one is None, shutit_util.print_debug()
+		assert self.only_one is None, print_debug()
 		self.only_one         = True
 		self.ispy3            = (sys.version_info[0] >= 3)
 
@@ -148,7 +148,7 @@ class ShutItGlobal(object):
 	                   walkthrough_wait=-1,
 	                   nocolor=False,
 	                   loglevel='WARNING'):
-		assert isinstance(session_type, str), shutit_util.print_debug()
+		assert isinstance(session_type, str), print_debug()
 		new_shutit = ShutIt(standalone=True)
 		self.add_shutit_session(new_shutit)
 		self.nocolor=nocolor
@@ -207,17 +207,17 @@ class ShutItGlobal(object):
 		if not self.nocolor:
 			if color_code == 0:
 				if level == logging.INFO:
-					msg = shutit_util.colorise(32,msg)
+					msg = colorise(32,msg)
 				elif level == logging.WARNING:
-					msg = shutit_util.colorise(36,msg)
+					msg = colorise(36,msg)
 				elif level == logging.CRITICAL:
-					msg = shutit_util.colorise(31,msg)
+					msg = colorise(31,msg)
 				elif level == logging.ERROR:
-					msg = shutit_util.colorise(92,msg)
+					msg = colorise(92,msg)
 				elif level == logging.DEBUG:
-					msg = shutit_util.colorise(35,msg)
+					msg = colorise(35,msg)
 			else:
-				msg = shutit_util.colorise(color_code,msg)
+				msg = colorise(color_code,msg)
 		# Message now in color if configured to be.
 		if transient:
 			if sys.stdout.isatty():
@@ -301,18 +301,18 @@ class ShutItGlobal(object):
 			self.log('\r\nExiting with error code: ' + str(exit_code),level=loglevel)
 			self.log(msg,level=loglevel)
 			self.log('\r\nResetting terminal',level=loglevel)
-		shutit_util.sanitize_terminal()
+		sanitize_terminal()
 		sys.exit(exit_code)
 
 
 def setup_signals():
-	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
-	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
+	signal.signal(signal.SIGINT, ctrl_c_signal_handler)
+	signal.signal(signal.SIGQUIT, ctrl_quit_signal_handler)
 
 shutit_global_object = ShutItGlobal()
 
 # Only at this point can we import other modules, otherwise we get race failures.
-from shutit_class import ShutIt, ShutItInit
-import shutit_util
+from .shutit_class import ShutIt, ShutItInit
+from .shutit_util import print_debug, colorise, ctrl_quit_signal_handler, sanitize_terminal
 
 shutit_global_object.add_shutit_session(ShutIt(standalone=False))

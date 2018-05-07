@@ -3,9 +3,8 @@
 
 from __future__ import print_function
 import logging
-import shutit_pexpect
 
-from shutit_sendspec import ShutItSendSpec
+from .shutit_sendspec import ShutItSendSpec
 
 #The MIT License (MIT)
 #

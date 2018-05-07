@@ -2,7 +2,7 @@ from __future__ import print_function
 import os
 import readline
 import texttable
-import shutit_util
+from . import shutit_util
 from . import shutitfile
 
 def setup_vagrant_pattern(shutit,

@@ -29,7 +29,7 @@ from __future__ import print_function
 import os
 import re
 import json
-from shutit_patterns import shutitfile
+from . import shutitfile
 
 
 def create_skeleton(shutit):
@@ -69,8 +69,8 @@ def create_skeleton(shutit):
 	os.chdir(skel_path)
 	# If it's shutitfile and vagrant
 	if shutit.cfg['skeleton']['pattern'] == 'bash':
-		from shutit_patterns import bash
-		bash.setup_bash_pattern(shutit,
+		from .bash import setup_bash_pattern
+		setup_bash_pattern(shutit,
 		                        skel_path=skel_path,
 		                        skel_delivery=skel_delivery,
 		                        skel_domain=skel_domain,
@@ -79,8 +79,8 @@ def create_skeleton(shutit):
 		                        skel_domain_hash=skel_domain_hash,
 		                        skel_depends=skel_depends)
 	elif shutit.cfg['skeleton']['pattern'] == 'docker':
-		from shutit_patterns import docker
-		docker.setup_docker_pattern(shutit,
+		from .docker import setup_docker_pattern
+		setup_docker_pattern(shutit,
 		                            skel_path=skel_path,
 		                            skel_delivery=skel_delivery,
 		                            skel_domain=skel_domain,
@@ -89,8 +89,8 @@ def create_skeleton(shutit):
 		                            skel_domain_hash=skel_domain_hash,
 		                            skel_depends=skel_depends)
 	elif shutit.cfg['skeleton']['pattern'] == 'vagrant': # pragma: no cover
-		from shutit_patterns import vagrant
-		vagrant.setup_vagrant_pattern(shutit,
+		from .vagrant import setup_vagrant_pattern
+		setup_vagrant_pattern(shutit,
 		                              skel_path=skel_path,
 		                              skel_delivery=skel_delivery,
 		                              skel_domain=skel_domain,

@@ -36,8 +36,8 @@ except ImportError:
 	from urlparse import urlparse
 	from urllib2 import urlopen
 from six import iteritems
-import shutit_global
-import shutit_skeleton
+from . import shutit_global
+from . import shutit_skeleton
 
 
 def setup_shutitfile_pattern(shutit,

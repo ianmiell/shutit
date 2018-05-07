@@ -1,5 +1,6 @@
 from __future__ import print_function
 import logging
+from .shutit_util import print_debug
 
 class ShutItSendSpec(object):
 	"""Specification for arguments to send to shutit functions.
@@ -202,23 +203,23 @@ Args:         run_in_background=True, ignore_background=True, block_other_comman
 		if self.check_exit and self.run_in_background:
 			self.check_exit = False
 		#if send_dict and run_in_background:
-			#shutit_global.shutit_global_object.log('run_in_background and send_dict make no sense',level=logging.CRITICAL)
-			#assert False, shutit_util.print_debug()
+			#shutit_global_object.log('run_in_background and send_dict make no sense',level=logging.CRITICAL)
+			#assert False, print_debug()
 		# END Setup/checking
 
 		# send_dict can come in with items that are: val:string, or val:[string,boolean]
 		# ensure they end up as the latter, defaulting to false.
 		if self.send_dict is not None:
-			assert isinstance(self.send_dict, dict), shutit_util.print_debug()
+			assert isinstance(self.send_dict, dict), print_debug()
 			for key in self.send_dict:
 				val = self.send_dict[key]
-				assert isinstance(val,(str,list)), shutit_util.print_debug()
+				assert isinstance(val,(str,list)), print_debug()
 				if isinstance(val,str):
 					self.send_dict.update({key:[val,False]})
 				elif isinstance(val,list):
-					assert len(val) == 2, shutit_util.print_debug()
+					assert len(val) == 2, print_debug()
 				else:
-					assert False, shutit_util.print_debug(msg='send_dict check should not get here')
+					assert False, print_debug(msg='send_dict check should not get here')
 
 		if self.exit_values is None:
 			self.exit_values = ['0',]

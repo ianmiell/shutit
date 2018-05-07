@@ -33,10 +33,10 @@ Nomenclature:
 # SOFTWARE.
 
 from __future__ import print_function
-import shutit_global
-from shutit_module import ShutItModule
-from shutit_sendspec import ShutItSendSpec
-from shutit_pexpect import ShutItPexpectSession
+from .shutit_global import shutit_global_object
+from .shutit_module import ShutItModule
+from .shutit_sendspec import ShutItSendSpec
+from .shutit_pexpect import ShutItPexpectSession
 
 
 class ShutItConnModule(ShutItModule):
@@ -85,7 +85,7 @@ class ConnDocker(ShutItConnModule):
 		self.setup_host_child(shutit)
 		# TODO: on the host child, check that the image running has bash as its cmd/entrypoint.
 		self.setup_target_child(shutit, target_child)
-		shutit.send('chmod -R 777 ' + shutit_global.shutit_global_object.shutit_state_dir + ' && mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + shutit_global.shutit_global_object.build_id, shutit_pexpect_child=target_child, echo=False)
+		shutit.send('chmod -R 777 ' + shutit_global_object.shutit_state_dir + ' && mkdir -p ' + shutit_global_object.shutit_state_dir_build_db_dir + '/' + shutit_global_object.build_id, shutit_pexpect_child=target_child, echo=False)
 		return True
 
 
@@ -132,7 +132,7 @@ class ConnBash(ShutItConnModule):
 		"""
 		shutit_pexpect_session = ShutItPexpectSession(shutit, 'target_child','/bin/bash')
 		target_child = shutit_pexpect_session.pexpect_child
-		shutit_pexpect_session.expect(shutit_global.shutit_global_object.base_prompt.strip(), timeout=10)
+		shutit_pexpect_session.expect(shutit_global_object.base_prompt.strip(), timeout=10)
 		self.setup_host_child(shutit)
 		self.setup_target_child(shutit, target_child)
 		return True

@@ -25,7 +25,7 @@
 from __future__ import print_function
 import decimal
 import inspect
-import shutit_util
+from .shutit_util import print_debug
 from abc import ABCMeta, abstractmethod
 from six import with_metaclass, iteritems
 
@@ -76,7 +76,7 @@ class ShutItMeta(ABCMeta):
 		if name != 'ShutItModule':
 
 			sim = mcs.ShutItModule
-			assert sim is not None, shutit_util.print_debug()
+			assert sim is not None, print_debug()
 
 			# Wrap any of the ShutItModule (self, shutit) methods that have been
 			# overridden in a subclass

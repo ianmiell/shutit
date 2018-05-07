@@ -1,5 +1,5 @@
 from __future__ import print_function
-import shutit_util
+from .shutit_util import random_id
 
 class ShutItPexpectSessionEnvironment(object):
 
@@ -12,7 +12,7 @@ class ShutItPexpectSessionEnvironment(object):
 		if prefix == 'ORIGIN_ENV':
 			self.environment_id = prefix
 		else:
-			self.environment_id = shutit_util.random_id()
+			self.environment_id = random_id()
 		self.module_root_dir              = '/'
 		self.modules_installed            = [] # has been installed in this build
 		self.modules_not_installed        = [] # modules _known_ not to be installed
