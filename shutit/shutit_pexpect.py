@@ -305,7 +305,7 @@ class ShutItPexpectSession(object):
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
 		if isinstance(sendspec.password,str):
 			shutit_global.shutit_global_object.secret_words_set.add(sendspec.password)
-		r_id = random_id()
+		r_id = shutit_util.random_id()
 		if prompt_prefix is None:
 			prompt_prefix = r_id
 		# Be helpful - if this looks like a command that requires a user, then suggest user provides one.
@@ -468,7 +468,7 @@ class ShutItPexpectSession(object):
 		@type prefix:               string
 		"""
 		shutit = self.shutit
-		local_prompt = prefix + ':' + random_id() + '# '
+		local_prompt = prefix + ':' + shutit_util.random_id() + '# '
 		shutit.expect_prompts[prompt_name] = local_prompt
 		# Set up the PS1 value.
 		# Override the PROMPT_COMMAND as this can cause nasty surprises in the
@@ -1267,7 +1267,7 @@ class ShutItPexpectSession(object):
 		if not self.current_environment.modules_recorded_cache_valid:
 			if self.file_exists(shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
-				tmpid = random_id()
+				tmpid = shutit_util.random_id()
 				cmd = 'find ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + r"""/module_record/ -name built | sed 's@^.""" + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + r"""/module_record.\([^/]*\).built@\1@' > """ + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + tmpid
 				self.send(shutit_sendspec.ShutItSendSpec(self,
 				                         send=' ' + cmd,
@@ -2543,7 +2543,7 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		shutit.handle_note(note)
 		# assume we're going to add it
-		tmp_filename = '/tmp/' + random_id()
+		tmp_filename = '/tmp/' + shutit_util.random_id()
 		if self.file_exists(filename):
 			if literal:
 				if match_regexp is None:
@@ -2965,7 +2965,7 @@ $'"""
 				                         echo=echo,
 				                         loglevel=loglevel,
 				                         ignore_background=True))
-			random_id = random_id()
+			random_id = shutit_util.random_id()
 			# set the searchwindowsize to a low number to speed up processing of large output
 			if shutit_global.shutit_global_object.ispy3:
 				if encoding is not None:
@@ -3008,7 +3008,7 @@ $'"""
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 			path = path.replace(' ', r'\ ')
 			# get host session
-			tmpfile = shutit_global.shutit_global_object.shutit_state_dir + 'tmp_' + random_id()
+			tmpfile = shutit_global.shutit_global_object.shutit_state_dir + 'tmp_' + shutit_util.random_id()
 			f = open(tmpfile,'wb')
 			f.truncate(0)
 			# TODO: try taking out trys
