@@ -3342,7 +3342,7 @@ class ShutIt(object):
 			'vagrant_upload':         vagrant_upload,
 			'vagrant_image_name':     vagrant_image_name
 		}
-		create_skeleton(self)
+		shutit_skeleton.create_skeleton(self)
 
 
 	def handle_run(self, args):
@@ -3454,7 +3454,7 @@ class ShutIt(object):
 		for config_file in configs:
 			if isinstance(config_file, tuple):
 				continue
-			if not is_file_secure(config_file):
+			if not shutit_util.is_file_secure(config_file):
 				fail_str = fail_str + '\nchmod 0600 ' + config_file
 				files.append(config_file)
 		if fail_str != '':

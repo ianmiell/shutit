@@ -312,7 +312,7 @@ def generate_shutit_module_sections(shutit,
                                     order,
                                     total):
 	sections = {}
-	sections.update({'header_section':'\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_representation['shutitfile']['maintainer'] + '\nfrom shutit_module import ShutItModule\n\nclass ' + skel_module_name + skel_module_modifier + '(ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'})
+	sections.update({'header_section':'\n# Created from shutitfile: ' + skel_shutitfile + '\n# Maintainer:              ' + shutitfile_representation['shutitfile']['maintainer'] + '\nfrom shutit import shutit_module\n\nclass ' + skel_module_name + skel_module_modifier + '(shutit_module.ShutItModule):\n\n\tdef is_installed(self, shutit):\n\t\treturn False'})
 
 	# config section - this must be done first, as it collates the config
 	# items that can be referenced later
