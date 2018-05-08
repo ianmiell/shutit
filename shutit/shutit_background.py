@@ -11,8 +11,8 @@ import sys
 import time
 import logging
 import traceback
-from .shutit_global import shutit_global_object
-from .shutit_util import random_id, print_debug
+from shutit import shutit_global
+from shutit import shutit_util
 
 
 class ShutItBackgroundCommand(object):

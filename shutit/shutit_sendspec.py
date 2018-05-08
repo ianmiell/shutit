@@ -1,6 +1,6 @@
 from __future__ import print_function
 import logging
-from .shutit_util import print_debug
+from shutit import shutit_util
 
 class ShutItSendSpec(object):
 	"""Specification for arguments to send to shutit functions.

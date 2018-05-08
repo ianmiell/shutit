@@ -56,15 +56,15 @@ import base64
 import sys
 import textwrap
 import pexpect
-from .shutit_util import print_debug, colorise, random_id, check_regexp, get_input, get_wide_hex
-from .shutit_global import shutit_global_object
-from . import package_map
-#from .shutit_class import ShutIt
-from .shutit_login_stack import ShutItLoginStack
-from .shutit_sendspec import ShutItSendSpec
-from .shutit_module import ShutItFailException
-from .shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
-from .shutit_background import ShutItBackgroundCommand
+from shutit import shutit_util
+from shutit import shutit_global
+from shutit import package_map
+from shutit import shutit_class
+from shutit import shutit_login_stack
+from shutit import shutit_sendspec
+from shutit import shutit_module
+from shutit import shutit_pexpect_session_environment
+from shutit import shutit_background
 
 class ShutItPexpectSession(object):
 
@@ -73,7 +73,7 @@ class ShutItPexpectSession(object):
 	             pexpect_session_id,
 	             command,
 	             args=None,
-	             timeout=shutit_global_object.default_timeout,
+	             timeout=shutit_global.shutit_global_object.default_timeout,
 	             maxread=2000,
 	             searchwindowsize=None,
 	             env=None,
@@ -90,12 +90,12 @@ class ShutItPexpectSession(object):
 		# Otherwise, it returns it in bytes. bytes() has different args in PY2
 		# and PY3, hence this shuffling. There may be a better way to do this.
 		# TODO: spawn encoding in PY2 and handle appropriately there also.
-		if not encoding and shutit_global_object.ispy3: # pragma: no cover
-			encoding = shutit_global_object.default_encoding
+		if not encoding and shutit_global.shutit_global_object.ispy3: # pragma: no cover
+			encoding = shutit_global.shutit_global_object.default_encoding
 		assert isinstance(shutit, ShutIt), print_debug()
 		self.shutit                    = shutit
 		self.check_exit                = True
-		self.default_expect            = [shutit_global_object.base_prompt]
+		self.default_expect            = [shutit_global.shutit_global_object.base_prompt]
 		# shell_expect stores the expected expect if we are in a shell.
 		self.shell_expect              = self.default_expect
 		# A flag indicating whether we are in a shell.
@@ -105,7 +105,7 @@ class ShutItPexpectSession(object):
 		self.current_environment       = None
 		args = args or []
 		if not delaybeforesend:
-			delaybeforesend=shutit_global_object.delaybeforesend
+			delaybeforesend=shutit_global.shutit_global_object.delaybeforesend
 		self.pexpect_child       = self._spawn_child(command=command,
 		                                             args=args,
 		                                             timeout=timeout,
@@ -140,7 +140,7 @@ class ShutItPexpectSession(object):
 	def _spawn_child(self,
 	                 command,
 	                 args=None,
-	                 timeout=shutit_global_object.default_timeout,
+	                 timeout=shutit_global.shutit_global_object.default_timeout,
 	                 maxread=2000,
 	                 searchwindowsize=None,
 	                 env=None,
@@ -150,7 +150,7 @@ class ShutItPexpectSession(object):
 	                 encoding=None,
 	                 codec_errors='strict',
 	                 dimensions=None,
-	                 delaybeforesend=shutit_global_object.delaybeforesend):
+	                 delaybeforesend=shutit_global.shutit_global_object.delaybeforesend):
 		"""spawn a child, and manage the delaybefore send setting to 0
 		"""
 		shutit = self.shutit
@@ -169,11 +169,11 @@ class ShutItPexpectSession(object):
 		                              dimensions=dimensions)
 		# Set the winsize to the theoretical maximum to reduce risk of trouble from terminal line wraps.
 		# Other things have been attempted, eg tput rmam/smam without success.
-		pexpect_child.setwinsize(shutit_global_object.pexpect_window_size[0],shutit_global_object.pexpect_window_size[1])
+		pexpect_child.setwinsize(shutit_global.shutit_global_object.pexpect_window_size[0],shutit_global.shutit_global_object.pexpect_window_size[1])
 		pexpect_child.delaybeforesend=delaybeforesend
-		shutit_global_object.log('sessions before: ' + str(shutit.shutit_pexpect_sessions),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('sessions before: ' + str(shutit.shutit_pexpect_sessions),level=logging.DEBUG)
 		shutit.shutit_pexpect_sessions.update({self.pexpect_session_id:self})
-		shutit_global_object.log('sessions after: ' + str(shutit.shutit_pexpect_sessions),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('sessions after: ' + str(shutit.shutit_pexpect_sessions),level=logging.DEBUG)
 		return pexpect_child
 
 
@@ -184,20 +184,20 @@ class ShutItPexpectSession(object):
 		False means: you'll need to 'expect' the right thing from here.
 		"""
 		assert not sendspec.started, print_debug()
-		shutit_global_object.log('Sending in pexpect session (' + str(id(self)) + '): ' + str(sendspec.send),level=logging.INFO)
+		shutit_global.shutit_global_object.log('Sending in pexpect session (' + str(id(self)) + '): ' + str(sendspec.send),level=logging.INFO)
 		if sendspec.expect:
-			shutit_global_object.log('Expecting: ' + str(sendspec.expect),level=logging.INFO)
+			shutit_global.shutit_global_object.log('Expecting: ' + str(sendspec.expect),level=logging.INFO)
 		else:
-			shutit_global_object.log('Not expecting anything')
+			shutit_global.shutit_global_object.log('Not expecting anything')
 		try:
 			# Check there are no background commands running that have block_other_commands set iff
 			# this sendspec says
 			if self._check_blocked(sendspec) and sendspec.ignore_background != True:
-				shutit_global_object.log('sendline: blocked',level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('sendline: blocked',level=logging.DEBUG)
 				return False
 			# If this is marked as in the background, create a background object and run in the background.
 			if sendspec.run_in_background:
-				shutit_global_object.log('sendline: run_in_background',level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('sendline: run_in_background',level=logging.DEBUG)
 				# If this is marked as in the background, create a background object and run in the background after newlines sorted.
 				shutit_background_command_object = self.login_stack.get_current_login_item().append_background_send(sendspec)
 				# Makes no sense to check exit for a background command.
@@ -209,7 +209,7 @@ class ShutItPexpectSession(object):
 			if sendspec.run_in_background:
 				shutit_background_command_object.run_background_command()
 				return True
-			#shutit_global_object.log('sendline: actually sending: ' + sendspec.send,level=logging.DEBUG)
+			#shutit_global.shutit_global_object.log('sendline: actually sending: ' + sendspec.send,level=logging.DEBUG)
 			self.pexpect_child.send(sendspec.send)
 			return False
 		except OSError:
@@ -220,19 +220,19 @@ class ShutItPexpectSession(object):
 	def _check_blocked(self, sendspec):
 		if sendspec.ignore_background:
 			# Do not log the 'normal' case.
-			#shutit_global_object.log('_check_blocked: background is ignored',level=logging.DEBUG)
+			#shutit_global.shutit_global_object.log('_check_blocked: background is ignored',level=logging.DEBUG)
 			return False
 		elif self.login_stack.get_current_login_item():
 			if self.login_stack.get_current_login_item().find_sendspec(sendspec):
-				shutit_global_object.log('_check_blocked: sendspec object already in there, so GTFO.',level=logging.INFO)
+				shutit_global.shutit_global_object.log('_check_blocked: sendspec object already in there, so GTFO.',level=logging.INFO)
 				return True
 			if self.login_stack.get_current_login_item().has_blocking_background_send():
 				if sendspec.run_in_background:
 					# If we honour background tasks, and we are running in background, queue it up.
-					shutit_global_object.log('_check_blocked: a blocking background send is running, so queue this up.',level=logging.INFO)
+					shutit_global.shutit_global_object.log('_check_blocked: a blocking background send is running, so queue this up.',level=logging.INFO)
 					self.login_stack.get_current_login_item().append_background_send(sendspec)
 				elif not sendspec.run_in_background:
-					shutit_global_object.log('_check_blocked: a blocking background send is running, so queue this up and wait.',level=logging.INFO)
+					shutit_global.shutit_global_object.log('_check_blocked: a blocking background send is running, so queue this up and wait.',level=logging.INFO)
 					# If we honour background tasts and we are running in foreground, wait.
 					#sendspec.run_in_background = True
 					self.login_stack.get_current_login_item().append_background_send(sendspec)
@@ -243,16 +243,16 @@ class ShutItPexpectSession(object):
 				else:
 					# Should be logically impossible.
 					assert False, print_debug()
-					shutit_global_object.log('Not yet handled?',level=logging.INFO)
-					shutit_global_object.log(str(sendspec),level=logging.INFO)
+					shutit_global.shutit_global_object.log('Not yet handled?',level=logging.INFO)
+					shutit_global.shutit_global_object.log(str(sendspec),level=logging.INFO)
 				return True
 			else:
 				# Do not log the 'normal' case
-				#shutit_global_object.log('_check_blocked: no blocking background send',level=logging.DEBUG)
+				#shutit_global.shutit_global_object.log('_check_blocked: no blocking background send',level=logging.DEBUG)
 				pass
 		else:
 			# Do not log the 'normal' case
-			#shutit_global_object.log('_check_blocked: no current login item',level=logging.DEBUG)
+			#shutit_global.shutit_global_object.log('_check_blocked: no current login item',level=logging.DEBUG)
 			pass
 		return False
 
@@ -260,14 +260,14 @@ class ShutItPexpectSession(object):
 	def wait(self, cadence=2, sendspec=None):
 		"""Does not return until all background commands are completed.
 		"""
-		shutit_global_object.log('In wait.',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('In wait.',level=logging.DEBUG)
 		if sendspec:
 			cadence = sendspec.wait_cadence
-		shutit_global_object.log('Login stack is:\n' + str(self.login_stack),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Login stack is:\n' + str(self.login_stack),level=logging.DEBUG)
 		while True:
 			# go through each background child checking whether they've finished
 			res, res_str, background_object = self.login_stack.get_current_login_item().check_background_commands_complete()
-			shutit_global_object.log('Checking: ' + str(background_object) + '\nres: ' + str(res) + '\nres_str' + str(res_str),level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('Checking: ' + str(background_object) + '\nres: ' + str(res) + '\nres_str' + str(res_str),level=logging.DEBUG)
 			if res:
 				# When all have completed, break return the background command objects.
 				break
@@ -277,13 +277,13 @@ class ShutItPexpectSession(object):
 			elif res_str == 'F':
 				assert background_object is not None, print_debug()
 				assert isinstance(background_object, ShutItBackgroundCommand), print_debug()
-				shutit_global_object.log('Failure in: ' + str(self.login_stack),level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('Failure in: ' + str(self.login_stack),level=logging.DEBUG)
 				self.pause_point('Background task: ' + background_object.sendspec.original_send + ' :failed.')
 				return False
 			else:
 				self.shutit.fail('Un-handled exit code: ' + res_str) # pragma: no cover
 			time.sleep(cadence)
-		shutit_global_object.log('Wait complete.',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Wait complete.',level=logging.DEBUG)
 		return True
 
 
@@ -302,7 +302,7 @@ class ShutItPexpectSession(object):
 		prompt_prefix = sendspec.prompt_prefix
 		# We don't get the default expect here, as it's either passed in, or a base default regexp.
 		if isinstance(sendspec.password,str):
-			shutit_global_object.secret_words_set.add(sendspec.password)
+			shutit_global.shutit_global_object.secret_words_set.add(sendspec.password)
 		r_id = random_id()
 		if prompt_prefix is None:
 			prompt_prefix = r_id
@@ -310,7 +310,7 @@ class ShutItPexpectSession(object):
 		if user is None:
 			user = self.whoami()
 			if 'bash' not in command:
-				shutit_global_object.log('No user supplied to login function, so retrieving who I am (' + user + '). You may want to override.',level=logging.WARNING)
+				shutit_global.shutit_global_object.log('No user supplied to login function, so retrieving who I am (' + user + '). You may want to override.',level=logging.WARNING)
 		if ' ' in user:
 			self.shutit.fail('user has space in it - did you mean: login(command="' + user + '")?') # pragma: no cover
 		if self.shutit.build['delivery'] == 'bash' and command == 'su -':
@@ -321,7 +321,7 @@ class ShutItPexpectSession(object):
 			send = command + ' ' + user
 		else:
 			send = command
-		login_expect = sendspec.expect or shutit_global_object.base_prompt
+		login_expect = sendspec.expect or shutit_global.shutit_global_object.base_prompt
 		# We don't fail on empty before as many login programs mess with the output.
 		# In this special case of login we expect either the prompt, or 'user@' as this has been seen to work.
 		general_expect = [login_expect]
@@ -329,7 +329,7 @@ class ShutItPexpectSession(object):
 		general_expect = general_expect + [user+'@.*'+'[#$]']
 		# If not an ssh login, then we can match against user + @sign because it won't clash with 'user@adasdas password:'
 		if (sendspec.is_ssh != None and sendspec.is_ssh) or command.find('ssh ') != -1:
-			shutit_global_object.log('Assumed to be an ssh command, is_ssh: ' + str(sendspec.is_ssh) + ', command: ' + command,level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('Assumed to be an ssh command, is_ssh: ' + str(sendspec.is_ssh) + ', command: ' + command,level=logging.DEBUG)
 			# If user@ already there, remove it, as it can conflict with password lines in ssh calls.
 			if user+'@' in general_expect:
 				general_expect.remove(user+'@')
@@ -347,17 +347,17 @@ class ShutItPexpectSession(object):
 				send_dict.update({r'[^dt] login:':[sendspec.password,True]})
 				send_dict.update({user+'@':[sendspec.password,True]})
 		if user == 'bash' and command == 'su -':
-			shutit_global_object.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=logging.WARNING)
+			shutit_global.shutit_global_object.log('WARNING! user is bash - if you see problems below, did you mean: login(command="' + user + '")?',level=logging.WARNING)
 		self.shutit.handle_note(sendspec.note,command=command + '\n\n[as user: "' + user + '"]',training_input=send)
 		echo = self.shutit.get_echo_override(sendspec.echo)
-		shutit_global_object.log('Logging in to new ShutIt environment.' + user,level=logging.DEBUG)
-		shutit_global_object.log('Logging in with command: ' + send + ' as user: ' + user,level=logging.DEBUG)
-		shutit_global_object.log('Login stack before login: ' + str(self.login_stack),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Logging in to new ShutIt environment.' + user,level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Logging in with command: ' + send + ' as user: ' + user,level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Login stack before login: ' + str(self.login_stack),level=logging.DEBUG)
 		# check_sudo - set to false if the password has been supplied.
 		check_sudo = False
 		if sendspec.password is None and send.strip().find('sudo') == 0:
 			check_sudo = True
-		res = self.multisend(ShutItSendSpec(self,
+		res = self.multisend(shutit_sendspec.ShutItSendSpec(self,
 		                                    send=send,
 		                                    send_dict=send_dict,
 		                                    expect=general_expect,
@@ -379,7 +379,7 @@ class ShutItPexpectSession(object):
 		else:
 			self.setup_prompt(r_id,capture_exit_code=True)
 		self.login_stack.append(r_id)
-		shutit_global_object.log('Login stack after login: ' + str(self.login_stack),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Login stack after login: ' + str(self.login_stack),level=logging.DEBUG)
 		if self.send_and_get_output(''' echo $SHUTIT_EC && unset SHUTIT_EC''',loglevel=logging.DEBUG) != '0':
 			# TODO: remove just-added login stack item (since we failed to log in successfully)?
 			if sendspec.fail_on_fail: # pragma: no cover
@@ -387,7 +387,7 @@ class ShutItPexpectSession(object):
 			else:
 				return False
 		if sendspec.go_home:
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send='cd',
 			                         check_exit=False,
 			                         echo=False,
@@ -446,7 +446,7 @@ class ShutItPexpectSession(object):
 
 		Typically it would be used in this boilerplate pattern::
 
-		    shutit.send('su - auser', expect=shutit_global_object.base_prompt, check_exit=False)
+		    shutit.send('su - auser', expect=shutit_global.shutit_global_object.base_prompt, check_exit=False)
 		    shutit.setup_prompt('tmp_prompt')
 		    shutit.send('some command')
 		    [...]
@@ -481,12 +481,12 @@ class ShutItPexpectSession(object):
 		# haven't figured out why yet - imiell.
 
 		# Split the local prompt into two parts and separate with quotes to protect against the expect matching the command rather than the output.
-		shutit_global_object.log('Setting up prompt.', level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Setting up prompt.', level=logging.DEBUG)
 		send_str = ''
 		if capture_exit_code:
 			send_str = r' SHUTIT_EC=$? && '
-		send_str += """ export PS1_""" + str(prompt_name) + """=$PS1 && PS1='""" + str(local_prompt[:2]) + "''" + str(local_prompt[2:]) + """' && PROMPT_COMMAND=""" + shutit_global_object.prompt_command
-		self.send(ShutItSendSpec(self,
+		send_str += """ export PS1_""" + str(prompt_name) + """=$PS1 && PS1='""" + str(local_prompt[:2]) + "''" + str(local_prompt[2:]) + """' && PROMPT_COMMAND=""" + shutit_global.shutit_global_object.prompt_command
+		self.send(shutit_sendspec.ShutItSendSpec(self,
 		                         send=send_str,
 		                         expect=['\r\n' + shutit.expect_prompts[prompt_name]],
 		                         fail_on_empty_before=False,
@@ -494,14 +494,14 @@ class ShutItPexpectSession(object):
 		                         loglevel=loglevel,
 		                         ignore_background=True))
 		# Set default expect to new.
-		shutit_global_object.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=loglevel)
+		shutit_global.shutit_global_object.log('Resetting default expect to: ' + shutit.expect_prompts[prompt_name],level=loglevel)
 		self.default_expect = shutit.expect_prompts[prompt_name]
 
 		# Sometimes stty resets to 0x0 (?), so we must override here.
-		self.send(ShutItSendSpec(self, send=" stty cols 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
-		self.send(ShutItSendSpec(self, send=" stty rows 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
+		self.send(shutit_sendspec.ShutItSendSpec(self, send=" stty cols 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
+		self.send(shutit_sendspec.ShutItSendSpec(self, send=" stty rows 65535", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
 		# Avoid dumb terminals
-		self.send(ShutItSendSpec(self, send=""" if [ $TERM=dumb ];then export TERM=xterm;fi""", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
+		self.send(shutit_sendspec.ShutItSendSpec(self, send=""" if [ $TERM=dumb ];then export TERM=xterm;fi""", echo=False, check_exit=False, loglevel=loglevel, ignore_background=True))
 
 		# Get the hostname
 		# Lack of space after > is deliberate to avoid issues with prompt matching.
@@ -513,14 +513,14 @@ class ShutItPexpectSession(object):
 		self.shell_expect = self.default_expect
 
 		# Split the local prompt into two parts and separate with quotes to protect against the expect matching the command rather than the output.
-		self.send(ShutItSendSpec(self,
+		self.send(shutit_sendspec.ShutItSendSpec(self,
 		                         send=""" PS1='""" + shutit.expect_prompts[prompt_name][:2] + "''" + shutit.expect_prompts[prompt_name][2:] + """'""",
 		                         echo=False,
 		                         loglevel=loglevel,
 		                         ignore_background=True))
 
 		# Set up history the way shutit likes it.
-		self.send(ShutItSendSpec(self,
+		self.send(shutit_sendspec.ShutItSendSpec(self,
 		                         send=' command export HISTCONTROL=$HISTCONTROL:ignoredups:ignorespace',
 		                         echo=False,
 		                         loglevel=loglevel,
@@ -546,7 +546,7 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		expect = new_expect or self.default_expect
 		#           v the space is intentional, to avoid polluting bash history.
-		self.send(ShutItSendSpec(self,
+		self.send(shutit_sendspec.ShutItSendSpec(self,
 		                         send=(' PS1="${PS1_%s}" && unset PS1_%s') % (old_prompt_name, old_prompt_name),
 		                         expect=expect,
 		                         check_exit=False,
@@ -555,7 +555,7 @@ class ShutItPexpectSession(object):
 		                         loglevel=logging.DEBUG,
 		                         ignore_background=True))
 		if not new_expect:
-			shutit_global_object.log('Resetting default expect to default',level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('Resetting default expect to default',level=logging.DEBUG)
 			shutit.set_default_shutit_pexpect_session_expect()
 		_ = self.init_pexpect_session_environment(old_prompt_name)
 
@@ -589,8 +589,8 @@ class ShutItPexpectSession(object):
 		"""Replaces a container. Assumes we are in Docker context.
 		"""
 		shutit = self.shutit
-		shutit_global_object.log('Replacing container with ' + new_target_image_name + ', please wait...',level=logging.DEBUG)
-		shutit_global_object.log(shutit.print_session_state(),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Replacing container with ' + new_target_image_name + ', please wait...',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log(shutit.print_session_state(),level=logging.DEBUG)
 
 		# Destroy existing container.
 		conn_module = None
@@ -607,20 +607,20 @@ class ShutItPexpectSession(object):
 		shutit.target['docker_image'] = new_target_image_name
 		target_child = conn_module.start_container(shutit, self.pexpect_session_id)
 		conn_module.setup_target_child(shutit, target_child)
-		shutit_global_object.log('Container replaced',level=logging.DEBUG)
-		shutit_global_object.log(shutit.print_session_state(),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Container replaced',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log(shutit.print_session_state(),level=logging.DEBUG)
 		# New session - log in. This makes the assumption that we are nested
 		# the same level in in terms of shells (root shell + 1 new login shell).
 		target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
 		if go_home != None:
-			target_child.login(ShutItSendSpec(self,
-			                                  send=shutit_global_object.bash_startup_command,
+			target_child.login(shutit_sendspec.ShutItSendSpec(self,
+			                                  send=shutit_global.shutit_global_object.bash_startup_command,
 			                                  check_exit=False,
 			                                  echo=False,
 			                                  go_home=go_home))
 		else:
-			target_child.login(ShutItSendSpec(self,
-			                                  send=shutit_global_object.bash_startup_command,
+			target_child.login(shutit_sendspec.ShutItSendSpec(self,
+			                                  send=shutit_global.shutit_global_object.bash_startup_command,
 			                                  check_exit=False,
 			                                  echo=False))
 		return True
@@ -662,7 +662,7 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		expect = expect or self.default_expect
 		if not self.check_exit or not check_exit:
-			shutit_global_object.log('check_exit configured off, returning', level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('check_exit configured off, returning', level=logging.DEBUG)
 			return True
 		if exit_values is None:
 			exit_values = ['0']
@@ -671,23 +671,23 @@ class ShutItPexpectSession(object):
 		# Don't use send here (will mess up last_output)!
 		# Space before "echo" here is sic - we don't need this to show up in bash history
 		send_exit_code = ' echo EXIT_CODE:$?'
-		shutit_global_object.log('Sending with sendline: ' + str(send_exit_code),level=logging.DEBUG)
-		assert not self.sendline(ShutItSendSpec(self,
+		shutit_global.shutit_global_object.log('Sending with sendline: ' + str(send_exit_code),level=logging.DEBUG)
+		assert not self.sendline(shutit_sendspec.ShutItSendSpec(self,
 		                                        send=send_exit_code,
 		                                        ignore_background=True)), print_debug()
-		shutit_global_object.log('Expecting: ' + str(expect),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Expecting: ' + str(expect),level=logging.DEBUG)
 		self.expect(expect,timeout=10)
-		shutit_global_object.log('before: ' + str(self.pexpect_child.before),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('before: ' + str(self.pexpect_child.before),level=logging.DEBUG)
 		res = shutit.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res is None: # pragma: no cover
 			res_str = res or str(res)
-			shutit_global_object.log('shutit_pexpect_child.after: ' + str(self.pexpect_child.after), level=logging.DEBUG)
-			shutit_global_object.log('Exit value from command: ' + str(send) + ' was:' + res_str, level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('shutit_pexpect_child.after: ' + str(self.pexpect_child.after), level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('Exit value from command: ' + str(send) + ' was:' + res_str, level=logging.DEBUG)
 			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res_str + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
 			shutit.build['report'] += msg
 			if retbool:
 				return False
-			elif retry == 1 and shutit_global_object.interactive >= 1:
+			elif retry == 1 and shutit_global.shutit_global_object.interactive >= 1:
 				# This is a failure, so we pass in level=0
 				shutit.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res_str + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
 			elif retry == 1:
@@ -732,8 +732,8 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = self.shutit
 		# Try and stop user being 'clever' if we are in an exam and not in debug
-		if shutit.build['exam'] and shutit_global_object.loglevel not in ('DEBUG',):
-			self.send(ShutItSendSpec(self,
+		if shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' command alias exit=/bin/true && command alias logout=/bin/true && command alias kill=/bin/true && command alias alias=/bin/true',
 			                         echo=False,
 			                         record_command=False,
@@ -744,7 +744,7 @@ class ShutItPexpectSession(object):
 		# IF THE DEFAULT PEXPECT == THE CURRENCT EXPECTED, THEN OK, gnuplot in shutit-scripts with walkthrough=True is a good test
 		# Errors seen when check_exit=True
 		if self.in_shell:
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' set +m && { : $(history -a) & } 2>/dev/null',
 			                         check_exit=False,
 			                         echo=False,
@@ -756,23 +756,23 @@ class ShutItPexpectSession(object):
 			if resize and wait < 0:
 				# It is possible we do not have distro set yet, so wrap in try/catch
 				try:
-					assert not self.sendline(ShutItSendSpec(self,
+					assert not self.sendline(shutit_sendspec.ShutItSendSpec(self,
 					                                        send='',
 					                                        ignore_background=True)), print_debug()
 				except Exception:
 					pass
 			if default_msg is None:
-				if not shutit.build['video'] and not shutit.build['training'] and not shutit.build['exam'] and not shutit.build['walkthrough'] and shutit_global_object.loglevel not in ('DEBUG',):
+				if not shutit.build['video'] and not shutit.build['training'] and not shutit.build['exam'] and not shutit.build['walkthrough'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 					pp_msg = '\r\nYou now have a standard shell.'
 					if not interact:
 						pp_msg += '\r\nHit CTRL and then ] at the same time to continue ShutIt run, CTRL-q to quit.'
 					if shutit.build['delivery'] == 'docker':
 						pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
-					shutit_global_object.log(colorise(color,'\r\n' + 80*'=' + '\r\n' + msg + '\r\n' + 80*'='+'\r\n' + pp_msg),transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.log(colorise(color,'\r\n' + 80*'=' + '\r\n' + msg + '\r\n' + 80*'='+'\r\n' + pp_msg),transient=True,level=logging.CRITICAL)
 				else:
-					shutit_global_object.log('\r\n' + (colorise(color, msg)),transient=True,level=logging.critical)
+					shutit_global.shutit_global_object.log('\r\n' + (colorise(color, msg)),transient=True,level=logging.critical)
 			else:
-				shutit_global_object.log(colorise(color, msg) + '\r\n' + default_msg + '\r\n',transient=True,level=logging.CRITICAL)
+				shutit_global.shutit_global_object.log(colorise(color, msg) + '\r\n' + default_msg + '\r\n',transient=True,level=logging.CRITICAL)
 			oldlog = self.pexpect_child.logfile
 			self.pexpect_child.logfile = None
 			if wait > 0:
@@ -780,18 +780,18 @@ class ShutItPexpectSession(object):
 			else:
 				# Re-set the window size to match the original window.
 				# TODO: sigwinch. Line assumes no change.
-				self.pexpect_child.setwinsize(shutit_global_object.root_window_size[0],shutit_global_object.root_window_size[1])
+				self.pexpect_child.setwinsize(shutit_global.shutit_global_object.root_window_size[0],shutit_global.shutit_global_object.root_window_size[1])
 				# TODO: handle exams better?
 				self.pexpect_child.expect('.*')
-				if not shutit.build['exam'] and shutit_global_object.loglevel not in ('DEBUG',):
+				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 					if self.in_shell:
 						# Give them a 'normal' shell.
-						assert not self.sendline(ShutItSendSpec(self,
+						assert not self.sendline(shutit_sendspec.ShutItSendSpec(self,
 						                                        send=' bash',
 						                                        ignore_background=True)), print_debug()
 						self.pexpect_child.expect('.*')
 					else:
-						shutit_global_object.log('Cannot create subshell, as not in a shell.',level=logging.DEBUG)
+						shutit_global.shutit_global_object.log('Cannot create subshell, as not in a shell.',level=logging.DEBUG)
 				if interact:
 					self.pexpect_child.interact()
 				try:
@@ -802,14 +802,14 @@ class ShutItPexpectSession(object):
 					#print('post handle_pause_point_signals')
 				except Exception as e:
 					shutit.fail('Terminating ShutIt within pause point.\r\n' + str(e)) # pragma: no cover
-				if not shutit.build['exam'] and shutit_global_object.loglevel not in ('DEBUG',):
+				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 					if self.in_shell:
-						assert not self.send(ShutItSendSpec(self,
+						assert not self.send(shutit_sendspec.ShutItSendSpec(self,
 						                                    send=' exit',
 						                                    check_exit=False,
 						                                    ignore_background=True)), print_debug()
 					else:
-						shutit_global_object.log('Cannot exit as not in shell',level=logging.DEBUG)
+						shutit_global.shutit_global_object.log('Cannot exit as not in shell',level=logging.DEBUG)
 			self.pexpect_child.logfile = oldlog
 		else:
 			pass
@@ -819,16 +819,16 @@ class ShutItPexpectSession(object):
 
 	def handle_pause_point_signals(self):
 		shutit = self.shutit
-		#print('in handle_pause_point_signals, signal_id: ' + str(shutit_global_object.signal_id))
-		if shutit_global_object.signal_id == 29:
-			shutit_global_object.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
-		elif isinstance(shutit_global_object.signal_id, int) and shutit_global_object.signal_id not in (0,4,7,8,17,19):
-			shutit_global_object.log('\r\nLeaving interact without CTRL-] and shutit_signal is not recognised, shutit_signal value: ' + str(shutit_global_object.signal_id),level=logging.CRITICAL,transient=True)
-		elif shutit_global_object.signal_id == 0:
-			shutit_global_object.log('\r\nLeaving interact without CTRL-], assuming exit.',level=logging.CRITICAL,transient=True)
-			shutit_global_object.handle_exit(exit_code=1)
-		if shutit.build['exam'] and shutit_global_object.loglevel not in ('DEBUG',):
-			self.send(ShutItSendSpec(self,
+		#print('in handle_pause_point_signals, signal_id: ' + str(shutit_global.shutit_global_object.signal_id))
+		if shutit_global.shutit_global_object.signal_id == 29:
+			shutit_global.shutit_global_object.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
+		elif isinstance(shutit_global.shutit_global_object.signal_id, int) and shutit_global.shutit_global_object.signal_id not in (0,4,7,8,17,19):
+			shutit_global.shutit_global_object.log('\r\nLeaving interact without CTRL-] and shutit_signal is not recognised, shutit_signal value: ' + str(shutit_global.shutit_global_object.signal_id),level=logging.CRITICAL,transient=True)
+		elif shutit_global.shutit_global_object.signal_id == 0:
+			shutit_global.shutit_global_object.log('\r\nLeaving interact without CTRL-], assuming exit.',level=logging.CRITICAL,transient=True)
+			shutit_global.shutit_global_object.handle_exit(exit_code=1)
+		if shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' unalias exit && unalias logout && unalias kill && unalias alias',
 			                         echo=False,
 			                         record_command=False,
@@ -870,7 +870,7 @@ class ShutItPexpectSession(object):
 			pass
 		else: # pragma: no cover
 			# Change to log?
-			shutit_global_object.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (self.pexpect_child.before, self.pexpect_child.after)),transient=True,level=logging.INFO)
+			shutit_global.shutit_global_object.log(repr('before>>>>:%s<<<< after:>>>>%s<<<<' % (self.pexpect_child.before, self.pexpect_child.after)),transient=True,level=logging.INFO)
 			shutit.fail('Did not see FIL(N)?EXIST in output:\n' + output)
 		shutit.handle_note_after(note=note)
 		return ret
@@ -878,7 +878,7 @@ class ShutItPexpectSession(object):
 
 	def chdir(self,
 	          path,
-	          timeout=shutit_global_object.default_timeout,
+	          timeout=shutit_global.shutit_global_object.default_timeout,
 	          note=None,
 	          loglevel=logging.DEBUG):
 		"""How to change directory will depend on whether we are in delivery mode bash or docker.
@@ -889,9 +889,9 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = self.shutit
 		shutit.handle_note(note, 'Changing to path: ' + path)
-		shutit_global_object.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Changing directory to path: "' + path + '"', level=logging.DEBUG)
 		if shutit.build['delivery'] in ('bash','dockerfile'):
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' command cd "' + path + '"',
 			                         timeout=timeout,
 			                         echo=False,
@@ -921,7 +921,7 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		shutit.handle_note(note)
 		cmd = ' command stat -c %a ' + filename
-		self.send(ShutItSendSpec(self,
+		self.send(shutit_sendspec.ShutItSendSpec(self,
 		                         send=' ' + cmd,
 		                         check_exit=False,
 		                         echo=False,
@@ -976,7 +976,7 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		shutit.handle_note(note)
 		# v the space is intentional, to avoid polluting bash history.
-		self.send(ShutItSendSpec(self,
+		self.send(shutit_sendspec.ShutItSendSpec(self,
 		                         send=' command cut -d: -f3 /etc/paswd | grep -w ^' + user_id + '$ | wc -l',
 		                         expect=self.default_expect,
 		                         echo=False,
@@ -1003,57 +1003,57 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		shutit.handle_note(note)
 		if isinstance(password, str):
-			shutit_global_object.secret_words_set.add(password)
+			shutit_global.shutit_global_object.secret_words_set.add(password)
 		self.install('passwd')
 		if self.current_environment.install_type == 'apt':
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send='passwd ' + user,
 			                         expect='Enter new',
 			                         check_exit=False,
 			                         ignore_background=True))
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=password,
 			                         expect='Retype new',
 			                         check_exit=False,
 			                         echo=False,
 			                         ignore_background=True
 			                         ))
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=password,
 			                         expect=self.default_expect,
 			                         echo=False,
 			                         ignore_background=True,
 			                         ))
 		elif self.current_environment.install_type == 'yum':
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send='passwd ' + user,
 			                         expect='ew password',
 			                         check_exit=False,
 			                         ignore_background=True))
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=password,
 			                         expect='ew password',
 			                         check_exit=False,
 			                         echo=False,
 			                         ignore_background=True))
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=password,
 			                         expect=self.default_expect,
 			                         echo=False,
 			                         ignore_background=True))
 		else:
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send='passwd ' + user,
 			                         expect='Enter new',
 			                         check_exit=False,
 			                         ignore_background=True))
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=password,
 			                         expect='Retype new',
 			                         check_exit=False,
 			                         echo=False,
 			                         ignore_background=True))
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=password,
 			                         expect=self.default_expect,
 			                         echo=False,
@@ -1070,7 +1070,7 @@ class ShutItPexpectSession(object):
 		#          v the space is intentional, to avoid polluting bash history.
 		shutit = self.shutit
 		d = {}
-		self.send(ShutItSendSpec(self,
+		self.send(shutit_sendspec.ShutItSendSpec(self,
 		                         send=' command lsb_release -a',
 		                         check_exit=False,
 		                         echo=False,
@@ -1095,7 +1095,7 @@ class ShutItPexpectSession(object):
 	            filename,
 	            locations,
 	            command='curl -L',
-	            timeout=shutit_global_object.default_timeout,
+	            timeout=shutit_global.shutit_global_object.default_timeout,
 	            fail_on_empty_before=True,
 	            record_command=True,
 	            exit_values=None,
@@ -1143,7 +1143,7 @@ class ShutItPexpectSession(object):
 				location = location[0:-1]
 			while retry >= 0:
 				send = command + ' ' + location + '/' + filename + ' > ' + filename
-				self.send(ShutItSendSpec(self,
+				self.send(shutit_sendspec.ShutItSendSpec(self,
 				                         send=send,
 				                         check_exit=False,
 				                         expect=self.default_expect,
@@ -1162,7 +1162,7 @@ class ShutItPexpectSession(object):
 				                                     expect=self.default_expect,
 				                                     exit_values=exit_values,
 				                                     retbool=True):
-					shutit_global_object.log('Sending: ' + send + ' failed, retrying', level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('Sending: ' + send + ' failed, retrying', level=logging.DEBUG)
 					retry -= 1
 					continue
 				# If we get here, all is ok.
@@ -1193,7 +1193,7 @@ class ShutItPexpectSession(object):
 			return exists
 		#                v the space is intentional, to avoid polluting bash history.
 		# The quotes before XIST are deliberate, to prevent the command from matching the expect.
-		ret = self.send(ShutItSendSpec(self,
+		ret = self.send(shutit_sendspec.ShutItSendSpec(self,
 		                               send=' command id %s && echo E""XIST || echo N""XIST' % user,
 		                               expect=['NXIST', 'EXIST'],
 		                               echo=False,
@@ -1226,7 +1226,7 @@ class ShutItPexpectSession(object):
 			return self.send_and_get_output(' dpkg -s ' + package + """ | grep '^Status: install ok installed' | wc -l""",loglevel=loglevel) == '1'
 		elif self.current_environment.install_type == 'yum':
 			# TODO: check whether it's already installed?. see yum notes  yum list installed "$@" >/dev/null 2>&1
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' yum list installed ' + package + ' >/dev/null 2>&1',
 			                         check_exit=False,
 			                         loglevel=loglevel,
@@ -1263,20 +1263,20 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		shutit.handle_note(note)
 		if not self.current_environment.modules_recorded_cache_valid:
-			if self.file_exists(shutit_global_object.shutit_state_dir_build_db_dir + '/module_record',directory=True):
+			if self.file_exists(shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record',directory=True):
 				# Bit of a hack here to get round the long command showing up as the first line of the output.
 				tmpid = random_id()
-				cmd = 'find ' + shutit_global_object.shutit_state_dir_build_db_dir + r"""/module_record/ -name built | sed 's@^.""" + shutit_global_object.shutit_state_dir_build_db_dir + r"""/module_record.\([^/]*\).built@\1@' > """ + shutit_global_object.shutit_state_dir_build_db_dir + '/' + tmpid
-				self.send(ShutItSendSpec(self,
+				cmd = 'find ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + r"""/module_record/ -name built | sed 's@^.""" + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + r"""/module_record.\([^/]*\).built@\1@' > """ + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + tmpid
+				self.send(shutit_sendspec.ShutItSendSpec(self,
 				                         send=' ' + cmd,
 				                         echo=False,
 				                         loglevel=loglevel,
 				                         ignore_background=True))
-				built = self.send_and_get_output(' command cat ' + shutit_global_object.shutit_state_dir_build_db_dir + '/' + tmpid,
+				built = self.send_and_get_output(' command cat ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + tmpid,
 				                                 echo=False,
 				                                 loglevel=loglevel).strip()
-				self.send(ShutItSendSpec(self,
-				                         send=' command rm -rf ' + shutit_global_object.shutit_state_dir_build_db_dir + '/' + tmpid,
+				self.send(shutit_sendspec.ShutItSendSpec(self,
+				                         send=' command rm -rf ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + tmpid,
 				                         echo=False,
 				                         loglevel=loglevel,
 				                         ignore_background=True))
@@ -1330,7 +1330,7 @@ class ShutItPexpectSession(object):
 	def install(self,
 	            package,
 	            options=None,
-	            timeout=shutit_global_object.default_timeout,
+	            timeout=shutit_global.shutit_global_object.default_timeout,
 	            force=False,
 	            check_exit=True,
 	            reinstall=False,
@@ -1372,7 +1372,7 @@ class ShutItPexpectSession(object):
 		# Some packages get mapped to the empty string. If so, bail out with 'success' here.
 		if note != None:
 			shutit.handle_note('Installing package: ' + package + '\n' + note)
-		shutit_global_object.log('Installing package: ' + package,level=loglevel)
+		shutit_global.shutit_global_object.log('Installing package: ' + package,level=loglevel)
 		if options is None: options = {}
 		install_type = self.current_environment.install_type
 		if install_type == 'src':
@@ -1384,14 +1384,14 @@ class ShutItPexpectSession(object):
 		opts = ''
 		cmd = ''
 		if self.package_installed(package):
-			shutit_global_object.log(package + ' already installed.',level=loglevel)
+			shutit_global.shutit_global_object.log(package + ' already installed.',level=loglevel)
 			return True
 		if install_type == 'apt':
 			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 				opts = '-y'
-				if shutit_global_object.loglevel > logging.DEBUG:
+				if shutit_global.shutit_global_object.loglevel > logging.DEBUG:
 					opts += ' -qq'
-				self.send(ShutItSendSpec(self,
+				self.send(shutit_sendspec.ShutItSendSpec(self,
 				                         send='apt-get ' + opts + ' update',
 				                         loglevel=logging.INFO,
 				                         run_in_background=False,
@@ -1403,7 +1403,7 @@ class ShutItPexpectSession(object):
 				opts = options['apt']
 			else:
 				opts = '-y'
-				if shutit_global_object.loglevel > logging.DEBUG:
+				if shutit_global.shutit_global_object.loglevel > logging.DEBUG:
 					opts += ' -qq'
 				if force:
 					opts += ' --force-yes'
@@ -1415,7 +1415,7 @@ class ShutItPexpectSession(object):
 			if 'yum' in options:
 				opts = options['yum']
 			else:
-				if shutit_global_object.loglevel > logging.DEBUG:
+				if shutit_global.shutit_global_object.loglevel > logging.DEBUG:
 					opts += ' -q'
 				opts += ' -y'
 			if reinstall:
@@ -1455,7 +1455,7 @@ class ShutItPexpectSession(object):
 				pw = self.get_sudo_pass_if_needed(shutit, ignore_brew=True)
 				if pw != '':
 					cmd = 'sudo ' + cmd
-					res = self.multisend(ShutItSendSpec(self,
+					res = self.multisend(shutit_sendspec.ShutItSendSpec(self,
 					                                    send='%s %s %s' % (cmd, opts, package),
 					                                    send_dict={'assword':[pw,True]},
 					                                    expect=['Unable to fetch some archives',self.default_expect],
@@ -1468,9 +1468,9 @@ class ShutItPexpectSession(object):
 						## Should not happen
 						#assert False, print_debug()
 						break
-					shutit_global_object.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				else:
-					res = self.send(ShutItSendSpec(self,
+					res = self.send(shutit_sendspec.ShutItSendSpec(self,
 					                               send='%s %s %s' % (cmd, opts, package),
 					                               expect=['Unable to fetch some archives',self.default_expect],
 					                               timeout=timeout,
@@ -1483,7 +1483,7 @@ class ShutItPexpectSession(object):
 						## Should not happen
 						#assert False, print_debug()
 						break
-					shutit_global_object.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('Result of install attempt was: ' + str(res),level=logging.DEBUG)
 				# Does not work!
 				if res == 1:
 					break
@@ -1494,9 +1494,9 @@ class ShutItPexpectSession(object):
 						return False
 		else:
 			# package not required
-			shutit_global_object.log('Package not required.',level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('Package not required.',level=logging.DEBUG)
 
-		shutit_global_object.log('Package is installed.',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Package is installed.',level=logging.DEBUG)
 		# Sometimes we see installs (eg yum) reset the terminal to a state
 		# ShutIt does not like.
 		self.reset_terminal()
@@ -1509,9 +1509,9 @@ class ShutItPexpectSession(object):
 		Tries to ensure that we have 'expect'ed the last prompt seen.
 		TODO: see how https://github.com/noahspurrier/pexpect/blob/master/pxssh.py handles this
 		"""
-		shutit_global_object.log('Resetting terminal begin.',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Resetting terminal begin.',level=logging.DEBUG)
 		#exp_string = 'SHUTIT_TERMINAL_RESET'
-		#assert not self.sendline(ShutItSendSpec(self,
+		#assert not self.sendline(shutit_sendspec.ShutItSendSpec(self,
 		#                                        send=' echo ' + exp_string,
 		#                                        ignore_background=True)), print_debug()
 		#self.expect(exp_string)
@@ -1550,7 +1550,7 @@ class ShutItPexpectSession(object):
 			return True
 		return False
 		########################################################################
-		shutit_global_object.log('Resetting terminal done.',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Resetting terminal done.',level=logging.DEBUG)
 
 
 	def levenshtein_distance(self, a,b):
@@ -1598,7 +1598,7 @@ class ShutItPexpectSession(object):
 	def remove(self,
 	           package,
 	           options=None,
-	           timeout=shutit_global_object.default_timeout,
+	           timeout=shutit_global.shutit_global_object.default_timeout,
 	           note=None):
 		"""Distro-independent remove function.
 		Takes a package name and runs relevant remove function.
@@ -1661,7 +1661,7 @@ class ShutItPexpectSession(object):
 		pw = self.get_sudo_pass_if_needed(shutit, ignore_brew=True)
 		if pw != '':
 			cmd = 'sudo ' + cmd
-			res = self.multisend(ShutItSendSpec(self,
+			res = self.multisend(shutit_sendspec.ShutItSendSpec(self,
 			                                    send='%s %s %s' % (cmd, opts, package),
 			                                    send_dict={'assword:':[pw,True]},
 			                                    timeout=timeout,
@@ -1672,7 +1672,7 @@ class ShutItPexpectSession(object):
 				# Should not happen
 				assert False, print_debug()
 		else:
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send='%s %s %s' % (cmd, opts, package),
 			                         timeout=timeout,
 			                         exit_values=['0','100'],
@@ -1709,7 +1709,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = self.shutit
 		shutit.handle_note(note)
-		shutit_global_object.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
+		shutit_global.shutit_global_object.log('Matching output from: "' + send + '" to one of these regexps:' + str(matches),level=logging.INFO)
 		echo = shutit.get_echo_override(echo)
 		output = self.send_and_get_output(send,
 		                                  retry=retry,
@@ -1721,9 +1721,9 @@ class ShutItPexpectSession(object):
 		shutit.handle_note_after(note=note)
 		for match in matches:
 			if shutit.match_string(output, match) != None:
-				shutit_global_object.log('Matched output, return True',level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('Matched output, return True',level=logging.DEBUG)
 				return True
-		shutit_global_object.log('Failed to match output, return False',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Failed to match output, return False',level=logging.DEBUG)
 		return False
 
 
@@ -1756,11 +1756,11 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = self.shutit
 		shutit.handle_note(note, command=str(send))
-		shutit_global_object.log('Retrieving output from command: ' + send,level=loglevel)
+		shutit_global.shutit_global_object.log('Retrieving output from command: ' + send,level=loglevel)
 		# Don't check exit, as that will pollute the output. Also, it's quite likely the submitted command is intended to fail.
 		echo = shutit.get_echo_override(echo)
 		send = shutit.get_send_command(send)
-		self.send(ShutItSendSpec(self,
+		self.send(shutit_sendspec.ShutItSendSpec(self,
 		                         send=send,
 		                         check_exit=False,
 		                         retry=retry,
@@ -1787,7 +1787,7 @@ class ShutItPexpectSession(object):
 		# First, strip whitespace from the start of 'before', and the send:
 		before = before.strip()
 		send = send.strip()
-		shutit_global_object.log('send_and_get_output "before": ' + before + ', send_and_get_output send was: ' + send, level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('send_and_get_output "before": ' + before + ', send_and_get_output send was: ' + send, level=logging.DEBUG)
 		if strip:
 			# cf: http://stackoverflow.com/questions/14693701/how-can-i-remove-the-ansi-escape-sequences-from-a-string-in-python
 			ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
@@ -1806,23 +1806,23 @@ class ShutItPexpectSession(object):
 			before = before[len(send):]
 			# Strip whitespace again
 			before = before.strip()
-		shutit_global_object.log('send_and_get_output "before" after startswith check: ' + before, level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('send_and_get_output "before" after startswith check: ' + before, level=logging.DEBUG)
 		# Too chatty, but kept here in case useful for debugging
-		shutit_global_object.log('send_and_get_output got: ' + before, level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('send_and_get_output got: ' + before, level=logging.DEBUG)
 		# Leave this debug in in case there are any strange characters to consider.
-		if shutit_global_object.ispy3:
-			shutit_global_object.log('send_and_get_output returning in base64:\n' + str(base64.b64encode(bytes(before,shutit_global_object.default_encoding))), level=logging.DEBUG)
+		if shutit_global.shutit_global_object.ispy3:
+			shutit_global.shutit_global_object.log('send_and_get_output returning in base64:\n' + str(base64.b64encode(bytes(before,shutit_global.shutit_global_object.default_encoding))), level=logging.DEBUG)
 		else:
-			shutit_global_object.log('send_and_get_output returning in base64:\n' + base64.b64encode(before), level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('send_and_get_output returning in base64:\n' + base64.b64encode(before), level=logging.DEBUG)
 		## In rare cases a bell has been seen - can't see why we'd want a bell so simply remove them all.
 		before = before.replace('\x07','')
 		# If there happens to be an escape character in there, it's likely a
 		# problem - see IWT-4812.
 		before = before.split('\x1b')[0].strip()
-		if shutit_global_object.ispy3:
-			shutit_global_object.log('send_and_get_output returning in base64: ' + str(base64.b64encode(bytes(before,shutit_global_object.default_encoding))), level=logging.DEBUG)
+		if shutit_global.shutit_global_object.ispy3:
+			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + str(base64.b64encode(bytes(before,shutit_global.shutit_global_object.default_encoding))), level=logging.DEBUG)
 		else:
-			shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(bytes(before)), level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('send_and_get_output returning in base64: ' + base64.b64encode(bytes(before)), level=logging.DEBUG)
 		shutit.handle_note_after(note=note)
 		return before
 
@@ -1846,7 +1846,7 @@ class ShutItPexpectSession(object):
 			msg = msg or 'Please input the sudo password for user: ' + user
 			pw = get_input(msg,ispass=True)
 			self.current_environment.users[user] = pw
-			shutit_global_object.secret_words_set.add(self.current_environment.users[user])
+			shutit_global.shutit_global_object.secret_words_set.add(self.current_environment.users[user])
 		return pw
 
 
@@ -1894,7 +1894,7 @@ class ShutItPexpectSession(object):
 				if not self.command_available('lsb_release'):
 					if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 						shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
-						self.send(ShutItSendSpec(self,
+						self.send(shutit_sendspec.ShutItSendSpec(self,
 						                         send='DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y -qq lsb-release',
 						                         loglevel=loglevel,
 						                         ignore_background=True))
@@ -1913,7 +1913,7 @@ class ShutItPexpectSession(object):
 						                           loglevel=loglevel)
 				else:
 					if not self.command_available('lsb_release'):
-						self.send(ShutItSendSpec(self,
+						self.send(shutit_sendspec.ShutItSendSpec(self,
 						                         send='yum install -y lsb-release',
 						                         loglevel=loglevel,
 						                         ignore_background=True))
@@ -1922,12 +1922,12 @@ class ShutItPexpectSession(object):
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] and self.whoami() == 'root':
-					self.send(ShutItSendSpec(self,
+					self.send(shutit_sendspec.ShutItSendSpec(self,
 					                         send='apk -q update',
 					                         ignore_background=True,
 					                         loglevel=logging.INFO))
 					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
-				self.send(ShutItSendSpec(self,
+				self.send(shutit_sendspec.ShutItSendSpec(self,
 				                         send='apk -q add bash',
 				                         ignore_background=True,
 				                         loglevel=loglevel))
@@ -1937,7 +1937,7 @@ class ShutItPexpectSession(object):
 			elif install_type == 'pacman' and shutit.build['delivery'] in ('docker','dockerfile') and self.whoami() == 'root':
 				if not shutit.get_current_shutit_pexpect_session_environment().build['pacman_update_done']:
 					shutit.get_current_shutit_pexpect_session_environment().build['pacman_update_done'] = True
-					self.send(ShutItSendSpec(self,
+					self.send(shutit_sendspec.ShutItSendSpec(self,
 					                         send='pacman -Syy',
 					                         ignore_background=True,
 					                         loglevel=logging.INFO))
@@ -1947,7 +1947,7 @@ class ShutItPexpectSession(object):
 			elif install_type == 'emerge' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['emerge_update_done'] and self.whoami() == 'root':
 					# Takes bloody ages!
-					#self.send(ShutItSendSpec(self,send='emerge --sync',loglevel=loglevel,timeout=9999,ignore_background=True))
+					#self.send(shutit_sendspec.ShutItSendSpec(self,send='emerge --sync',loglevel=loglevel,timeout=9999,ignore_background=True))
 					pass
 				install_type = 'emerge'
 				distro = 'gentoo'
@@ -2008,7 +2008,7 @@ class ShutItPexpectSession(object):
 							shutit.fail('ShutiIt requires brew be installed. See http://brew.sh for details on installation.') # pragma: no cover
 						if not self.file_exists('/tmp/shutit_brew_list'):
 							if self.whoami() != 'root':
-								self.send(ShutItSendSpec(self,
+								self.send(shutit_sendspec.ShutItSendSpec(self,
 								                         send=' brew list > .shutit_brew_list',
 								                         echo=False,
 								                         ignore_background=True,
@@ -2019,11 +2019,11 @@ class ShutItPexpectSession(object):
 							if self.send_and_get_output(' command cat .shutit_brew_list | grep -w ' + package,
 							                            echo=False,
 							                            loglevel=loglevel) == '':
-								self.send(ShutItSendSpec(self,
+								self.send(shutit_sendspec.ShutItSendSpec(self,
 								                         send='brew install ' + package,
 								                         ignore_background=True,
 								                         loglevel=loglevel))
-						self.send(ShutItSendSpec(self,
+						self.send(shutit_sendspec.ShutItSendSpec(self,
 						                         send='rm -f .shutit_brew_list',
 						                         echo=False,
 						                         ignore_background=True,
@@ -2040,11 +2040,11 @@ class ShutItPexpectSession(object):
 				if not self.command_available('lsb_release'):
 					if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 						shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
-						self.send(ShutItSendSpec(self,
+						self.send(shutit_sendspec.ShutItSendSpec(self,
 						                         send='DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y -qq lsb-release',
 						                         loglevel=loglevel,
 						                         ignore_background=True))
-					self.send(ShutItSendSpec(self,
+					self.send(shutit_sendspec.ShutItSendSpec(self,
 					                         send='DEBIAN_FRONTEND=noninteractive apt-get install -y -qq lsb-release',
 					                         loglevel=loglevel,
 					                         ignore_background=True))
@@ -2063,7 +2063,7 @@ class ShutItPexpectSession(object):
 						                           loglevel=loglevel)
 				else:
 					if not self.command_available('lsb_release'):
-						self.send(ShutItSendSpec(self,
+						self.send(shutit_sendspec.ShutItSendSpec(self,
 						                         send='yum install -y lsb-release',
 						                         ignore_background=True,
 						                         loglevel=loglevel))
@@ -2073,12 +2073,12 @@ class ShutItPexpectSession(object):
 				distro_version = d['distro_version']
 			elif install_type == 'apk' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] and self.whoami() == 'root':
-					self.send(ShutItSendSpec(self,
+					self.send(shutit_sendspec.ShutItSendSpec(self,
 					                         send='apk -q update',
 					                         ignore_background=True,
 					                         loglevel=logging.INFO))
 					shutit.get_current_shutit_pexpect_session_environment().build['apk_update_done'] = True
-				self.send(ShutItSendSpec(self,
+				self.send(shutit_sendspec.ShutItSendSpec(self,
 				                         send='apk -q add bash',
 				                         ignore_background=True,
 				                         loglevel=loglevel))
@@ -2088,7 +2088,7 @@ class ShutItPexpectSession(object):
 			elif install_type == 'emerge' and shutit.build['delivery'] in ('docker','dockerfile'):
 				if not shutit.get_current_shutit_pexpect_session_environment().build['emerge_update_done'] and self.whoami() == 'root':
 					# Takes bloody ages!
-					#self.send(ShutItSendSpec(self,send='emerge --sync',loglevel=logging.INFO,ignore_background=True))
+					#self.send(shutit_sendspec.ShutItSendSpec(self,send='emerge --sync',loglevel=logging.INFO,ignore_background=True))
 					pass
 				install_type = 'emerge'
 				distro = 'gentoo'
@@ -2107,7 +2107,7 @@ class ShutItPexpectSession(object):
 		processed while waiting for the end "expect" argument supplied.
 
 		@param send:                 See send()
-		@param send_dict:            See ShutItSendSpec
+		@param send_dict:            See shutit_sendspec.ShutItSendSpec
 		@param expect:               See send()
 		@param timeout:              See send()
 		@param check_exit:           See send()
@@ -2119,7 +2119,7 @@ class ShutItPexpectSession(object):
 		@param note:                 See send()
 		@param secret:               See send()
 		@param check_sudo:           See send()
-		@param remove_on_match       See ShutItSendSpec
+		@param remove_on_match       See shutit_sendspec.ShutItSendSpec
 		@param loglevel:             See send()
 
 		@return:                     The pexpect return value (ie which expected
@@ -2133,21 +2133,21 @@ class ShutItPexpectSession(object):
 		expect_list      = list(sendspec.send_dict)
 		# Put breakout item(s) in last.
 		n_breakout_items = 0
-		shutit_global_object.log('In multisend, send: ' + sendspec.send,level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('In multisend, send: ' + sendspec.send,level=logging.DEBUG)
 		if isinstance(expect, str):
-			shutit_global_object.log('Adding: "' + expect + '" to expect list.',level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('Adding: "' + expect + '" to expect list.',level=logging.DEBUG)
 			expect_list.append(expect)
 			n_breakout_items = 1
 		elif isinstance(expect, list):
-			shutit_global_object.log('Adding: "' + str(expect) + '" to expect list.',level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('Adding: "' + str(expect) + '" to expect list.',level=logging.DEBUG)
 			for item in expect:
 				expect_list.append(item)
 				n_breakout_items += 1
-		shutit_global_object.log('Number of breakout items: ' + str(n_breakout_items),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Number of breakout items: ' + str(n_breakout_items),level=logging.DEBUG)
 		while True:
 			# If it's the last n items in the list, it's the breakout one.
 			# Must be a separate sendspec object each time, must be run .
-			res = self.send(ShutItSendSpec(self,
+			res = self.send(shutit_sendspec.ShutItSendSpec(self,
 			                               send=send_iteration,
 			                               expect=expect_list,
 			                               check_exit=sendspec.check_exit,
@@ -2166,18 +2166,18 @@ class ShutItPexpectSession(object):
 							               loglevel=sendspec.loglevel))
 			if res == -1:
 				# Will be run in the background later.
-				shutit_global_object.log('Multisend will be run in the background: ' + str(send_iteration),level=logging.INFO)
+				shutit_global.shutit_global_object.log('Multisend will be run in the background: ' + str(send_iteration),level=logging.INFO)
 				return -1
 			if res >= len(expect_list) - n_breakout_items:
 				break
 			else:
 				next_send     = sendspec.send_dict[expect_list[res]][0]
 				if next_send is None:
-					shutit_global_object.log('None found in next_send - is there no password in the send_dict (first item in array in referenced res)?',level=logging.WARNING)
+					shutit_global.shutit_global_object.log('None found in next_send - is there no password in the send_dict (first item in array in referenced res)?',level=logging.WARNING)
 				remove_items  = sendspec.send_dict[expect_list[res]][1]
 				send_iteration = next_send
 				if sendspec.remove_on_match and remove_items:
-					shutit_global_object.log('Have matched a password (' + expect_list[res] + '), removing password expects from list in readiness of a prompt',level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('Have matched a password (' + expect_list[res] + '), removing password expects from list in readiness of a prompt',level=logging.DEBUG)
 					if isinstance(expect, str):
 						expect_list = [expect]
 					elif isinstance(expect, list):
@@ -2232,7 +2232,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = self.shutit
 		shutit.handle_note(note, command=send + ' \nuntil one of these seen:\n' + str(regexps))
-		shutit_global_object.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
+		shutit_global.shutit_global_object.log('Sending: "' + send + '" until one of these regexps seen: ' + str(regexps),level=loglevel)
 		if isinstance(regexps, str):
 			regexps = [regexps]
 		if not isinstance(regexps, list):
@@ -2247,7 +2247,7 @@ class ShutItPexpectSession(object):
 			                                  loglevel=loglevel,
 			                                  nonewline=nonewline,
 			                                  fail_on_empty_before=False)
-			shutit_global_object.log('Failed to match regexps -> ' + str(regexps) + ' <- retries left:' + str(retries),level=loglevel)
+			shutit_global.shutit_global_object.log('Failed to match regexps -> ' + str(regexps) + ' <- retries left:' + str(retries),level=loglevel)
 			if not not_there:
 				for regexp in regexps:
 					if not check_regexp(regexp):
@@ -2267,7 +2267,7 @@ class ShutItPexpectSession(object):
 					shutit.handle_note_after(note=note)
 					return True
 			if debug_command is not None:
-				self.send(ShutItSendSpec(self,
+				self.send(shutit_sendspec.ShutItSendSpec(self,
 				                         send=debug_command,
 				                         check_exit=False,
 				                         echo=echo,
@@ -2320,7 +2320,7 @@ class ShutItPexpectSession(object):
 		fexists = self.file_exists(fname)
 		if not fexists:
 			if create:
-				self.send(ShutItSendSpec(self,
+				self.send(shutit_sendspec.ShutItSendSpec(self,
 				                         send=' command touch ' + fname,
 				                         echo=False,
 				                         loglevel=loglevel,
@@ -2337,11 +2337,11 @@ class ShutItPexpectSession(object):
 		# ftext is the original file's text. If base64 is available, use it to
 		# encode the text
 		if self.command_available('base64'):
-			if shutit_global_object.ispy3:
+			if shutit_global.shutit_global_object.ispy3:
 				ftext = bytes(self.send_and_get_output(' command base64 ' + fname,
 				                                       echo=False,
 				                                       loglevel=loglevel),
-				                                       shutit_global_object.default_encoding)
+				                                       shutit_global.shutit_global_object.default_encoding)
 			else:
 				ftext = self.send_and_get_output(' command base64 ' + fname,
 				                                 echo=False,
@@ -2349,12 +2349,12 @@ class ShutItPexpectSession(object):
 			ftext = base64.b64decode(ftext)
 		else:
 			# Replace the file text's ^M-newlines with simple newlines
-			if shutit_global_object.ispy3:
+			if shutit_global.shutit_global_object.ispy3:
 				ftext = bytes(self.send_and_get_output(' command cat ' + fname,
 				                                       echo=False,
 				                                       loglevel=loglevel),
-				                                       shutit_global_object.default_encoding)
-				ftext = ftext.replace(bytes('\r\n', shutit_global_object.default_encoding),bytes('\n', shutit_global_object.default_encoding))
+				                                       shutit_global.shutit_global_object.default_encoding)
+				ftext = ftext.replace(bytes('\r\n', shutit_global.shutit_global_object.default_encoding),bytes('\n', shutit_global.shutit_global_object.default_encoding))
 			else:
 				ftext = self.send_and_get_output(' command cat ' + fname,
 				                                 echo=False,
@@ -2362,8 +2362,8 @@ class ShutItPexpectSession(object):
 				ftext = ftext.replace('\r\n','\n')
 		# Delete the text
 		if delete:
-			if shutit_global_object.ispy3:
-				loc = ftext.find(bytes(text,shutit_global_object.default_encoding))
+			if shutit_global.shutit_global_object.ispy3:
+				loc = ftext.find(bytes(text,shutit_global.shutit_global_object.default_encoding))
 			else:
 				loc = ftext.find(text)
 			if loc == -1:
@@ -2377,8 +2377,8 @@ class ShutItPexpectSession(object):
 					if not check_regexp(pattern):
 						shutit.fail('Illegal regexp found in change_text call: ' + pattern) # pragma: no cover
 					# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
-					if shutit_global_object.ispy3:
-						sre_match = re.search(bytes(pattern,shutit_global_object.default_encoding),ftext,re.DOTALL|re.MULTILINE)
+					if shutit_global.shutit_global_object.ispy3:
+						sre_match = re.search(bytes(pattern,shutit_global.shutit_global_object.default_encoding),ftext,re.DOTALL|re.MULTILINE)
 					else:
 						sre_match = re.search(pattern,ftext,re.DOTALL|re.MULTILINE)
 					if replace:
@@ -2398,8 +2398,8 @@ class ShutItPexpectSession(object):
 						elif before:
 							cut_point = sre_match.start()
 							# If the text is already there and we're not forcing it, return None.
-							if shutit_global_object.ispy3:
-								if not force and ftext[cut_point-len(text):].find(bytes(text,shutit_global_object.default_encoding)) > 0:
+							if shutit_global.shutit_global_object.ispy3:
+								if not force and ftext[cut_point-len(text):].find(bytes(text,shutit_global.shutit_global_object.default_encoding)) > 0:
 									return None
 							else:
 								if not force and ftext[cut_point-len(text):].find(text) > 0:
@@ -2407,8 +2407,8 @@ class ShutItPexpectSession(object):
 						else:
 							cut_point = sre_match.end()
 							# If the text is already there and we're not forcing it, return None.
-							if shutit_global_object.ispy3:
-								if not force and ftext[cut_point:].find(bytes(text,shutit_global_object.default_encoding)) > 0:
+							if shutit_global.shutit_global_object.ispy3:
+								if not force and ftext[cut_point:].find(bytes(text,shutit_global.shutit_global_object.default_encoding)) > 0:
 									return None
 							else:
 								if not force and ftext[cut_point:].find(text) > 0:
@@ -2416,8 +2416,8 @@ class ShutItPexpectSession(object):
 						newtext1 = ftext[:cut_point]
 						newtext2 = ftext[cut_point:]
 				else:
-					if shutit_global_object.ispy3:
-						lines = ftext.split(bytes('\n',shutit_global_object.default_encoding))
+					if shutit_global.shutit_global_object.ispy3:
+						lines = ftext.split(bytes('\n',shutit_global.shutit_global_object.default_encoding))
 					else:
 						lines = ftext.split('\n')
 					cut_point   = 0
@@ -2434,8 +2434,8 @@ class ShutItPexpectSession(object):
 						if not pattern or pattern[-1] != '$':
 							pattern_after = '.*$'
 						new_pattern = pattern_before+pattern+pattern_after
-						if shutit_global_object.ispy3:
-							match = re.search(bytes(new_pattern,shutit_global_object.default_encoding), line)
+						if shutit_global.shutit_global_object.ispy3:
+							match = re.search(bytes(new_pattern,shutit_global.shutit_global_object.default_encoding), line)
 						else:
 							match = re.search(new_pattern,line)
 						line_length = len(line)
@@ -2460,10 +2460,10 @@ class ShutItPexpectSession(object):
 						newtext2 = ftext[cut_point+line_length:]
 					elif not force:
 						# If the text is already there and we're not forcing it, return None.
-						if shutit_global_object.ispy3:
-							if before and ftext[cut_point-len(text):].find(bytes(text,shutit_global_object.default_encoding)) > 0:
+						if shutit_global.shutit_global_object.ispy3:
+							if before and ftext[cut_point-len(text):].find(bytes(text,shutit_global.shutit_global_object.default_encoding)) > 0:
 								return None
-							if not before and ftext[cut_point:].find(bytes(text,shutit_global_object.default_encoding)) > 0:
+							if not before and ftext[cut_point:].find(bytes(text,shutit_global.shutit_global_object.default_encoding)) > 0:
 								return None
 						else:
 							if before and ftext[cut_point-len(text):].find(text) > 0:
@@ -2471,16 +2471,16 @@ class ShutItPexpectSession(object):
 							if not before and ftext[cut_point:].find(text) > 0:
 								return None
 					# Add a newline to newtext1 if it is not already there
-					if shutit_global_object.ispy3:
-						if newtext1 and bytes(newtext1.decode(shutit_global_object.default_encoding)[-1],shutit_global_object.default_encoding) != bytes('\n',shutit_global_object.default_encoding):
-							newtext1 += bytes('\n',shutit_global_object.default_encoding)
+					if shutit_global.shutit_global_object.ispy3:
+						if newtext1 and bytes(newtext1.decode(shutit_global.shutit_global_object.default_encoding)[-1],shutit_global.shutit_global_object.default_encoding) != bytes('\n',shutit_global.shutit_global_object.default_encoding):
+							newtext1 += bytes('\n',shutit_global.shutit_global_object.default_encoding)
 					else:
 						if newtext1 and newtext1[-1] != '\n':
 							newtext1 += '\n'
 					# Add a newline to newtext2 if it is not already there
-					if shutit_global_object.ispy3:
-						if newtext2 and bytes(newtext2.decode(shutit_global_object.default_encoding)[0],shutit_global_object.default_encoding) != bytes('\n',shutit_global_object.default_encoding):
-							newtext2 = bytes('\n',shutit_global_object.default_encoding) + newtext2
+					if shutit_global.shutit_global_object.ispy3:
+						if newtext2 and bytes(newtext2.decode(shutit_global.shutit_global_object.default_encoding)[0],shutit_global.shutit_global_object.default_encoding) != bytes('\n',shutit_global.shutit_global_object.default_encoding):
+							newtext2 = bytes('\n',shutit_global.shutit_global_object.default_encoding) + newtext2
 					else:
 						if newtext2 and newtext2[0] != '\n':
 							newtext2 = '\n' + newtext2
@@ -2490,14 +2490,14 @@ class ShutItPexpectSession(object):
 				newtext1 = ftext[:cut_point]
 				newtext2 = ftext[cut_point:]
 			# If adding or replacing at the end of the file, then ensure we have a newline at the end
-			if shutit_global_object.ispy3:
-				if newtext2 == b'' and text and bytes(text[-1],shutit_global_object.default_encoding) != bytes('\n',shutit_global_object.default_encoding):
-					newtext2 = bytes('\n',shutit_global_object.default_encoding)
+			if shutit_global.shutit_global_object.ispy3:
+				if newtext2 == b'' and text and bytes(text[-1],shutit_global.shutit_global_object.default_encoding) != bytes('\n',shutit_global.shutit_global_object.default_encoding):
+					newtext2 = bytes('\n',shutit_global.shutit_global_object.default_encoding)
 			else:
 				if newtext2 == '' and text and text[-1] != '\n':
 					newtext2 = '\n'
-			if shutit_global_object.ispy3:
-				new_text = newtext1 + bytes(text,shutit_global_object.default_encoding) + newtext2
+			if shutit_global.shutit_global_object.ispy3:
+				new_text = newtext1 + bytes(text,shutit_global.shutit_global_object.default_encoding) + newtext2
 			else:
 				new_text = newtext1 + text + newtext2
 		self.send_file(fname,
@@ -2546,7 +2546,7 @@ class ShutItPexpectSession(object):
 			if literal:
 				if match_regexp is None:
 					#            v the space is intentional, to avoid polluting bash history.
-					self.send(ShutItSendSpec(self,
+					self.send(shutit_sendspec.ShutItSendSpec(self,
 					                         send=""" grep -v '^""" + line + """$' """ + filename + ' > ' + tmp_filename,
 					                         exit_values=['0','1'],
 					                         echo=False,
@@ -2556,7 +2556,7 @@ class ShutItPexpectSession(object):
 					if not check_regexp(match_regexp):
 						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp) # pragma: no cover
 					#            v the space is intentional, to avoid polluting bash history.
-					self.send(ShutItSendSpec(self,
+					self.send(shutit_sendspec.ShutItSendSpec(self,
 					                         send=""" grep -v '^""" + match_regexp + """$' """ + filename + ' > ' + tmp_filename,
 					                         exit_values=['0','1'],
 					                         echo=False,
@@ -2565,7 +2565,7 @@ class ShutItPexpectSession(object):
 			else:
 				if match_regexp is None:
 					#          v the space is intentional, to avoid polluting bash history.
-					self.send(ShutItSendSpec(self,
+					self.send(shutit_sendspec.ShutItSendSpec(self,
 					                         send=' command grep -v "^' + line + '$" ' + filename + ' > ' + tmp_filename,
 					                         exit_values=['0','1'],
 					                         echo=False,
@@ -2575,19 +2575,19 @@ class ShutItPexpectSession(object):
 					if not check_regexp(match_regexp):
 						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp) # pragma: no cover
 					#          v the space is intentional, to avoid polluting bash history.
-					self.send(ShutItSendSpec(self,
+					self.send(shutit_sendspec.ShutItSendSpec(self,
 					                         send=' command grep -v "^' + match_regexp + '$" ' + filename + ' > ' + tmp_filename,
 					                         exit_values=['0','1'],
 					                         echo=False,
 					                         loglevel=loglevel,
 					                         ignore_background=True))
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' command cat ' + tmp_filename + ' > ' + filename,
 			                         check_exit=False,
 			                         echo=False,
 			                         loglevel=loglevel,
 					                 ignore_background=True))
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' command rm -f ' + tmp_filename,
 			                         exit_values=['0','1'],
 			                         echo=False,
@@ -2612,9 +2612,9 @@ class ShutItPexpectSession(object):
 		                             If return is -1, the task was backgrounded. See also multisend.
 		@rtype:                      int
 		"""
-		shutit_global_object.log('In session: ' + self.pexpect_session_id + ', trying to send: ' + str(sendspec.send),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('In session: ' + self.pexpect_session_id + ', trying to send: ' + str(sendspec.send),level=logging.DEBUG)
 		if self._check_blocked(sendspec):
-			shutit_global_object.log('In send for ' + str(sendspec.send) + ', check_blocked called and returned True.',level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('In send for ' + str(sendspec.send) + ', check_blocked called and returned True.',level=logging.DEBUG)
 			# _check_blocked will add to the list of background tasks and handle dupes, so leave there.
 			return -1
 		shutit = self.shutit
@@ -2626,7 +2626,7 @@ class ShutItPexpectSession(object):
 			sendspec.fail_on_empty_before=False
 			sendspec.check_exit=False
 		if isinstance(sendspec.expect, dict):
-			return self.multisend(ShutItSendSpec(self,
+			return self.multisend(shutit_sendspec.ShutItSendSpec(self,
 			                                     send=sendspec.send,
 			                                     send_dict=sendspec.expect,
 			                                     expect=shutit.get_default_shutit_pexpect_session_expect(),
@@ -2651,7 +2651,7 @@ class ShutItPexpectSession(object):
 		if sendspec.check_sudo and command_list and command_list[0] == 'sudo' and not self.check_sudo():
 			sudo_pass = self.get_sudo_pass_if_needed(shutit)
 			# Turn expect into a dict.
-			return self.multisend(ShutItSendSpec(self,
+			return self.multisend(shutit_sendspec.ShutItSendSpec(self,
 			                                     send=sendspec.send,
 			                                     send_dict={'assword':[sudo_pass,True]},
 			                                     expect=shutit.get_default_shutit_pexpect_session_expect(),
@@ -2711,7 +2711,7 @@ class ShutItPexpectSession(object):
 							shutit.build['shutit_command_history'].append ('#redacted command, password')
 							ok_to_record = False
 							break
-				if not ok_to_record or sendspec.send in shutit_global_object.secret_words_set:
+				if not ok_to_record or sendspec.send in shutit_global.shutit_global_object.secret_words_set:
 					sendspec.secret = True
 					break
 			if ok_to_record:
@@ -2719,7 +2719,7 @@ class ShutItPexpectSession(object):
 
 		# Log - tho not if secret.
 		if sendspec.send != None:
-			shutit_global_object.log('================================================================================',level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('================================================================================',level=logging.DEBUG)
 			send_and_expect_summary_msg = ''
 			if not sendspec.echo and not sendspec.secret:
 				send_and_expect_summary_msg += 'Sending: ' + sendspec.send
@@ -2730,7 +2730,7 @@ class ShutItPexpectSession(object):
 			else:
 				send_and_expect_summary_msg += 'Sending>>>[SECRET]<<<'
 			send_and_expect_summary_msg += ', expecting>>>' + str(sendspec.expect) + '<<<'
-			shutit_global_object.log(send_and_expect_summary_msg,level=logging.DEBUG)
+			shutit_global.shutit_global_object.log(send_and_expect_summary_msg,level=logging.DEBUG)
 
 		while sendspec.retry > 0:
 			if sendspec.escape:
@@ -2743,23 +2743,23 @@ class ShutItPexpectSession(object):
 					else:
 						escaped_str += get_wide_hex(char)
 						_count += 4
-					if _count > shutit_global_object.line_limit:
+					if _count > shutit_global.shutit_global_object.line_limit:
 						# The newline here is deliberate!
 						escaped_str += r"""'\
 $'"""
 						_count = 0
 				escaped_str += "'"
 				if sendspec.secret:
-					shutit_global_object.log('The string was sent safely.', level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('The string was sent safely.', level=logging.DEBUG)
 				else:
-					shutit_global_object.log('This string was sent safely: ' + sendspec.send, level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('This string was sent safely: ' + sendspec.send, level=logging.DEBUG)
 				string_to_send = escaped_str
 			else:
 				string_to_send = sendspec.send
 			if string_to_send is not None:
-				if len(string_to_send) > shutit_global_object.line_limit:
+				if len(string_to_send) > shutit_global.shutit_global_object.line_limit:
 					fname = self._create_command_file(sendspec.expect,string_to_send)
-					res = self.send(ShutItSendSpec(self,
+					res = self.send(shutit_sendspec.ShutItSendSpec(self,
 					                               send=' command source ' + fname,
 					                               expect=sendspec.expect,
 					                               timeout=sendspec.timeout,
@@ -2777,7 +2777,7 @@ $'"""
 			                                       run_in_background=sendspec.run_in_background,
 					                               ignore_background=True,
 			                                       block_other_commands=sendspec.block_other_commands))
-					if not self.sendline(ShutItSendSpec(self,
+					if not self.sendline(shutit_sendspec.ShutItSendSpec(self,
 					                                    send=' rm -f ' + fname,
 					                                    nonewline=sendspec.nonewline,
 			                                            run_in_background=sendspec.run_in_background,
@@ -2801,19 +2801,19 @@ $'"""
 			else:
 				expect_res = shutit.expect_allow_interrupt(self.pexpect_child, sendspec.expect, sendspec.timeout)
 			if isinstance(self.pexpect_child.after, type) or isinstance(self.pexpect_child.before, type):
-				shutit_global_object.log('End of pexpect session detected, bailing.',level=logging.CRITICAL)
-				shutit_global_object.handle_exit(exit_code=1)
+				shutit_global.shutit_global_object.log('End of pexpect session detected, bailing.',level=logging.CRITICAL)
+				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			# Massage the output for summary sending.
 			logged_output = ''.join((self.pexpect_child.before + str(self.pexpect_child.after)).split('\n')).replace(sendspec.send,'',1).replace('\r','')[:160] + ' [...]'
 			if not sendspec.secret:
 				if not sendspec.echo:
-					shutit_global_object.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
-				if shutit_global_object.ispy3:
-					shutit_global_object.log('pexpect: buffer: ' + str(base64.b64encode(bytes(self.pexpect_child.buffer,shutit_global_object.default_encoding))) + ' before: ' + str(base64.b64encode(bytes(self.pexpect_child.before,shutit_global_object.default_encoding))) + ' after: ' + str(base64.b64encode(bytes(self.pexpect_child.after,shutit_global_object.default_encoding))),level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('Output (squashed): ' + logged_output,level=logging.DEBUG)
+				if shutit_global.shutit_global_object.ispy3:
+					shutit_global.shutit_global_object.log('pexpect: buffer: ' + str(base64.b64encode(bytes(self.pexpect_child.buffer,shutit_global.shutit_global_object.default_encoding))) + ' before: ' + str(base64.b64encode(bytes(self.pexpect_child.before,shutit_global.shutit_global_object.default_encoding))) + ' after: ' + str(base64.b64encode(bytes(self.pexpect_child.after,shutit_global.shutit_global_object.default_encoding))),level=logging.DEBUG)
 				else:
-					shutit_global_object.log('pexpect: buffer: ' + base64.b64encode(self.pexpect_child.buffer) + ' before: ' + base64.b64encode(self.pexpect_child.before) + ' after: '  + base64.b64encode(self.pexpect_child.after),level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('pexpect: buffer: ' + base64.b64encode(self.pexpect_child.buffer) + ' before: ' + base64.b64encode(self.pexpect_child.before) + ' after: '  + base64.b64encode(self.pexpect_child.after),level=logging.DEBUG)
 			else:
-				shutit_global_object.log('[Send was marked secret; getting output debug will require code change]',level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('[Send was marked secret; getting output debug will require code change]',level=logging.DEBUG)
 			if sendspec.fail_on_empty_before:
 				if self.pexpect_child.before.strip() == '':
 					shutit.fail('before empty after sending: ' + str(sendspec.send) + '\n\nThis is expected after some commands that take a password.\nIf so, add fail_on_empty_before=False to the send call.\n\nIf that is not the problem, did you send an empty string to a prompt by mistake?', shutit_pexpect_child=self.pexpect_child) # pragma: no cover
@@ -2837,9 +2837,9 @@ $'"""
 				                                   exit_values=sendspec.exit_values,
 				                                   retry=sendspec.retry):
 					if not sendspec.secret:
-						shutit_global_object.log('Sending: ' + sendspec.send + ' : failed, retrying', level=logging.DEBUG)
+						shutit_global.shutit_global_object.log('Sending: ' + sendspec.send + ' : failed, retrying', level=logging.DEBUG)
 					else:
-						shutit_global_object.log('Send failed, retrying', level=logging.DEBUG)
+						shutit_global.shutit_global_object.log('Send failed, retrying', level=logging.DEBUG)
 					sendspec.retry -= 1
 					assert sendspec.retry > 0, print_debug()
 					continue
@@ -2850,7 +2850,7 @@ $'"""
 				sendspec.send = sendspec.follow_on_commands[match]
 				if shutit.match_string(last_output, match):
 					# send (with no follow-on commands)
-					self.send(ShutItSendSpec(self,
+					self.send(shutit_sendspec.ShutItSendSpec(self,
 					                         send=sendspec.send,
 					                         expect=sendspec.expect,
 					                         timeout=sendspec.timeout,
@@ -2882,8 +2882,8 @@ $'"""
 	def quick_send(self, send, loglevel=logging.INFO):
 		"""Quick and dirty send that ignores background tasks. Intended for internal use.
 		"""
-		shutit_global_object.log('Quick send: ' + send, level=loglevel)
-		res = self.sendline(ShutItSendSpec(self,
+		shutit_global.shutit_global_object.log('Quick send: ' + send, level=loglevel)
+		res = self.sendline(shutit_sendspec.ShutItSendSpec(self,
 		                                    send=send,
 		                                    check_exit=False,
 		                                    fail_on_empty_before=False,
@@ -2918,12 +2918,12 @@ $'"""
 		shutit = self.shutit
 		shutit.handle_note(note, 'Sending contents to path: ' + path)
 		# make more efficient by only looking at first 10000 chars, stop when we get to 30 chars rather than reading whole file.
-		if shutit_global_object.ispy3:
+		if shutit_global.shutit_global_object.ispy3:
 			split_contents = ''.join((str(contents[:10000]).split()))
 		else:
 			split_contents = ''.join((contents[:10000].split()))
 		strings_from_file = re.findall("[^\x00-\x1F\x7F-\xFF]", split_contents)
-		shutit_global_object.log('Sending file contents beginning: "' + ''.join(strings_from_file)[:30] + ' [...]" to file: ' + path, level=loglevel)
+		shutit_global.shutit_global_object.log('Sending file contents beginning: "' + ''.join(strings_from_file)[:30] + ' [...]" to file: ' + path, level=loglevel)
 		if user is None:
 			user = self.whoami()
 		if group is None:
@@ -2937,11 +2937,11 @@ $'"""
 				try:
 					f.write(contents)
 				except (UnicodeDecodeError, TypeError) as e:
-					shutit_global_object.log('Error decoding: ' + str(e), level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('Error decoding: ' + str(e), level=logging.DEBUG)
 					if encoding is not None:
 						f.write(contents.decode(encoding))
 					else:
-						f.write(contents.decode(shutit_global_object.default_encoding))
+						f.write(contents.decode(shutit_global.shutit_global_object.default_encoding))
 			elif isinstance(contents, bytes):
 				f = open(path,'w')
 				if truncate:
@@ -2952,53 +2952,53 @@ $'"""
 					if encoding is not None:
 						f.write(contents.decode(encoding))
 					else:
-						f.write(contents.decode(shutit_global_object.default_encoding))
+						f.write(contents.decode(shutit_global.shutit_global_object.default_encoding))
 			else:
 				shutit.fail('type: ' + str(type(contents)) + ' not handled in 1') # pragma: no cover
 			f.close()
 		elif shutit.build['delivery'] in ('bash','dockerfile'):
 			if truncate and self.file_exists(path):
-				self.send(ShutItSendSpec(self,
+				self.send(shutit_sendspec.ShutItSendSpec(self,
 				                         send=' command rm -f ' + path,
 				                         echo=echo,
 				                         loglevel=loglevel,
 				                         ignore_background=True))
 			random_id = random_id()
 			# set the searchwindowsize to a low number to speed up processing of large output
-			if shutit_global_object.ispy3:
+			if shutit_global.shutit_global_object.ispy3:
 				if encoding is not None:
 					b64contents = base64.b64encode(contents.encode(encoding)).decode(encoding)
 				else:
 					if isinstance(contents, str):
-						b64contents = base64.b64encode(contents.encode(shutit_global_object.default_encoding)).decode(shutit_global_object.default_encoding)
+						b64contents = base64.b64encode(contents.encode(shutit_global.shutit_global_object.default_encoding)).decode(shutit_global.shutit_global_object.default_encoding)
 					elif isinstance(contents, bytes):
-						b64contents = base64.b64encode(contents).decode(shutit_global_object.default_encoding)
+						b64contents = base64.b64encode(contents).decode(shutit_global.shutit_global_object.default_encoding)
 					else:
 						shutit.fail('type: ' + str(type(contents)) + ' not handled in 2') # pragma: no cover
 			else:
 				if encoding is not None:
 					b64contents = base64.b64encode(contents.encode(encoding))
 				else:
-					b64contents = base64.b64encode(contents.encode(shutit_global_object.default_encoding))
+					b64contents = base64.b64encode(contents.encode(shutit_global.shutit_global_object.default_encoding))
 			# split the contents into chunks and append to avoid PC_MAX_CANON: see https://github.com/pexpect/pexpect/commit/f3ef67b6ba5508d0d118b59837d099f5144e576b
 			total_length = len(b64contents)
 			position = 0
 			leap=1000
 			while position < total_length:
-				self.send(ShutItSendSpec(self,
+				self.send(shutit_sendspec.ShutItSendSpec(self,
 				                         send=' ' + shutit.get_command('head') + ' -c -1 >> ' + path + "." + random_id + " << 'END_" + random_id + """'\n""" + b64contents[position:position+leap] + '''\nEND_''' + random_id,
 				                         echo=echo,
 				                         loglevel=loglevel,
-				                         timeout=shutit_global_object.default_timeout,
+				                         timeout=shutit_global.shutit_global_object.default_timeout,
 				                         ignore_background=True))
 				position += leap
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' command cat ' + path + '.' + random_id + ' | base64 --decode > ' + path,
 			                         echo=echo,
 			                         loglevel=loglevel,
 			                         ignore_background=True))
 			# Remove the file
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' command rm -f ' + path + '.' + random_id,
 			                         loglevel=loglevel,
 			                         ignore_background=True))
@@ -3006,18 +3006,18 @@ $'"""
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 			path = path.replace(' ', r'\ ')
 			# get host session
-			tmpfile = shutit_global_object.shutit_state_dir + 'tmp_' + random_id()
+			tmpfile = shutit_global.shutit_global_object.shutit_state_dir + 'tmp_' + random_id()
 			f = open(tmpfile,'wb')
 			f.truncate(0)
 			# TODO: try taking out trys
 			if isinstance(contents, bytes):
 				try:
-					if shutit_global_object.ispy3:
+					if shutit_global.shutit_global_object.ispy3:
 						f.write(contents)
 					elif encoding is not None:
 						f.write(contents.encode(encoding))
 					else:
-						f.write(contents.encode(shutit_global_object.default_encoding))
+						f.write(contents.encode(shutit_global.shutit_global_object.default_encoding))
 				except (UnicodeDecodeError, TypeError) as e:
 					f.write(contents)
 			else:
@@ -3026,12 +3026,12 @@ $'"""
 					if encoding is not None:
 						f.write(contents.encode(encoding))
 					else:
-						f.write(contents.encode(shutit_global_object.default_encoding))
+						f.write(contents.encode(shutit_global.shutit_global_object.default_encoding))
 				except (UnicodeDecodeError, TypeError) as e:
 					f.write(contents)
 			f.close()
 			# Create file so it has appropriate permissions
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' command touch ' + path,
 			                         loglevel=loglevel,
 			                         echo=echo,
@@ -3049,7 +3049,7 @@ $'"""
 				            expect=shutit.expect_prompts['ORIGIN_ENV'],
 				            loglevel=loglevel,
 				            echo=echo)
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' command chown ' + user + ' ' + path + ' && chgrp ' + group + ' ' + path,
 			                         echo=echo,
 			                         loglevel=loglevel,
@@ -3076,7 +3076,7 @@ $'"""
 		"""
 		shutit = self.shutit
 		shutit.handle_note(note, 'Script: ' + str(script))
-		shutit_global_object.log('Running script beginning: "' + ''.join(script.split())[:30] + ' [...]', level=logging.INFO)
+		shutit_global.shutit_global_object.log('Running script beginning: "' + ''.join(script.split())[:30] + ' [...]', level=logging.INFO)
 		# Trim any whitespace lines from start and end of script, then dedent
 		lines = script.split('\n')
 		while lines and re.match('^[ \t]*$', lines[0]):
@@ -3090,20 +3090,20 @@ $'"""
 		# Send the script and run it in the manner specified
 		if shutit.build['delivery'] in ('docker','dockerfile') and in_shell:
 			script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
-		self.quick_send('command mkdir -p ' + shutit_global_object.shutit_state_dir + '/scripts && chmod 777 ' + shutit_global_object.shutit_state_dir + '/scripts')
-		self.send_file(shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
+		self.quick_send('command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts && chmod 777 ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts')
+		self.send_file(shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
 		               script,
 		               loglevel=loglevel)
-		self.quick_send('command chmod +x ' + shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh')
+		self.quick_send('command chmod +x ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh')
 		shutit.build['shutit_command_history'].append('    ' + script.replace('\n', '\n    '))
 		if in_shell:
-			ret = self.send(ShutItSendSpec(self,
-			                               send=' . ' + shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh && rm -f ' + shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh && rm -f ' + shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
+			ret = self.send(shutit_sendspec.ShutItSendSpec(self,
+			                               send=' . ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh && rm -f ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh && rm -f ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
 			                               echo=False,
 			                               loglevel=loglevel))
 		else:
-			ret = self.send(ShutItSendSpec(self,
-			                               send=' ' + shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh && rm -f ' + shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
+			ret = self.send(shutit_sendspec.ShutItSendSpec(self,
+			                               send=' ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh && rm -f ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
 			                               echo=False,
 			                               loglevel=loglevel))
 		shutit.handle_note_after(note=note)
@@ -3169,7 +3169,7 @@ $'"""
 			                                      reduction_per_hint=reduction_per_hint,
 			                                      grace_period=grace_period)
 			# If this is an exam, then remove history.
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' history -c',
 			                         check_exit=False,
 			                         ignore_background=True))
@@ -3196,9 +3196,9 @@ $'"""
 			help_text = colorise('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
 			ok = False
 			while not ok:
-				shutit_global_object.log(colorise('32','''\nChallenge!'''),transient=True,level=logging.INFO)
+				shutit_global.shutit_global_object.log(colorise('32','''\nChallenge!'''),transient=True,level=logging.INFO)
 				if hints:
-					shutit_global_object.log(colorise('32',help_text),transient=True,level=logging.INFO)
+					shutit_global.shutit_global_object.log(colorise('32',help_text),transient=True,level=logging.INFO)
 				time.sleep(pause)
 				# TODO: bash path completion
 				send = get_input(task_desc + ' => ',color='31')
@@ -3206,11 +3206,11 @@ $'"""
 					continue
 				if send in ('help','h'):
 					if hints:
-						shutit_global_object.log(help_text,transient=True,level=logging.CRITICAL)
-						shutit_global_object.log(colorise('32',hints.pop()),transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(help_text,transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(colorise('32',hints.pop()),transient=True,level=logging.CRITICAL)
 					else:
-						shutit_global_object.log(help_text,transient=True,level=logging.CRITICAL)
-						shutit_global_object.log(colorise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step, CTRL-] to submit for checking'),transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(help_text,transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(colorise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step, CTRL-] to submit for checking'),transient=True,level=logging.CRITICAL)
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
@@ -3218,7 +3218,7 @@ $'"""
 					continue
 				if send == 'shutitquit':
 					self._challenge_done(shutit, result='reset',follow_on_context=follow_on_context,final_stage=True)
-					shutit_global_object.handle_exit(exit_code=1)
+					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 				if send == 'exit':
 					self._challenge_done(shutit, result='exited',follow_on_context=follow_on_context,final_stage=True)
 					shutit.build['pause_point_hints'] = []
@@ -3232,7 +3232,7 @@ $'"""
 				                                  fail_on_empty_before=False,
 				                                  preserve_newline=preserve_newline)
 				md5sum_output = md5(output).hexdigest()
-				shutit_global_object.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
 				if expect_type == 'md5sum':
 					output = md5sum_output
 					if output == expect:
@@ -3249,7 +3249,7 @@ $'"""
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_fail()
 						shutit.build['exam_object'].end_timer()
-					shutit_global_object.log('\n\n' + colorise('32','failed') + '\n',transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.log('\n\n' + colorise('32','failed') + '\n',transient=True,level=logging.CRITICAL)
 					self._challenge_done(shutit, result='failed',final_stage=final_stage)
 					continue
 		elif challenge_type == 'golf':
@@ -3267,28 +3267,28 @@ $'"""
 					# Set the new_stage to False, as we're in a loop that doesn't need to mark a new state.
 					new_stage = False
 				self.pause_point(colorise('31',task_desc_new),color='31')
-				if shutit_global_object.signal_id == 8:
+				if shutit_global.shutit_global_object.signal_id == 8:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_hint()
 					if shutit.build['pause_point_hints']:
-						shutit_global_object.log(colorise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(colorise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True,level=logging.CRITICAL)
 					else:
-						shutit_global_object.log(colorise('31','\r\n\r\n' + 'No hints available!'),transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(colorise('31','\r\n\r\n' + 'No hints available!'),transient=True,level=logging.CRITICAL)
 					time.sleep(1)
 					# clear the signal
-					shutit_global_object.signal_id = 0
+					shutit_global.shutit_global_object.signal_id = 0
 					continue
-				elif shutit_global_object.signal_id == 17:
+				elif shutit_global.shutit_global_object.signal_id == 17:
 					# clear the signal and ignore CTRL-q
-					shutit_global_object.signal_id = 0
+					shutit_global.shutit_global_object.signal_id = 0
 					continue
-				elif shutit_global_object.signal_id == 7:
+				elif shutit_global.shutit_global_object.signal_id == 7:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_reset()
-					shutit_global_object.log(colorise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.log(colorise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True,level=logging.CRITICAL)
 					self._challenge_done(shutit, result='reset', follow_on_context=follow_on_context,final_stage=False)
 					# clear the signal
-					shutit_global_object.signal_id = 0
+					shutit_global.shutit_global_object.signal_id = 0
 					# Get the new target child, which is the new 'self'
 					target_child = shutit.get_shutit_pexpect_session_from_id('target_child')
 					return target_child.challenge(
@@ -3312,24 +3312,24 @@ $'"""
 						follow_on_context=follow_on_context,
 						new_stage=False
 					)
-				elif shutit_global_object.signal_id == 19:
+				elif shutit_global.shutit_global_object.signal_id == 19:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_skip()
 						shutit.build['exam_object'].end_timer()
 					# Clear the signal.
-					shutit_global_object.signal_id = 0
+					shutit_global.shutit_global_object.signal_id = 0
 					# Skip test.
-					shutit_global_object.log('\r\nTest skipped... please wait',level=logging.CRITICAL,transient=True)
+					shutit_global.shutit_global_object.log('\r\nTest skipped... please wait',level=logging.CRITICAL,transient=True)
 					skipped=True
 					self._challenge_done(shutit, result='skipped',follow_on_context=follow_on_context,skipped=True,final_stage=final_stage)
 					return True
-				elif shutit_global_object.signal_id == 29:
+				elif shutit_global.shutit_global_object.signal_id == 29:
 					# Clear the signal
-					shutit_global_object.signal_id = 0
+					shutit_global.shutit_global_object.signal_id = 0
 				else:
-					shutit_global_object.log('Signal not handled: ' + str(shutit_global_object.signal_id),level=logging.CRITICAL,transient=True)
+					shutit_global.shutit_global_object.log('Signal not handled: ' + str(shutit_global.shutit_global_object.signal_id),level=logging.CRITICAL,transient=True)
 					
-				shutit_global_object.log('\r\nState submitted, checking your work...',level=logging.CRITICAL,transient=True)
+				shutit_global.shutit_global_object.log('\r\nState submitted, checking your work...',level=logging.CRITICAL,transient=True)
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,
 				                                  timeout=timeout,
@@ -3339,10 +3339,10 @@ $'"""
 				                                  loglevel=loglevel,
 				                                  fail_on_empty_before=False,
 				                                  preserve_newline=preserve_newline)
-				shutit_global_object.log('output: ' + output,level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('output: ' + output,level=logging.DEBUG)
 				md5sum_output = md5(output).hexdigest()
 				if expect_type == 'md5sum':
-					shutit_global_object.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('output: ' + output + ' is md5sum: ' + md5sum_output,level=logging.DEBUG)
 					output = md5sum_output
 					if output == expect:
 						ok = True
@@ -3355,7 +3355,7 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
-					shutit_global_object.log('\r\n\n' + colorise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.log('\r\n\n' + colorise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True,level=logging.CRITICAL)
 					# No second chances if exam!
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_fail()
@@ -3382,7 +3382,7 @@ $'"""
 
 	def init_pexpect_session_environment(self, prefix):
 		shutit = self.shutit
-		environment_id_dir = shutit_global_object.shutit_state_dir + '/environment_id'
+		environment_id_dir = shutit_global.shutit_global_object.shutit_state_dir + '/environment_id'
 		if self.file_exists(environment_id_dir,directory=True):
 			files = self.ls(environment_id_dir)
 			if len(files) != 1 or not isinstance(files, list):
@@ -3422,8 +3422,8 @@ $'"""
 		self.current_environment = new_environment
 		add_shutit_pexpect_session_environment(new_environment)
 		self.get_distro_info()
-		self.send(ShutItSendSpec(self,
-		                         send=' command mkdir -p ' + environment_id_dir + ' && ( chmod -R 777 ' + shutit_global_object.shutit_state_dir + ' || /bin/true ) && touch ' + environment_id_dir + '/' + new_environment.environment_id,
+		self.send(shutit_sendspec.ShutItSendSpec(self,
+		                         send=' command mkdir -p ' + environment_id_dir + ' && ( chmod -R 777 ' + shutit_global.shutit_global_object.shutit_state_dir + ' || /bin/true ) && touch ' + environment_id_dir + '/' + new_environment.environment_id,
 		                         echo=False,
 		                         loglevel=logging.DEBUG,
 		                         ignore_background=True))
@@ -3433,15 +3433,15 @@ $'"""
 	# Determines whether we have sudo available, and whether we already have sudo rights cached.
 	def check_sudo(self):
 		if self.command_available('sudo'):
-			self.send(ShutItSendSpec(self,
+			self.send(shutit_sendspec.ShutItSendSpec(self,
 			                         send=' sudo -n echo',
 			                         check_exit=False,
 			                         check_sudo=False,
 			                         ignore_background=True))
 			if self.send_and_get_output(' echo $?') == '0':
-				shutit_global_object.log('check_sudo returning True',level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('check_sudo returning True',level=logging.DEBUG)
 				return True
-		shutit_global_object.log('check_sudo returning False',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('check_sudo returning False',level=logging.DEBUG)
 		return False
 
 
@@ -3457,14 +3457,14 @@ $'"""
 			return pw
 		if whoiam != 'root':
 			if ignore_brew and self.current_environment.install_type == 'brew':
-				shutit_global_object.log('brew installation environment, and ignor_brew set, returning',logging.DEBUG,level=logging.INFO)
+				shutit_global.shutit_global_object.log('brew installation environment, and ignor_brew set, returning',logging.DEBUG,level=logging.INFO)
 			else:
 				if not self.command_available('sudo'):
 					shutit.pause_point('Please install sudo and then continue with CTRL-]',shutit_pexpect_child=self.pexpect_child)
 				if not self.check_sudo():
 					pw = self.get_env_pass(whoiam,'Please input your sudo password in case it is needed (for user: ' + whoiam + ')\nJust hit return if you do not want to submit a password.\n')
 		if isinstance(pw,str):
-			shutit_global_object.secret_words_set.add(pw)
+			shutit_global.shutit_global_object.secret_words_set.add(pw)
 		return pw
 
 
@@ -3476,22 +3476,22 @@ $'"""
 		"""
 		shutit = self.shutit
 		random_id = random_id()
-		fname = shutit_global_object.shutit_state_dir + '/tmp_' + random_id
+		fname = shutit_global.shutit_global_object.shutit_state_dir + '/tmp_' + random_id
 		working_str = send
 		# truncate -s must be used as --size is not supported everywhere (eg busybox)
-		assert not self.sendline(ShutItSendSpec(self,
+		assert not self.sendline(shutit_sendspec.ShutItSendSpec(self,
 		                                        send=' truncate -s 0 '+ fname,
 		                                        ignore_background=True)), print_debug()
 		self.pexpect_child.expect(expect)
-		size = shutit_global_object.line_limit
+		size = shutit_global.shutit_global_object.line_limit
 		while working_str:
 			curr_str = working_str[:size]
 			working_str = working_str[size:]
-			assert not self.sendline(ShutItSendSpec(self,
+			assert not self.sendline(shutit_sendspec.ShutItSendSpec(self,
 			                                        send=' ' + shutit.get_command('head') + ''' -c -1 >> ''' + fname + """ << 'END_""" + random_id + """'\n""" + curr_str + """\nEND_""" + random_id,
 		                                            ignore_background=True)), print_debug()
 			self.expect(expect)
-		assert not self.sendline(ShutItSendSpec(self,
+		assert not self.sendline(shutit_sendspec.ShutItSendSpec(self,
 		                                        send=' chmod +x ' + fname,
 		                                        ignore_background=True)), print_debug()
 		self.expect(expect)
@@ -3509,21 +3509,21 @@ $'"""
 		if result == 'ok' or result == 'failed_test' or result == 'skipped':
 			shutit.build['ctrlc_passthrough'] = False
 			if congratulations and result == 'ok':
-				shutit_global_object.log('\n\n' + colorise('32',congratulations) + '\n',transient=True,level=logging.INFO)
+				shutit_global.shutit_global_object.log('\n\n' + colorise('32',congratulations) + '\n',transient=True,level=logging.INFO)
 			time.sleep(pause)
 			if follow_on_context is not None:
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('ok_container_name')
 					if not container_name:
-						shutit_global_object.log('No reset context available, carrying on.',level=logging.INFO)
+						shutit_global.shutit_global_object.log('No reset context available, carrying on.',level=logging.INFO)
 					elif skipped or result == 'failed_test':
 						# We need to ensure the correct state.
 						self.replace_container(container_name,go_home=False)
-						shutit_global_object.log('State restored.',level=logging.INFO)
+						shutit_global.shutit_global_object.log('State restored.',level=logging.INFO)
 					elif final_stage:
-						shutit_global_object.log(colorise('31','Finished! Please wait...'),transient=True,level=logging.INFO)
+						shutit_global.shutit_global_object.log(colorise('31','Finished! Please wait...'),transient=True,level=logging.INFO)
 					else:
-						shutit_global_object.log(colorise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True,level=logging.INFO)
+						shutit_global.shutit_global_object.log(colorise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True,level=logging.INFO)
 				else:
 					shutit.fail('Follow-on context not handled on pass') # pragma: no cover
 			return True
@@ -3538,10 +3538,10 @@ $'"""
 				if follow_on_context.get('context') == 'docker':
 					container_name = follow_on_context.get('reset_container_name')
 					if not container_name:
-						shutit_global_object.log('No reset context available, carrying on.',level=logging.DEBUG)
+						shutit_global.shutit_global_object.log('No reset context available, carrying on.',level=logging.DEBUG)
 					else:
 						self.replace_container(container_name,go_home=False)
-						shutit_global_object.log('State restored.',level=logging.INFO)
+						shutit_global.shutit_global_object.log('State restored.',level=logging.INFO)
 				else:
 					shutit.fail('Follow-on context not handled on reset') # pragma: no cover
 			return True
@@ -3560,44 +3560,44 @@ $'"""
 		if len(input_string) == 1:
 			# Picked CTRL-u as the rarest one accepted by terminals.
 			if ord(input_string) == 21 and shutit.build['delivery'] == 'docker':
-				shutit_global_object.log('CTRL and u caught, forcing a tag at least',level=logging.INFO)
+				shutit_global.shutit_global_object.log('CTRL and u caught, forcing a tag at least',level=logging.INFO)
 				shutit.do_repository_work('tagged_by_shutit', password=shutit.host['password'], docker_executable=shutit.host['docker_executable'], force=True)
-				shutit_global_object.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.CRITICAL)
+				shutit_global.shutit_global_object.log('Commit and tag done. Hit CTRL and ] to continue with build. Hit return for a prompt.',level=logging.CRITICAL)
 			# CTRL-d
 			elif ord(input_string) == 4:
-				shutit_global_object.log("""\r\n\r\nCTRL-D ignored in pause points. Type 'exit' to log out, but be warned that continuing the run with CTRL-] may then give unexpected results!\r\n""", level=logging.INFO, transient=True)
+				shutit_global.shutit_global_object.log("""\r\n\r\nCTRL-D ignored in pause points. Type 'exit' to log out, but be warned that continuing the run with CTRL-] may then give unexpected results!\r\n""", level=logging.INFO, transient=True)
 				return ''
 			# CTRL-h
 			elif ord(input_string) == 8:
-				shutit_global_object.signal_id = 8
+				shutit_global.shutit_global_object.signal_id = 8
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-g
 			elif ord(input_string) == 7:
-				shutit_global_object.signal_id = 7
+				shutit_global.shutit_global_object.signal_id = 7
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-p - used as part of CTRL-p - CTRL-q
 			elif ord(input_string) == 16:
-				shutit_global_object.signal_id = 16
-				if shutit.build['exam'] and shutit_global_object.loglevel not in ('DEBUG','INFO'):
+				shutit_global.shutit_global_object.signal_id = 16
+				if shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG','INFO'):
 					return ''
 				return '\x10'
 			# CTRL-q
 			elif ord(input_string) == 17:
-				shutit_global_object.signal_id = 17
-				if not shutit.build['exam'] and shutit_global_object.loglevel not in ('DEBUG',):
-					shutit_global_object.log('CTRL-q hit, quitting ShutIt',transient=True,level=logging.CRITICAL)
-					shutit_global_object.handle_exit(exit_code=1)
+				shutit_global.shutit_global_object.signal_id = 17
+				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
+					shutit_global.shutit_global_object.log('CTRL-q hit, quitting ShutIt',transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			# CTRL-s
 			elif ord(input_string) == 19:
-				shutit_global_object.signal_id = 19
+				shutit_global.shutit_global_object.signal_id = 19
 				# Return the escape from pexpect char
 				return '\x1d'
 			# CTRL-]
 			# Foreign keyboard?: http://superuser.com/questions/398/how-to-send-the-escape-character-on-os-x-terminal/427#427
 			elif ord(input_string) == 29:
-				shutit_global_object.signal_id = 29
+				shutit_global.shutit_global_object.signal_id = 29
 				# Return the escape from pexpect char
 				return '\x1d'
 		return input_string
@@ -3607,4 +3607,4 @@ $'"""
 def add_shutit_pexpect_session_environment(pexpect_session_environment):
 	"""Adds an environment object to a shutit_pexpect_session object.
 	"""
-	shutit_global_object.shutit_pexpect_session_environments.add(pexpect_session_environment)
+	shutit_global.shutit_global_object.shutit_pexpect_session_environments.add(pexpect_session_environment)

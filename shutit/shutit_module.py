@@ -25,7 +25,7 @@
 from __future__ import print_function
 import decimal
 import inspect
-from .shutit_util import print_debug
+from shutit import shutit_util
 from abc import ABCMeta, abstractmethod
 from six import with_metaclass, iteritems
 

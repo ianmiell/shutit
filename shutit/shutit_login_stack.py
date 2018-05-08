@@ -10,8 +10,8 @@ belonging to this login.
 
 from __future__ import print_function
 import logging
-from .shutit_global import shutit_global_object
-from .shutit_background import ShutItBackgroundCommand
+from shutit import shutit_global
+from shutit import shutit_background
 
 class ShutItLoginStack(object):
 

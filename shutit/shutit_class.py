@@ -31,17 +31,17 @@ from distutils.dir_util import mkpath
 from distutils import spawn
 import texttable
 import pexpect
-from .shutit_util import print_debug, colorise, check_regexp, util_raw_input, random_word, get_hash, random_id, is_file_secure, get_input
-from .shutit_global import shutit_global_object
-from .shutit_skeleton import process_shutitfile, create_skeleton
-from .shutit_exam import ShutItExamSession
+from shutit import shutit_util
+from shutit import shutit_global
+from shutit import shutit_skeleton
+from shutit import shutit_exam
 try:
 	import ConfigParser
 except ImportError: # pragma: no cover
 	import configparser as ConfigParser
-from .shutit_sendspec import ShutItSendSpec
-from .shutit_module import ShutItFailException, ShutItModule
-from .shutit_pexpect import ShutItPexpectSession
+from shutit import shutit_sendspec
+from shutit import shutit_module
+from shutit import shutit_pexpect
 
 
 def get_module_file(shutit, module):

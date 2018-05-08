@@ -1,5 +1,5 @@
 from __future__ import print_function
-from .shutit_util import random_id
+from shutit import shutit_util
 
 class ShutItPexpectSessionEnvironment(object):
 

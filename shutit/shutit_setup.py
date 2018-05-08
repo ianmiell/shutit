@@ -33,10 +33,10 @@ Nomenclature:
 # SOFTWARE.
 
 from __future__ import print_function
-from .shutit_global import shutit_global_object
-from .shutit_module import ShutItModule
-from .shutit_sendspec import ShutItSendSpec
-from .shutit_pexpect import ShutItPexpectSession
+from shutit import shutit_global
+from shutit import shutit_module
+from shutit import shutit_sendspec
+from shutit import shutit_pexpect
 
 
 class ShutItConnModule(ShutItModule):

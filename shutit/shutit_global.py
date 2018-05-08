@@ -312,7 +312,7 @@ def setup_signals():
 shutit_global_object = ShutItGlobal()
 
 # Only at this point can we import other modules, otherwise we get race failures.
-from .shutit_class import ShutIt, ShutItInit
-from .shutit_util import print_debug, colorise, ctrl_quit_signal_handler, sanitize_terminal
+from shutit import shutit_class
+from shutit import shutit_util
 
 shutit_global_object.add_shutit_session(ShutIt(standalone=False))

@@ -41,9 +41,9 @@ import sys
 import threading
 import time
 import traceback
-from .shutit_assets import get_words
-#from .shutit_class import do_finalize
-from .shutit_global import shutit_global_object
+from shutit import shutit_assets
+from shutit import shutit_class
+from shutit import shutit_global
 
 
 def is_file_secure(file_name):
