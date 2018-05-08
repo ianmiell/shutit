@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 
 setup(
 	name='shutit',
-	version='1.0.107',
+	version='1.0.108',
 	description='A programmable automation tool designed for complex builds',
 	long_description='A programmable shell-based (pexpect) automation tool designed for complex builds. See: http://ianmiell.github.io/shutit',
 	url='http://ianmiell.github.io/shutit/',
