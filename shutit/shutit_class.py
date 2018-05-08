@@ -3190,7 +3190,7 @@ class ShutIt(object):
 					candidate_shutitfile_contents = candidate_shutitfile_fh.read()
 					candidate_shutitfile_fh.close()
 					try:
-						shutitfile_representation, ok = process_shutitfile(self, candidate_shutitfile_contents)
+						shutitfile_representation, ok = shutit_skeleton.process_shutitfile(self, candidate_shutitfile_contents)
 						if not ok or candidate_shutitfile_contents.strip() == '':
 							print('Ignoring file (failed to parse candidate shutitfile): ' + shutitfile)
 						else:
@@ -3212,7 +3212,7 @@ class ShutIt(object):
 									candidate_shutitfile_fh = open(candidate_shutitfile,'r')
 									candidate_shutitfile_contents = candidate_shutitfile_fh.read()
 									candidate_shutitfile_fh.close()
-									shutitfile_representation, ok = process_shutitfile(shutit, candidate_shutitfile_contents)
+									shutitfile_representation, ok = shutit_skeleton.process_shutitfile(shutit, candidate_shutitfile_contents)
 									if not ok or candidate_shutitfile_contents.strip() == '':
 										print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
 									else:
