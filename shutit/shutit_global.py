@@ -207,17 +207,17 @@ class ShutItGlobal(object):
 		if not self.nocolor:
 			if color_code == 0:
 				if level == logging.INFO:
-					msg = colorise(32,msg)
+					msg = shutit_util.colorise(32,msg)
 				elif level == logging.WARNING:
-					msg = colorise(36,msg)
+					msg = shutit_util.colorise(36,msg)
 				elif level == logging.CRITICAL:
-					msg = colorise(31,msg)
+					msg = shutit_util.colorise(31,msg)
 				elif level == logging.ERROR:
-					msg = colorise(92,msg)
+					msg = shutit_util.colorise(92,msg)
 				elif level == logging.DEBUG:
-					msg = colorise(35,msg)
+					msg = shutit_util.colorise(35,msg)
 			else:
-				msg = colorise(color_code,msg)
+				msg = shutit_util.colorise(color_code,msg)
 		# Message now in color if configured to be.
 		if transient:
 			if sys.stdout.isatty():
@@ -301,7 +301,7 @@ class ShutItGlobal(object):
 			self.log('\r\nExiting with error code: ' + str(exit_code),level=loglevel)
 			self.log(msg,level=loglevel)
 			self.log('\r\nResetting terminal',level=loglevel)
-		sanitize_terminal()
+		shutit_util.sanitize_terminal()
 		sys.exit(exit_code)
 
 
