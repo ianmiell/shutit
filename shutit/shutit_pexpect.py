@@ -57,9 +57,7 @@ import sys
 import textwrap
 import pexpect
 from shutit import shutit_util
-#from shutit_util import shutit_util.print_debug, colorise, random_id, check_regexp, get_input, get_wide_hex
 from shutit import shutit_global
-#from shutit_global import shutit_global.shutit_global_object
 from shutit import package_map
 from shutit import shutit_class
 from shutit import shutit_login_stack
@@ -950,7 +948,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = self.shutit
 		shutit.handle_note(note)
-		if not check_regexp(match_regexp):
+		if not shutit_util.check_regexp(match_regexp):
 			shutit.fail('Illegal regexp found in add_to_bashrc call: ' + match_regexp) # pragma: no cover
 		if self.whoami() == 'root':
 			shutit.add_line_to_file(line, '/root/.bashrc', match_regexp=match_regexp, loglevel=loglevel)
@@ -1130,7 +1128,7 @@ class ShutItPexpectSession(object):
 		shutit = self.shutit
 		shutit.handle_note(note)
 		if not locations or not isinstance(locations, list):
-			raise ShutItFailException('Locations should be a list containing base of the url.')
+			raise shutit_module.ShutItFailException('Locations should be a list containing base of the url.')
 		retry_orig = retry
 		if not self.command_available(command):
 			self.install('curl')
@@ -1846,7 +1844,7 @@ class ShutItPexpectSession(object):
 			self.current_environment.users.update({user:None})
 		if not self.current_environment.users[user] and user != 'root':
 			msg = msg or 'Please input the sudo password for user: ' + user
-			pw = get_input(msg,ispass=True)
+			pw = shutit_util.get_input(msg,ispass=True)
 			self.current_environment.users[user] = pw
 			shutit_global.shutit_global_object.secret_words_set.add(self.current_environment.users[user])
 		return pw
@@ -2252,7 +2250,7 @@ class ShutItPexpectSession(object):
 			shutit_global.shutit_global_object.log('Failed to match regexps -> ' + str(regexps) + ' <- retries left:' + str(retries),level=loglevel)
 			if not not_there:
 				for regexp in regexps:
-					if not check_regexp(regexp):
+					if not shutit_util.check_regexp(regexp):
 						shutit.fail('Illegal regexp found in send_until call: ' + regexp) # pragma: no cover
 					if shutit.match_string(output, regexp):
 						return True
@@ -2260,7 +2258,7 @@ class ShutItPexpectSession(object):
 				# Only return if _not_ seen in the output
 				missing = False
 				for regexp in regexps:
-					if not check_regexp(regexp):
+					if not shutit_util.check_regexp(regexp):
 						shutit.fail('Illegal regexp found in send_until call: ' + regexp) # pragma: no cover
 					if not shutit.match_string(output, regexp):
 						missing = True
@@ -2376,7 +2374,7 @@ class ShutItPexpectSession(object):
 		else:
 			if pattern != None:
 				if not line_oriented:
-					if not check_regexp(pattern):
+					if not shutit_util.check_regexp(pattern):
 						shutit.fail('Illegal regexp found in change_text call: ' + pattern) # pragma: no cover
 					# cf: http://stackoverflow.com/questions/9411041/matching-ranges-of-lines-in-python-like-sed-ranges
 					if shutit_global.shutit_global_object.ispy3:
@@ -2425,7 +2423,7 @@ class ShutItPexpectSession(object):
 					cut_point   = 0
 					line_length = 0
 					matched     = False
-					if not check_regexp(pattern):
+					if not shutit_util.check_regexp(pattern):
 						shutit.fail('Illegal regexp found in change_text call: ' + pattern) # pragma: no cover
 					for line in lines:
 						#Help the user out to make this properly line-oriented
@@ -2555,7 +2553,7 @@ class ShutItPexpectSession(object):
 					                         loglevel=loglevel,
 					                         ignore_background=True))
 				else:
-					if not check_regexp(match_regexp):
+					if not shutit_util.check_regexp(match_regexp):
 						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp) # pragma: no cover
 					#            v the space is intentional, to avoid polluting bash history.
 					self.send(shutit_sendspec.ShutItSendSpec(self,
@@ -2574,7 +2572,7 @@ class ShutItPexpectSession(object):
 					                         loglevel=loglevel,
 					                         ignore_background=True))
 				else:
-					if not check_regexp(match_regexp):
+					if not shutit_util.check_regexp(match_regexp):
 						shutit.fail('Illegal regexp found in remove_line_from_file call: ' + match_regexp) # pragma: no cover
 					#          v the space is intentional, to avoid polluting bash history.
 					self.send(shutit_sendspec.ShutItSendSpec(self,
@@ -2743,7 +2741,7 @@ class ShutItPexpectSession(object):
 						escaped_str += char
 						_count += 1
 					else:
-						escaped_str += get_wide_hex(char)
+						escaped_str += shutit_util.get_wide_hex(char)
 						_count += 4
 					if _count > shutit_global.shutit_global_object.line_limit:
 						# The newline here is deliberate!
@@ -3195,24 +3193,24 @@ $'"""
 		else:
 			shutit.build['pause_point_hints'] = []
 		if challenge_type == 'command':
-			help_text = colorise('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
+			help_text = shutit_util.colorise('32','''\nType 'help' or 'h' to get a hint, 'exit' to skip, 'shutitreset' to reset state.''')
 			ok = False
 			while not ok:
-				shutit_global.shutit_global_object.log(colorise('32','''\nChallenge!'''),transient=True,level=logging.INFO)
+				shutit_global.shutit_global_object.log(shutit_util.colorise('32','''\nChallenge!'''),transient=True,level=logging.INFO)
 				if hints:
-					shutit_global.shutit_global_object.log(colorise('32',help_text),transient=True,level=logging.INFO)
+					shutit_global.shutit_global_object.log(shutit_util.colorise('32',help_text),transient=True,level=logging.INFO)
 				time.sleep(pause)
 				# TODO: bash path completion
-				send = get_input(task_desc + ' => ',color='31')
+				send = shutit_util.get_input(task_desc + ' => ',color='31')
 				if not send or send.strip() == '':
 					continue
 				if send in ('help','h'):
 					if hints:
 						shutit_global.shutit_global_object.log(help_text,transient=True,level=logging.CRITICAL)
-						shutit_global.shutit_global_object.log(colorise('32',hints.pop()),transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(shutit_util.colorise('32',hints.pop()),transient=True,level=logging.CRITICAL)
 					else:
 						shutit_global.shutit_global_object.log(help_text,transient=True,level=logging.CRITICAL)
-						shutit_global.shutit_global_object.log(colorise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step, CTRL-] to submit for checking'),transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(shutit_util.colorise('32','No hints left, sorry! CTRL-g to reset state, CTRL-s to skip this step, CTRL-] to submit for checking'),transient=True,level=logging.CRITICAL)
 					time.sleep(pause)
 					continue
 				if send == 'shutitreset':
@@ -3251,7 +3249,7 @@ $'"""
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_fail()
 						shutit.build['exam_object'].end_timer()
-					shutit_global.shutit_global_object.log('\n\n' + colorise('32','failed') + '\n',transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.log('\n\n' + shutit_util.colorise('32','failed') + '\n',transient=True,level=logging.CRITICAL)
 					self._challenge_done(shutit, result='failed',final_stage=final_stage)
 					continue
 		elif challenge_type == 'golf':
@@ -3268,14 +3266,14 @@ $'"""
 					shutit.build['exam_object'].start_timer()
 					# Set the new_stage to False, as we're in a loop that doesn't need to mark a new state.
 					new_stage = False
-				self.pause_point(colorise('31',task_desc_new),color='31')
+				self.pause_point(shutit_util.colorise('31',task_desc_new),color='31')
 				if shutit_global.shutit_global_object.signal_id == 8:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_hint()
 					if shutit.build['pause_point_hints']:
-						shutit_global.shutit_global_object.log(colorise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(shutit_util.colorise('31','\r\n========= HINT ==========\r\n\r\n' + shutit.build['pause_point_hints'].pop(0)),transient=True,level=logging.CRITICAL)
 					else:
-						shutit_global.shutit_global_object.log(colorise('31','\r\n\r\n' + 'No hints available!'),transient=True,level=logging.CRITICAL)
+						shutit_global.shutit_global_object.log(shutit_util.colorise('31','\r\n\r\n' + 'No hints available!'),transient=True,level=logging.CRITICAL)
 					time.sleep(1)
 					# clear the signal
 					shutit_global.shutit_global_object.signal_id = 0
@@ -3287,7 +3285,7 @@ $'"""
 				elif shutit_global.shutit_global_object.signal_id == 7:
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_reset()
-					shutit_global.shutit_global_object.log(colorise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.log(shutit_util.colorise('31','\r\n========= RESETTING STATE ==========\r\n\r\n'),transient=True,level=logging.CRITICAL)
 					self._challenge_done(shutit, result='reset', follow_on_context=follow_on_context,final_stage=False)
 					# clear the signal
 					shutit_global.shutit_global_object.signal_id = 0
@@ -3357,7 +3355,7 @@ $'"""
 							ok = True
 							break
 				if not ok and failed:
-					shutit_global.shutit_global_object.log('\r\n\n' + colorise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.log('\r\n\n' + shutit_util.colorise('31','Failed! CTRL-g to reset state, CTRL-h for a hint, CTRL-] to submit for checking') + '\n',transient=True,level=logging.CRITICAL)
 					# No second chances if exam!
 					if shutit.build['exam_object']:
 						shutit.build['exam_object'].add_fail()
@@ -3419,7 +3417,7 @@ $'"""
 			self.current_environment = environment
 			return shutit.get_shutit_pexpect_session_environment(environment_id)
 		# At this point we have determined it is a 'new' environment. So create a new ShutItPexpectSessionEnvironment identified by the prefix.
-		new_environment = ShutItPexpectSessionEnvironment(prefix)
+		new_environment = shutit_pexpect_session_environment.ShutItPexpectSessionEnvironment(prefix)
 		# If not, create new env object, set it to current.
 		self.current_environment = new_environment
 		add_shutit_pexpect_session_environment(new_environment)
@@ -3511,7 +3509,7 @@ $'"""
 		if result == 'ok' or result == 'failed_test' or result == 'skipped':
 			shutit.build['ctrlc_passthrough'] = False
 			if congratulations and result == 'ok':
-				shutit_global.shutit_global_object.log('\n\n' + colorise('32',congratulations) + '\n',transient=True,level=logging.INFO)
+				shutit_global.shutit_global_object.log('\n\n' + shutit_util.colorise('32',congratulations) + '\n',transient=True,level=logging.INFO)
 			time.sleep(pause)
 			if follow_on_context is not None:
 				if follow_on_context.get('context') == 'docker':
@@ -3523,9 +3521,9 @@ $'"""
 						self.replace_container(container_name,go_home=False)
 						shutit_global.shutit_global_object.log('State restored.',level=logging.INFO)
 					elif final_stage:
-						shutit_global.shutit_global_object.log(colorise('31','Finished! Please wait...'),transient=True,level=logging.INFO)
+						shutit_global.shutit_global_object.log(shutit_util.colorise('31','Finished! Please wait...'),transient=True,level=logging.INFO)
 					else:
-						shutit_global.shutit_global_object.log(colorise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True,level=logging.INFO)
+						shutit_global.shutit_global_object.log(shutit_util.colorise('31','Continuing, remember you can restore to a known state with CTRL-g.'),transient=True,level=logging.INFO)
 				else:
 					shutit.fail('Follow-on context not handled on pass') # pragma: no cover
 			return True
