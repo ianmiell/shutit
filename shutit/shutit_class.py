@@ -2825,7 +2825,8 @@ class ShutIt(object):
 			content = f.read().splitlines()
 		ok = False
 		for line in content:
-			if line.strip() == 'from shutit_module import ShutItModule':
+			# TODO: determine how to ignore our own files
+			if line.strip() == 'from shutit import shutit_module':
 				ok = True
 				break
 		if not ok:
@@ -2866,7 +2867,7 @@ class ShutIt(object):
 				modules = [modules]
 			for module in modules:
 				setattr(module, '__module_file', fpath)
-				ShutItModule.register(module.__class__)
+				shutit_module.ShutItModule.register(module.__class__)
 				target.add(module)
 				self.build['source'][fpath] = open(fpath).read()
 
@@ -4392,7 +4393,7 @@ class ShutIt(object):
 		run_orders = {}
 		has_core_module = False
 		for module in modules:
-			assert isinstance(module, ShutItModule), shutit_util.print_debug()
+			assert isinstance(module, shutit_module.ShutItModule), shutit_util.print_debug()
 			if module.module_id in self.shutit_map:
 				self.fail('Duplicated module id: ' + module.module_id + '\n\nYou may want to check your --shutit_module_path setting') # pragma: no cover
 			if module.run_order in run_orders:

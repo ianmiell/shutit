@@ -39,7 +39,7 @@ from shutit import shutit_sendspec
 from shutit import shutit_pexpect
 
 
-class ShutItConnModule(ShutItModule):
+class ShutItConnModule(shutit_module.ShutItModule):
 
 
 	def __init__(self, *args, **kwargs):
@@ -157,7 +157,7 @@ def conn_module():
 	]
 
 
-class setup(ShutItModule):
+class setup(shutit_module.ShutItModule):
 
 
 	def is_installed(self, shutit):
