@@ -3347,7 +3347,7 @@ class ShutIt(object):
 
 
 	def handle_run(self, args):
-		module_name      = random_id(chars=string.ascii_letters)
+		module_name      = shutit_util.random_id(chars=string.ascii_letters)
 		module_dir       = "/tmp/shutit_built/" + module_name
 		module_domain    = module_name + '.' + module_name
 		shutitfiles      = args.shutitfiles
