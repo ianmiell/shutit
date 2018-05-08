@@ -28,8 +28,8 @@
 from __future__ import print_function
 import logging
 import sys
-from .shutit_global import shutit_global_object, setup_signals
-from . import shutit_util
+from shutit import shutit_global
+from shutit import shutit_util
 
 
 def create_session(session_type='bash',
@@ -43,7 +43,7 @@ def create_session(session_type='bash',
 	assert session_type in ('bash','docker'), shutit_util.print_debug()
 	if video != -1 and video > 0:
 		walkthrough = True
-	return shutit_global_object.create_session(session_type,
+	return shutit_global.shutit_global_object.create_session(session_type,
 	                                           docker_image=docker_image,
 	                                           rm=rm,
 	                                           echo=echo,
@@ -63,7 +63,7 @@ def main():
 		- depgraph     - output digraph of module dependencies
 	"""
 	# Create base shutit object.
-	shutit = shutit_global_object.shutit_objects[0]
+	shutit = shutit_global.shutit_global_object.shutit_objects[0]
 	if sys.version_info[0] == 2:
 		if sys.version_info[1] < 7:
 			shutit.fail('Python version must be 2.7+') # pragma: no cover
@@ -71,7 +71,7 @@ def main():
 		shutit.setup_shutit_obj()
 	except KeyboardInterrupt:
 		shutit_util.print_debug(sys.exc_info())
-		shutit_global_object.log('Keyboard interrupt caught, exiting with status 1',level=logging.CRITICAL)
+		shutit_global.shutit_global_object.log('Keyboard interrupt caught, exiting with status 1',level=logging.CRITICAL)
 		sys.exit(1)
 
 
@@ -79,5 +79,5 @@ shutit_version='1.0.107'
 
 
 if __name__ == '__main__':
-	setup_signals()
+	shutit_global.setup_signals()
 	main()
