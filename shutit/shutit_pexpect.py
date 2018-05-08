@@ -768,11 +768,11 @@ class ShutItPexpectSession(object):
 						pp_msg += '\r\nHit CTRL and then ] at the same time to continue ShutIt run, CTRL-q to quit.'
 					if shutit.build['delivery'] == 'docker':
 						pp_msg += '\r\nHit CTRL and u to save the state to a docker image'
-					shutit_global.shutit_global_object.log(colorise(color,'\r\n' + 80*'=' + '\r\n' + msg + '\r\n' + 80*'='+'\r\n' + pp_msg),transient=True,level=logging.CRITICAL)
+					shutit_global.shutit_global_object.log(shutit_util.colorise(color,'\r\n' + 80*'=' + '\r\n' + msg + '\r\n' + 80*'='+'\r\n' + pp_msg),transient=True,level=logging.CRITICAL)
 				else:
-					shutit_global.shutit_global_object.log('\r\n' + (colorise(color, msg)),transient=True,level=logging.critical)
+					shutit_global.shutit_global_object.log('\r\n' + (shutit_util.colorise(color, msg)),transient=True,level=logging.critical)
 			else:
-				shutit_global.shutit_global_object.log(colorise(color, msg) + '\r\n' + default_msg + '\r\n',transient=True,level=logging.CRITICAL)
+				shutit_global.shutit_global_object.log(shutit_util.colorise(color, msg) + '\r\n' + default_msg + '\r\n',transient=True,level=logging.CRITICAL)
 			oldlog = self.pexpect_child.logfile
 			self.pexpect_child.logfile = None
 			if wait > 0:

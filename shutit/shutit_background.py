@@ -30,7 +30,7 @@ class ShutItBackgroundCommand(object):
 		self.start_time             = None
 		self.run_state              = 'N' # State as per ps man page, but 'C' == Complete, 'N' == not started, 'F' == failed, 'S' == sleeping/running, 'T' == timed out by ShutIt
 		self.cwd                    = self.sendspec.shutit_pexpect_child.send_and_get_output(' command pwd', ignore_background=True)
-		self.id                     = random_id()
+		self.id                     = shutit_util.random_id()
 		self.output_file            = '/tmp/shutit_background_' + self.id + '_output.log'
 		self.exit_code_file         = '/tmp/shutit_background_' + self.id + '_exit_code_file.log'
 		self.command_file           = '/tmp/shutit_background_' + self.id + '_command.log'
@@ -84,22 +84,22 @@ class ShutItBackgroundCommand(object):
 
 		self.sendspec.started = True
 
-		assert self.run_state in ('C','S','F'), print_debug()
+		assert self.run_state in ('C','S','F'), shutit_util.print_debug()
 		return True
 
 
 	def check_background_command_state(self):
 		shutit_global.shutit_global_object.log('CHECKING background task: ' + self.sendspec.send + ', id: ' + self.id,level=logging.DEBUG)
-		assert self.start_time is not None, print_debug()
+		assert self.start_time is not None, shutit_util.print_debug()
 		# Check the command has been started
 		if not self.sendspec.started:
-			assert self.run_state == 'N', print_debug()
+			assert self.run_state == 'N', shutit_util.print_debug()
 			return self.run_state
 		if self.run_state in ('C','F'):
-			assert self.sendspec.started, print_debug()
+			assert self.sendspec.started, shutit_util.print_debug()
 			return self.run_state
 		try:
-			assert self.run_state in ('S',), print_debug(msg='State should be in S, is in fact: ' + self.run_state)
+			assert self.run_state in ('S',), shutit_util.print_debug(msg='State should be in S, is in fact: ' + self.run_state)
 		except AssertionError:
 			_, _, tb = sys.exc_info()
 			traceback.print_tb(tb) # Fixed format
@@ -124,7 +124,7 @@ class ShutItBackgroundCommand(object):
 				shutit_global.shutit_global_object.log('background task run state: ' + self.run_state, level=logging.DEBUG)
 				self.run_state = 'S'
 			try:
-				assert self.run_state in ('S',), print_debug(msg='State should be in S having gleaned from ps, is in fact: ' + self.run_state)
+				assert self.run_state in ('S',), shutit_util.print_debug(msg='State should be in S having gleaned from ps, is in fact: ' + self.run_state)
 			except AssertionError:
 				_, _, tb = sys.exc_info()
 				traceback.print_tb(tb) # Fixed format
@@ -140,14 +140,14 @@ class ShutItBackgroundCommand(object):
 					# We've timed out, kill with prejudice.
 					self.sendspec.shutit_pexpect_child.quick_send(' kill -9 ' + self.pid)
 					self.run_state = 'T'
-			assert self.run_state in ('S','T'), print_debug()
+			assert self.run_state in ('S','T'), shutit_util.print_debug()
 			return self.run_state
 		else:
 			# Task is finished.
 			self.run_state = 'C'
 			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ', id: ' + self.id + ' complete',level=logging.DEBUG)
 			# Stop this from blocking other commands from here.
-			assert self.return_value is None, print_debug(msg='check_background_command_state called with self.return_value already set?' + str(self))
+			assert self.return_value is None, shutit_util.print_debug(msg='check_background_command_state called with self.return_value already set?' + str(self))
 			self.sendspec.shutit_pexpect_child.quick_send(' wait ' + self.pid)
 			# Get the exit code.
 			self.return_value = self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file, ignore_background=True)
@@ -164,12 +164,12 @@ class ShutItBackgroundCommand(object):
 				else:
 					shutit_global.shutit_global_object.log('background task final failure: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
 					self.run_state = 'F'
-				assert self.run_state in ('C','F'), print_debug()
+				assert self.run_state in ('C','F'), shutit_util.print_debug()
 				return self.run_state
 			else:
 				# Task succeeded.
 				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' succeeded with exit code: ' + self.return_value, level=logging.DEBUG)
-			assert self.run_state in ('C',), print_debug()
+			assert self.run_state in ('C',), shutit_util.print_debug()
 			return self.run_state
 		# Should never get here.
-		assert False, print_debug()
+		assert False, shutit_util.print_debug()

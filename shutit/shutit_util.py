@@ -118,7 +118,7 @@ def ctrl_quit_signal_handler(_,frame):
 	print(r'CRTL-\ caught, hard-exiting ShutIt')
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
-		do_finalize()
+		shutit_class.do_finalize()
 	shutit_global.shutit_global_object.handle_exit(exit_code=1)
 # CTRL-\ HANDLING CODE ENDS
 

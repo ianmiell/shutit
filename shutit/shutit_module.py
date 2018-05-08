@@ -76,7 +76,7 @@ class ShutItMeta(ABCMeta):
 		if name != 'ShutItModule':
 
 			sim = mcs.ShutItModule
-			assert sim is not None, print_debug()
+			assert sim is not None, shutit_util.print_debug()
 
 			# Wrap any of the ShutItModule (self, shutit) methods that have been
 			# overridden in a subclass

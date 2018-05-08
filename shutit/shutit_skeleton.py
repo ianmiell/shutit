@@ -30,6 +30,7 @@ import os
 import re
 import json
 from shutit import shutitfile
+from shutit import shutit_util
 
 
 def create_skeleton(shutit):

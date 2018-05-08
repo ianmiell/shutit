@@ -36,7 +36,7 @@ from __future__ import print_function
 from shutit import shutit_global
 from shutit import shutit_module
 from shutit import shutit_sendspec
-from shutit import shutit_pexpect
+from shutit import shutit_util
 
 
 class ShutItConnModule(shutit_module.ShutItModule):
@@ -85,7 +85,7 @@ class ConnDocker(ShutItConnModule):
 		self.setup_host_child(shutit)
 		# TODO: on the host child, check that the image running has bash as its cmd/entrypoint.
 		self.setup_target_child(shutit, target_child)
-		shutit.send('chmod -R 777 ' + shutit_global_object.shutit_state_dir + ' && mkdir -p ' + shutit_global_object.shutit_state_dir_build_db_dir + '/' + shutit_global_object.build_id, shutit_pexpect_child=target_child, echo=False)
+		shutit.send('chmod -R 777 ' + shutit_global.shutit_global_object.shutit_state_dir + ' && mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/' + shutit_global.shutit_global_object.build_id, shutit_pexpect_child=target_child, echo=False)
 		return True
 
 
@@ -95,7 +95,7 @@ class ConnDocker(ShutItConnModule):
 		"""
 		# Finish with the target
 		target_child_pexpect_session = shutit.get_shutit_pexpect_session_from_id('target_child')
-		assert not target_child_pexpect_session.sendline(ShutItSendSpec(target_child_pexpect_session,'exit',ignore_background=True)), shutit_util.print_debug()
+		assert not target_child_pexpect_session.sendline(shutit_sendspec.ShutItSendSpec(target_child_pexpect_session,'exit',ignore_background=True)), shutit_util.print_debug()
 		host_child_pexpect_session = shutit.get_shutit_pexpect_session_from_id('host_child')
 		host_child = host_child_pexpect_session.pexpect_child
 		shutit.set_default_shutit_pexpect_session(host_child_pexpect_session)
@@ -130,9 +130,9 @@ class ConnBash(ShutItConnModule):
 	def build(self, shutit):
 		"""Sets up the machine ready for building.
 		"""
-		shutit_pexpect_session = ShutItPexpectSession(shutit, 'target_child','/bin/bash')
+		shutit_pexpect_session = shutit_pexpect_session.ShutItPexpectSession(shutit, 'target_child','/bin/bash')
 		target_child = shutit_pexpect_session.pexpect_child
-		shutit_pexpect_session.expect(shutit_global_object.base_prompt.strip(), timeout=10)
+		shutit_pexpect_session.expect(shutit_global.shutit_global_object.base_prompt.strip(), timeout=10)
 		self.setup_host_child(shutit)
 		self.setup_target_child(shutit, target_child)
 		return True
@@ -144,7 +144,7 @@ class ConnBash(ShutItConnModule):
 		"""
 		# Finish with the target
 		target_child_pexpect_session = shutit.get_shutit_pexpect_session_from_id('target_child')
-		assert not target_child_pexpect_session.sendline(ShutItSendSpec(target_child_pexpect_session,'exit',ignore_background=True)), shutit_util.print_debug()
+		assert not target_child_pexpect_session.sendline(shutit_sendspec.ShutItSendSpec(target_child_pexpect_session,'exit',ignore_background=True)), shutit_util.print_debug()
 		return True
 
 

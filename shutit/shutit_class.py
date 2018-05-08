@@ -42,6 +42,7 @@ except ImportError: # pragma: no cover
 from shutit import shutit_sendspec
 from shutit import shutit_module
 from shutit import shutit_pexpect
+from shutit import shutit
 
 
 def get_module_file(shutit, module):
@@ -99,7 +100,7 @@ class LayerConfigParser(ConfigParser.RawConfigParser):
 			fp = fp # pylint
 			if cp.has_option(section, option):
 				return filename
-		raise ShutItFailException('[%s]/%s was never set' % (section, option)) # pragma: no cover
+		raise shutit_module.ShutItFailException('[%s]/%s was never set' % (section, option)) # pragma: no cover
 
 	def get_config_set(self, section, option):
 		"""Returns a set with each value per config file in it.
@@ -489,7 +490,7 @@ class ShutIt(object):
 			sys.stderr.write('Error caught: ' + msg + '\n')
 			sys.stderr.write('\n')
 			shutit_util.print_debug(sys.exc_info())
-			raise ShutItFailException(msg)
+			raise shutit_module.ShutItFailException(msg)
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
 			# However, it's still a "failure", so return 1
@@ -541,7 +542,7 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.multisend(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,send=send,
+		return shutit_pexpect_session.multisend(shutit_sendspec.ShutItSendSpec(shutit_pexpect_session,send=send,
 		                                                       send_dict=send_dict,
 		                                                       expect=expect,
 		                                                       timeout=timeout,
@@ -707,21 +708,21 @@ class ShutIt(object):
 		Returns the pexpect return value (ie which expected string in the list
 		matched)
 
-		@param send: See shutit.shutitsendspec.ShutItSendSpec
-		@param expect: See shutit.shutitsendspec.ShutItSendSpec
-		@param shutit_pexpect_child: See shutit.shutitsendspec.ShutItSendSpec
-		@param timeout: See shutit.shutitsendspec.ShutItSendSpec
-		@param check_exit: See shutit.shutitsendspec.ShutItSendSpec
-		@param fail_on_empty_before:See shutit.shutitsendspec.ShutItSendSpec
-		@param record_command:See shutit.shutitsendspec.ShutItSendSpec
-		@param exit_values:See shutit.shutitsendspec.ShutItSendSpec
-		@param echo: See shutit.shutitsendspec.ShutItSendSpec
-		@param escape: See shutit.shutitsendspec.ShutItSendSpec
-		@param retry: See shutit.shutitsendspec.ShutItSendSpec
-		@param note: See shutit.shutitsendspec.ShutItSendSpec
-		@param assume_gnu: See shutit.shutitsendspec.ShutItSendSpec
-		@param wait: See shutit.shutitsendspec.ShutItSendSpec
-		@param block_other_commands: See shutit.shutitsendspec.ShutItSendSpec.block_other_commands
+		@param send: See shutit.shutit_sendspec.ShutItSendSpec
+		@param expect: See shutit.shutit_sendspec.ShutItSendSpec
+		@param shutit_pexpect_child: See shutit.shutit_sendspec.ShutItSendSpec
+		@param timeout: See shutit.shutit_sendspec.ShutItSendSpec
+		@param check_exit: See shutit.shutit_sendspec.ShutItSendSpec
+		@param fail_on_empty_before:See shutit.shutit_sendspec.ShutItSendSpec
+		@param record_command:See shutit.shutit_sendspec.ShutItSendSpec
+		@param exit_values:See shutit.shutit_sendspec.ShutItSendSpec
+		@param echo: See shutit.shutit_sendspec.ShutItSendSpec
+		@param escape: See shutit.shutit_sendspec.ShutItSendSpec
+		@param retry: See shutit.shutit_sendspec.ShutItSendSpec
+		@param note: See shutit.shutit_sendspec.ShutItSendSpec
+		@param assume_gnu: See shutit.shutit_sendspec.ShutItSendSpec
+		@param wait: See shutit.shutit_sendspec.ShutItSendSpec
+		@param block_other_commands: See shutit.shutit_sendspec.ShutItSendSpec.block_other_commands
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
@@ -729,7 +730,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		ignore_background = not wait
 		#print('SEND: ' + send)
-		return shutit_pexpect_session.send(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,
+		return shutit_pexpect_session.send(shutit_sendspec.ShutItSendSpec(shutit_pexpect_session,
 		                                                  send,
 		                                                  expect=expect,
 		                                                  timeout=timeout,
@@ -774,7 +775,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		shutit_pexpect_session.send(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,send=send,
+		shutit_pexpect_session.send(shutit_sendspec.ShutItSendSpec(shutit_pexpect_session,send=send,
 		                            expect=expect,
 		                            timeout=timeout,
 		                            check_exit=False,
@@ -1041,7 +1042,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self.handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
 		shutit_global.shutit_global_object.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
-		shutit_pexpect_session.send(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path,
+		shutit_pexpect_session.send(shutit_sendspec.ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path,
 		                                           echo=False,
 		                                           loglevel=loglevel))
 		if user is None:
@@ -1061,14 +1062,14 @@ class ShutIt(object):
 			                                 group=group,
 			                                 loglevel=loglevel,
 			                                 encoding='iso-8859-1')
-			shutit_pexpect_session.send(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path + ' && command tar -C ' + path + ' -zxf ' + gzipfname))
+			shutit_pexpect_session.send(shutit_sendspec.ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path + ' && command tar -C ' + path + ' -zxf ' + gzipfname))
 		else:
 			# If no gunzip, fall back to old slow method.
 			for root, subfolders, files in os.walk(hostfilepath):
 				subfolders.sort()
 				files.sort()
 				for subfolder in subfolders:
-					shutit_pexpect_session.send(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path + '/' + subfolder,
+					shutit_pexpect_session.send(shutit_sendspec.ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path + '/' + subfolder,
 					                                           echo=False,
 					                                           loglevel=loglevel))
 					shutit_global.shutit_global_object.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder, level=logging.DEBUG)
@@ -1913,7 +1914,7 @@ class ShutIt(object):
 		"""Logs user in on default child.
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		return shutit_pexpect_session.login(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,user=user,
+		return shutit_pexpect_session.login(shutit_sendspec.ShutItSendSpec(shutit_pexpect_session,user=user,
 		                                                   send=command,
 		                                                   password=password,
 		                                                   prompt_prefix=prompt_prefix,
@@ -1943,7 +1944,7 @@ class ShutIt(object):
 			@param note:            See send()
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		return shutit_pexpect_session.logout(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,send=command,
+		return shutit_pexpect_session.logout(shutit_sendspec.ShutItSendSpec(shutit_pexpect_session,send=command,
 		                                                    note=note,
 		                                                    timeout=timeout,
 		                                                    nonewline=nonewline,
@@ -2825,7 +2826,7 @@ class ShutIt(object):
 			content = f.read().splitlines()
 		ok = False
 		for line in content:
-			# TODO: determine how to ignore our own files
+			# TODO: determine how to ignore our own files
 			if line.strip() == 'from shutit import shutit_module':
 				ok = True
 				break
@@ -2931,7 +2932,7 @@ class ShutIt(object):
 				print('Exiting on allowed images error, with return status 0')
 				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			else:
-				raise ShutItFailException('Allowed images checking failed') # pragma: no cover
+				raise shutit_module.ShutItFailException('Allowed images checking failed') # pragma: no cover
 		return True
 
 
@@ -3417,7 +3418,7 @@ class ShutIt(object):
 		self.repository['save']          = args.save
 		# Create a test session object if needed.
 		if self.build['exam']:
-			self.build['exam_object'] = ShutItExamSession(self)
+			self.build['exam_object'] = shutit_exam.ShutItExamSession(self)
 		# What are we building on? Convert arg to conn_module we use.
 		self.build['delivery']           = args.delivery
 		if args.delivery == 'docker' or args.delivery is None:
@@ -3936,7 +3937,7 @@ class ShutIt(object):
 				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
 				if not self.config_collection_for_built(throw_error=False):
 					cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
-					util_raw_input(prompt='Hit return to continue.\n')
+					shutit_util.util_raw_input(prompt='Hit return to continue.\n')
 					continue
 				# If true, set up config for that module
 				if cfg[module_id]['shutit.core.module.build']:
@@ -4071,7 +4072,7 @@ class ShutIt(object):
 			with open(bashrc, "a") as myfile:
 				#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
 				myfile.write('\nexport PATH="$PATH:' + os.path.dirname(path_to_shutit) + '"\n')
-			util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
+			shutit_util.util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
 			shutit_global.shutit_global_object.handle_exit()
 
 
@@ -4232,7 +4233,7 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.log(self.build_report('#Module:' + module.module_id), level=logging.DEBUG)
 		if not cfg[module.module_id]['shutit.core.module.tag'] and shutit_global.shutit_global_object.interactive >= 2:
 			print("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
-			cfg[module.module_id]['shutit.core.module.tag'] = (util_raw_input(default='y') == 'y')
+			cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(default='y') == 'y')
 		if cfg[module.module_id]['shutit.core.module.tag'] or self.build['tag_modules']:
 			shutit_global.shutit_global_object.log(module.module_id + ' configured to be tagged, doing repository work',level=logging.INFO)
 			# Stop all before we tag to avoid file changing errors, and clean up pid files etc..

@@ -1,5 +1,4 @@
 from __future__ import print_function
-import sys
 import time
 import signal
 
@@ -62,8 +61,7 @@ class ShutItExamSessionStage(object):
 	def is_complete(self):
 		if self.result == '':
 			return False
-		else:
-			return True
+		return True
 
 
 

@@ -38,7 +38,6 @@ import termios
 import signal
 import struct
 from distutils.dir_util import mkpath
-import pexpect
 
 
 class ShutItGlobal(object):
@@ -52,7 +51,7 @@ class ShutItGlobal(object):
 		"""
 		self.shutit_objects = []
 		# Primitive singleton enforcer.
-		assert self.only_one is None, print_debug()
+		assert self.only_one is None, shutit_util.print_debug()
 		self.only_one         = True
 		self.ispy3            = (sys.version_info[0] >= 3)
 
@@ -148,12 +147,12 @@ class ShutItGlobal(object):
 	                   walkthrough_wait=-1,
 	                   nocolor=False,
 	                   loglevel='WARNING'):
-		assert isinstance(session_type, str), print_debug()
-		new_shutit = ShutIt(standalone=True)
+		assert isinstance(session_type, str), shutit_util.print_debug()
+		new_shutit = shutit_class.ShutIt(standalone=True)
 		self.add_shutit_session(new_shutit)
 		self.nocolor=nocolor
 		if session_type == 'bash':
-			new_shutit.process_args(ShutItInit('build',
+			new_shutit.process_args(shutit_class.ShutItInit('build',
 			                                   delivery='bash',
 			                                   echo=echo,
 			                                   walkthrough=walkthrough,
@@ -164,7 +163,7 @@ class ShutItGlobal(object):
 			new_shutit.setup_host_child_environment()
 			return new_shutit
 		elif session_type == 'docker':
-			new_shutit.process_args(ShutItInit('build',
+			new_shutit.process_args(shutit_class.ShutItInit('build',
 			                                   delivery='docker',
 			                                   base_image=docker_image,
 			                                   echo=echo,
@@ -306,8 +305,8 @@ class ShutItGlobal(object):
 
 
 def setup_signals():
-	signal.signal(signal.SIGINT, ctrl_c_signal_handler)
-	signal.signal(signal.SIGQUIT, ctrl_quit_signal_handler)
+	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
+	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
 shutit_global_object = ShutItGlobal()
 
