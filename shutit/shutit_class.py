@@ -62,11 +62,11 @@ def do_finalize():
 		for module_id in shutit.module_ids(rev=True):
 			# Only finalize if it's thought to be installed.
 			if shutit.is_installed(shutit.shutit_map[module_id]):
-				shutit.login(prompt_prefix=module_id,command=shutit_global_object.bash_startup_command,echo=False)
+				shutit.login(prompt_prefix=module_id,command=shutit_global.shutit_global_object.bash_startup_command,echo=False)
 				if not shutit.shutit_map[module_id].finalize(shutit):
 					shutit.fail(module_id + ' failed on finalize', shutit_pexpect_child=shutit.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 				shutit.logout(echo=False)
-		for fshutit in shutit_global_object.shutit_objects:
+		for fshutit in shutit_global.shutit_global_object.shutit_objects:
 			_finalize(fshutit)
 
 
@@ -191,9 +191,9 @@ class ShutItInit(object):
 	             shutit_module_path=None,
 	             exam=False):
 
-		assert isinstance(action,str), print_debug()
-		assert isinstance(logfile,str), print_debug()
-		assert isinstance(log,str), print_debug()
+		assert isinstance(action,str), shutit_util.print_debug()
+		assert isinstance(logfile,str), shutit_util.print_debug()
+		assert isinstance(log,str), shutit_util.print_debug()
 
 		self.action  = action
 		self.logfile = logfile
@@ -220,24 +220,24 @@ class ShutItInit(object):
 			self.vagrant_upload         = vagrant_upload
 			self.vagrant_image_name     = vagrant_image_name
 			self.delivery               = delivery
-			assert self.accept in (True,False,None), print_debug()
-			assert not (self.shutitfiles and self.script), print_debug(msg='Cannot have any two of script, -d/--shutitfiles <files> as arguments')
-			assert isinstance(self.base_image,str), print_debug()
-			assert isinstance(self.depends,str), print_debug()
+			assert self.accept in (True,False,None), shutit_util.print_debug()
+			assert not (self.shutitfiles and self.script), shutit_util.print_debug(msg='Cannot have any two of script, -d/--shutitfiles <files> as arguments')
+			assert isinstance(self.base_image,str), shutit_util.print_debug()
+			assert isinstance(self.depends,str), shutit_util.print_debug()
 			#assert isinstance(self.shutitfiles,list)
-			assert isinstance(self.name,str), print_debug()
-			assert isinstance(self.domain,str), print_debug()
-			assert isinstance(self.pattern,str), print_debug()
-			assert isinstance(self.output_dir,bool), print_debug()
-			assert isinstance(self.vagrant_ssh_access,bool), print_debug()
-			#assert isinstance(self.delivery,str), print_debug()
+			assert isinstance(self.name,str), shutit_util.print_debug()
+			assert isinstance(self.domain,str), shutit_util.print_debug()
+			assert isinstance(self.pattern,str), shutit_util.print_debug()
+			assert isinstance(self.output_dir,bool), shutit_util.print_debug()
+			assert isinstance(self.vagrant_ssh_access,bool), shutit_util.print_debug()
+			#assert isinstance(self.delivery,str), shutit_util.print_debug()
 			# TODO: other asserts in other things.
 		elif self.action == 'run':
 			self.shutitfiles = shutitfiles
 			self.delivery    = delivery
 			self.echo        = echo
-			#assert isinstance(self.delivery,str), print_debug()
-			#assert isinstance(self.shutitfiles,list), print_debug()
+			#assert isinstance(self.delivery,str), shutit_util.print_debug()
+			#assert isinstance(self.shutitfiles,list), shutit_util.print_debug()
 		elif self.action == 'build' or self.action == 'list_configs' or self.action == 'list_modules':
 			self.push               = push
 			self.export             = export
@@ -280,11 +280,11 @@ class ShutItInit(object):
 				self.video            = True
 			if (self.video != -1 and self.video) and self.training:
 				print('--video and --training mode incompatible')
-				shutit_global_object.handle_exit(exit_code=1)
+				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			if (self.video != -1 and self.video) and self.exam:
 				print('--video and --exam mode incompatible')
-				shutit_global_object.handle_exit(exit_code=1)
-			#assert isinstance(self.delivery,str), print_debug()
+				shutit_global.shutit_global_object.handle_exit(exit_code=1)
+			#assert isinstance(self.delivery,str), shutit_util.print_debug()
 			# If the image_tag has been set then ride roughshod over the ignoreimage value if not supplied
 			if self.image_tag != '' and self.ignoreimage is None:
 				self.ignoreimage = True
@@ -294,7 +294,7 @@ class ShutItInit(object):
 			if self.delivery in ('bash',):
 				if self.image_tag != '': # pragma: no cover
 					print('delivery method specified (' + self.delivery + ') and image_tag argument make no sense')
-					shutit_global_object.handle_exit(exit_code=1)
+					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 
 
 class ShutIt(object):
@@ -403,7 +403,7 @@ class ShutIt(object):
 		"""
 		if not isinstance(environment_id, str):
 			self.fail('Wrong argument type in get_shutit_pexpect_session_environment') # pragma: no cover
-		for env in shutit_global_object.shutit_pexpect_session_environments:
+		for env in shutit_global.shutit_global_object.shutit_pexpect_session_environments:
 			if env.environment_id == environment_id:
 				return env
 		return None
@@ -452,7 +452,7 @@ class ShutIt(object):
 
 		@param shutit_pexpect_session: pexpect child to set as default
 		"""
-		assert isinstance(shutit_pexpect_session, ShutItPexpectSession), print_debug()
+		assert isinstance(shutit_pexpect_session, shutit_pexpect.ShutItPexpectSession), shutit_util.print_debug()
 		self.current_shutit_pexpect_session = shutit_pexpect_session
 		return True
 
@@ -483,17 +483,17 @@ class ShutIt(object):
 		# Note: we must not default to a child here
 		if shutit_pexpect_child is not None:
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-			print_debug(sys.exc_info())
+			shutit_util.print_debug(sys.exc_info())
 			shutit_pexpect_session.pause_point('Pause point on fail: ' + msg, color='31')
 		if throw_exception:
 			sys.stderr.write('Error caught: ' + msg + '\n')
 			sys.stderr.write('\n')
-			print_debug(sys.exc_info())
+			shutit_util.print_debug(sys.exc_info())
 			raise ShutItFailException(msg)
 		else:
 			# This is an "OK" failure, ie we don't need to throw an exception.
 			# However, it's still a "failure", so return 1
-			shutit_global_object.handle_exit(exit_code=1,msg=msg)
+			shutit_global.shutit_global_object.handle_exit(exit_code=1,msg=msg)
 
 
 	def get_current_environment(self, note=None):
@@ -511,7 +511,7 @@ class ShutIt(object):
 	              send_dict,
 	              expect=None,
 	              shutit_pexpect_child=None,
-	              timeout=shutit_global_object.default_timeout,
+	              timeout=shutit_global.shutit_global_object.default_timeout,
 	              check_exit=None,
 	              fail_on_empty_before=True,
 	              record_command=True,
@@ -537,11 +537,11 @@ class ShutIt(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
-		assert isinstance(send_dict, dict), print_debug()
+		assert isinstance(send_dict, dict), shutit_util.print_debug()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.multisend(ShutItSendSpec(shutit_pexpect_session,send=send,
+		return shutit_pexpect_session.multisend(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,send=send,
 		                                                       send_dict=send_dict,
 		                                                       expect=expect,
 		                                                       timeout=timeout,
@@ -707,21 +707,21 @@ class ShutIt(object):
 		Returns the pexpect return value (ie which expected string in the list
 		matched)
 
-		@param send: See shutit.ShutItSendSpec
-		@param expect: See shutit.ShutItSendSpec
-		@param shutit_pexpect_child: See shutit.ShutItSendSpec
-		@param timeout: See shutit.ShutItSendSpec
-		@param check_exit: See shutit.ShutItSendSpec
-		@param fail_on_empty_before:See shutit.ShutItSendSpec
-		@param record_command:See shutit.ShutItSendSpec
-		@param exit_values:See shutit.ShutItSendSpec
-		@param echo: See shutit.ShutItSendSpec
-		@param escape: See shutit.ShutItSendSpec
-		@param retry: See shutit.ShutItSendSpec
-		@param note: See shutit.ShutItSendSpec
-		@param assume_gnu: See shutit.ShutItSendSpec
-		@param wait: See shutit.ShutItSendSpec
-		@param block_other_commands: See shutit.ShutItSendSpec.block_other_commands
+		@param send: See shutit.shutitsendspec.ShutItSendSpec
+		@param expect: See shutit.shutitsendspec.ShutItSendSpec
+		@param shutit_pexpect_child: See shutit.shutitsendspec.ShutItSendSpec
+		@param timeout: See shutit.shutitsendspec.ShutItSendSpec
+		@param check_exit: See shutit.shutitsendspec.ShutItSendSpec
+		@param fail_on_empty_before:See shutit.shutitsendspec.ShutItSendSpec
+		@param record_command:See shutit.shutitsendspec.ShutItSendSpec
+		@param exit_values:See shutit.shutitsendspec.ShutItSendSpec
+		@param echo: See shutit.shutitsendspec.ShutItSendSpec
+		@param escape: See shutit.shutitsendspec.ShutItSendSpec
+		@param retry: See shutit.shutitsendspec.ShutItSendSpec
+		@param note: See shutit.shutitsendspec.ShutItSendSpec
+		@param assume_gnu: See shutit.shutitsendspec.ShutItSendSpec
+		@param wait: See shutit.shutitsendspec.ShutItSendSpec
+		@param block_other_commands: See shutit.shutitsendspec.ShutItSendSpec.block_other_commands
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
@@ -729,7 +729,7 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		ignore_background = not wait
 		#print('SEND: ' + send)
-		return shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,
+		return shutit_pexpect_session.send(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,
 		                                                  send,
 		                                                  expect=expect,
 		                                                  timeout=timeout,
@@ -774,7 +774,7 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=send,
+		shutit_pexpect_session.send(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,send=send,
 		                            expect=expect,
 		                            timeout=timeout,
 		                            check_exit=False,
@@ -802,7 +802,7 @@ class ShutIt(object):
 		@param note:                 See send()
 		"""
 		if self.build['walkthrough'] and note != None and note != '':
-			assert isinstance(note, str), print_debug()
+			assert isinstance(note, str), shutit_util.print_debug()
 			wait = self.build['walkthrough_wait']
 			wrap = '\n' + 80*'=' + '\n'
 			message = wrap + note + wrap
@@ -813,10 +813,10 @@ class ShutIt(object):
 			else:
 				if training_input != '' and self.build['training']:
 					if len(training_input.split('\n')) == 1:
-						print(colorise('31',message))
-						while util_raw_input(prompt=colorise('32','Enter the command to continue (or "s" to skip typing it in): ')) not in (training_input,'s'):
+						print(shutit_util.colorise('31',message))
+						while shutit_util.util_raw_input(prompt=shutit_util.colorise('32','Enter the command to continue (or "s" to skip typing it in): ')) not in (training_input,'s'):
 							print('Wrong! Try again!')
-						print(colorise('31','OK!'))
+						print(shutit_util.colorise('31','OK!'))
 					else:
 						self.pause_point(message + '\nToo long to use for training, so skipping the option to type in!\nHit CTRL-] to continue', color=31)
 				else:
@@ -863,11 +863,11 @@ class ShutIt(object):
 				accum_timeout += iteration_s
 			else:
 				return res
-		if timed_out and not shutit_global_object.determine_interactive():
-			shutit_global_object.log('Command timed out, trying to get terminal back for you', level=logging.DEBUG)
+		if timed_out and not shutit_global.shutit_global_object.determine_interactive():
+			shutit_global.shutit_global_object.log('Command timed out, trying to get terminal back for you', level=logging.DEBUG)
 			self.fail('Timed out and could not recover') # pragma: no cover
 		else:
-			if shutit_global_object.determine_interactive():
+			if shutit_global.shutit_global_object.determine_interactive():
 				shutit_pexpect_child.send('\x03')
 				res = shutit_pexpect_child.expect(expect,timeout=1)
 				if res == len(expect):
@@ -946,7 +946,7 @@ class ShutIt(object):
 	def chdir(self,
 	          path,
 	          shutit_pexpect_child=None,
-	          timeout=shutit_global_object.default_timeout,
+	          timeout=shutit_global.shutit_global_object.default_timeout,
 	          note=None,
 	          loglevel=logging.DEBUG):
 		"""How to change directory will depend on whether we are in delivery mode bash or docker.
@@ -987,7 +987,7 @@ class ShutIt(object):
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self.handle_note(note, 'Sending file from host: ' + hostfilepath + ' to target path: ' + path)
-		shutit_global_object.log('Sending file from host: ' + hostfilepath + ' to: ' + path, level=loglevel)
+		shutit_global.shutit_global_object.log('Sending file from host: ' + hostfilepath + ' to: ' + path, level=loglevel)
 		if user is None:
 			user = shutit_pexpect_session.whoami()
 		if group is None:
@@ -1040,8 +1040,8 @@ class ShutIt(object):
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self.handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
-		shutit_global_object.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
-		shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path,
+		shutit_global.shutit_global_object.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
+		shutit_pexpect_session.send(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path,
 		                                           echo=False,
 		                                           loglevel=loglevel))
 		if user is None:
@@ -1061,17 +1061,17 @@ class ShutIt(object):
 			                                 group=group,
 			                                 loglevel=loglevel,
 			                                 encoding='iso-8859-1')
-			shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path + ' && command tar -C ' + path + ' -zxf ' + gzipfname))
+			shutit_pexpect_session.send(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path + ' && command tar -C ' + path + ' -zxf ' + gzipfname))
 		else:
 			# If no gunzip, fall back to old slow method.
 			for root, subfolders, files in os.walk(hostfilepath):
 				subfolders.sort()
 				files.sort()
 				for subfolder in subfolders:
-					shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path + '/' + subfolder,
+					shutit_pexpect_session.send(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path + '/' + subfolder,
 					                                           echo=False,
 					                                           loglevel=loglevel))
-					shutit_global_object.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder, level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder, level=logging.DEBUG)
 					self.send_host_dir(path + '/' + subfolder,
 					                   hostfilepath + '/' + subfolder,
 					                   expect=expect,
@@ -1080,7 +1080,7 @@ class ShutIt(object):
 				for fname in files:
 					hostfullfname = os.path.join(root, fname)
 					targetfname = os.path.join(path, fname)
-					shutit_global_object.log('send_host_dir sending file ' + hostfullfname + ' to ' + 'target file: ' + targetfname, level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('send_host_dir sending file ' + hostfullfname + ' to ' + 'target file: ' + targetfname, level=logging.DEBUG)
 					shutit_pexpect_session.send_file(targetfname,
 					                                 codecs.open(hostfullfname,mode='rb',encoding='iso-8859-1').read(),
 					                                 user=user,
@@ -1374,7 +1374,7 @@ class ShutIt(object):
 	            locations,
 	            command='curl',
 	            shutit_pexpect_child=None,
-	            timeout=shutit_global_object.default_timeout,
+	            timeout=shutit_global.shutit_global_object.default_timeout,
 	            fail_on_empty_before=True,
 	            record_command=True,
 	            exit_values=None,
@@ -1555,10 +1555,10 @@ class ShutIt(object):
 		config_parser = self.config_parser
 		usercfg       = os.path.join(self.host['shutit_path'], 'config')
 
-		shutit_global_object.log('\nPROMPTING FOR CONFIG: %s' % (cfgstr,),transient=True,level=logging.INFO, color_code=32)
-		shutit_global_object.log('\n' + msg + '\n',transient=True,level=logging.INFO, color_code=32)
+		shutit_global.shutit_global_object.log('\nPROMPTING FOR CONFIG: %s' % (cfgstr,),transient=True,level=logging.INFO, color_code=32)
+		shutit_global.shutit_global_object.log('\n' + msg + '\n',transient=True,level=logging.INFO, color_code=32)
 
-		if not shutit_global_object.determine_interactive():
+		if not shutit_global.shutit_global_object.determine_interactive():
 			self.fail('ShutIt is not in a terminal so cannot prompt for values.', throw_exception=False) # pragma: no cover
 
 		if config_parser.has_option(sec, name):
@@ -1577,7 +1577,7 @@ class ShutIt(object):
 		if ispass:
 			val = getpass.getpass('>> ')
 		else:
-			val = util_raw_input(prompt='>> ')
+			val = shutit_util.util_raw_input(prompt='>> ')
 		is_excluded = (
 			config_parser.has_option('save_exclude', sec) and
 			name in config_parser.get('save_exclude', sec).split()
@@ -1588,7 +1588,7 @@ class ShutIt(object):
 				subcp for subcp, filename, _ in config_parser.layers
 				if filename == usercfg
 			][0]
-			if util_raw_input(prompt=colorise('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
+			if shutit_util.util_raw_input(prompt=shutit_util.colorise('32', 'Do you want to save this to your user settings? y/n: '),default='y') == 'y':
 				sec_toset, name_toset, val_toset = sec, name, val
 			else:
 				# Never save it
@@ -1612,8 +1612,8 @@ class ShutIt(object):
 		"""
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		if (not shutit_global_object.determine_interactive() or not shutit_global_object.interactive or
-			shutit_global_object.interactive < level):
+		if (not shutit_global.shutit_global_object.determine_interactive() or not shutit_global.shutit_global_object.interactive or
+			shutit_global.shutit_global_object.interactive < level):
 			return True
 		self.build['step_through'] = value
 		shutit_pexpect_session.pause_point(msg, print_input=print_input, level=level)
@@ -1679,17 +1679,17 @@ class ShutIt(object):
 
 		@return:             True if pause point handled ok, else false
 		"""
-		if (not shutit_global_object.determine_interactive() or shutit_global_object.interactive < 1 or
-			shutit_global_object.interactive < level):
+		if (not shutit_global.shutit_global_object.determine_interactive() or shutit_global.shutit_global_object.interactive < 1 or
+			shutit_global.shutit_global_object.interactive < level):
 			return True
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		if shutit_pexpect_child:
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 			shutit_pexpect_session.pause_point(msg=msg,print_input=print_input,resize=resize,color=color,default_msg=default_msg,wait=wait,interact=interact)
 		else:
-			shutit_global_object.log(msg,level=logging.DEBUG)
-			shutit_global_object.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
-			shutit_global_object.handle_exit(exit_code=1)
+			shutit_global.shutit_global_object.log(msg,level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
+			shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		self.build['ctrlc_stop'] = False
 		return True
 
@@ -1779,7 +1779,7 @@ class ShutIt(object):
 	            package,
 	            shutit_pexpect_child=None,
 	            options=None,
-	            timeout=shutit_global_object.default_timeout,
+	            timeout=shutit_global.shutit_global_object.default_timeout,
 	            force=False,
 	            check_exit=True,
 	            reinstall=False,
@@ -1832,7 +1832,7 @@ class ShutIt(object):
 	           package,
 	           shutit_pexpect_child=None,
 	           options=None,
-	           timeout=shutit_global_object.default_timeout,
+	           timeout=shutit_global.shutit_global_object.default_timeout,
 	           note=None):
 		"""Distro-independent remove function.
 		Takes a package name and runs relevant remove function.
@@ -1901,7 +1901,7 @@ class ShutIt(object):
 	          password=None,
 	          prompt_prefix=None,
 	          expect=None,
-	          timeout=shutit_global_object.default_timeout,
+	          timeout=shutit_global.shutit_global_object.default_timeout,
 	          escape=False,
 	          echo=None,
 	          note=None,
@@ -1913,7 +1913,7 @@ class ShutIt(object):
 		"""Logs user in on default child.
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		return shutit_pexpect_session.login(ShutItSendSpec(shutit_pexpect_session,user=user,
+		return shutit_pexpect_session.login(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,user=user,
 		                                                   send=command,
 		                                                   password=password,
 		                                                   prompt_prefix=prompt_prefix,
@@ -1933,7 +1933,7 @@ class ShutIt(object):
 	           command='exit',
 	           note=None,
 	           echo=None,
-	           timeout=shutit_global_object.default_timeout,
+	           timeout=shutit_global.shutit_global_object.default_timeout,
 	           nonewline=False,
 	           loglevel=logging.DEBUG):
 		"""Logs the user out. Assumes that login has been called.
@@ -1943,7 +1943,7 @@ class ShutIt(object):
 			@param note:            See send()
 		"""
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		return shutit_pexpect_session.logout(ShutItSendSpec(shutit_pexpect_session,send=command,
+		return shutit_pexpect_session.logout(shutitsendspec.ShutItSendSpec(shutit_pexpect_session,send=command,
 		                                                    note=note,
 		                                                    timeout=timeout,
 		                                                    nonewline=nonewline,
@@ -2077,7 +2077,7 @@ class ShutIt(object):
 		expect               = expect or self.expect_prompts['ORIGIN_ENV']
 		send                 = docker_executable + ' push ' + self.repository['user'] + '/' + repository
 		timeout              = 99999
-		shutit_global_object.log('Running: ' + send,level=logging.INFO)
+		shutit_global.shutit_global_object.log('Running: ' + send,level=logging.INFO)
 		self.multisend(docker_executable + ' login',
 		               {'Username':self.repository['user'], 'Password':self.repository['password'], 'Email':self.repository['email']},
 		               shutit_pexpect_child=shutit_pexpect_child,
@@ -2202,7 +2202,7 @@ class ShutIt(object):
 			shutit_pexpect_session.pause_point('We are now exporting the container to a bzipped tar file, as configured in\n[repository]\ntar:yes', print_input=False, level=3)
 			if export:
 				bzfile = (repository_tar + 'export.tar.bz2')
-				shutit_global_object.log('Depositing bzip2 of exported container into ' + bzfile,level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('Depositing bzip2 of exported container into ' + bzfile,level=logging.DEBUG)
 				if self.send(docker_executable + ' export ' + self.target['container_id'] + ' | bzip2 - > ' + bzfile,
 				             expect=[expect, 'assword'],
 				             timeout=99999,
@@ -2212,13 +2212,13 @@ class ShutIt(object):
 					          expect=expect,
 					          shutit_pexpect_child=shutit_pexpect_child,
 					          loglevel=loglevel)
-				shutit_global_object.log('Deposited bzip2 of exported container into ' + bzfile, level=loglevel)
-				shutit_global_object.log('Run: bunzip2 -c ' + bzfile + ' | sudo docker import - to get this imported into docker.', level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('Deposited bzip2 of exported container into ' + bzfile, level=loglevel)
+				shutit_global.shutit_global_object.log('Run: bunzip2 -c ' + bzfile + ' | sudo docker import - to get this imported into docker.', level=logging.DEBUG)
 				self.build['report'] += ('\nDeposited bzip2 of exported container into ' + bzfile)
 				self.build['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.')
 			if save:
 				bzfile = (repository_tar + 'save.tar.bz2')
-				shutit_global_object.log('Depositing bzip2 of exported container into ' + bzfile,level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('Depositing bzip2 of exported container into ' + bzfile,level=logging.DEBUG)
 				if self.send(docker_executable + ' save ' + self.target['container_id'] + ' | bzip2 - > ' + bzfile,
 				             expect=[expect, 'assword'],
 				             timeout=99999,
@@ -2228,8 +2228,8 @@ class ShutIt(object):
 					          expect=expect,
 					          shutit_pexpect_child=shutit_pexpect_child,
 					          loglevel=loglevel)
-				shutit_global_object.log('Deposited bzip2 of exported container into ' + bzfile, level=logging.DEBUG)
-				shutit_global_object.log('Run: bunzip2 -c ' + bzfile + ' | sudo docker import - to get this imported into docker.', level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('Deposited bzip2 of exported container into ' + bzfile, level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('Run: bunzip2 -c ' + bzfile + ' | sudo docker import - to get this imported into docker.', level=logging.DEBUG)
 				self.build['report'] += ('\nDeposited bzip2 of exported container into ' + bzfile)
 				self.build['report'] += ('\nRun:\n\nbunzip2 -c ' + bzfile + ' | sudo docker import -\n\nto get this imported into docker.')
 		if self.repository['push']:
@@ -2285,18 +2285,18 @@ class ShutIt(object):
 				cfg[module_id][option] = self.config_parser.get(module_id, option)
 		else:
 			if not forcenone:
-				if shutit_global_object.interactive > 0:
+				if shutit_global.shutit_global_object.interactive > 0:
 					if self.build['accept_defaults'] is None:
 						answer = None
-						# util_raw_input may change the interactive level, so guard for this.
-						while answer not in ('yes','no','') and shutit_global_object.interactive > 1:
-							answer = util_raw_input(prompt=colorise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
-						# util_raw_input may change the interactive level, so guard for this.
-						self.build['accept_defaults'] = answer in ('yes','') or shutit_global_object.interactive < 2
+						# shutit_util.util_raw_input may change the interactive level, so guard for this.
+						while answer not in ('yes','no','') and shutit_global.shutit_global_object.interactive > 1:
+							answer = shutit_util.util_raw_input(prompt=shutit_util.colorise('32', 'Do you want to accept the config option defaults? ' + '(boolean - input "yes" or "no") (default: yes): \n'),default='yes',ispass=secret)
+						# shutit_util.util_raw_input may change the interactive level, so guard for this.
+						self.build['accept_defaults'] = answer in ('yes','') or shutit_global.shutit_global_object.interactive < 2
 					if self.build['accept_defaults'] and default != None:
 						cfg[module_id][option] = default
 					else:
-						# util_raw_input may change the interactive level, so guard for this.
+						# shutit_util.util_raw_input may change the interactive level, so guard for this.
 						prompt = '\n\nPlease input a value for ' + module_id + '.' + option
 						if default != None:
 							prompt = prompt + ' (default: ' + str(default) + ')'
@@ -2305,16 +2305,16 @@ class ShutIt(object):
 						answer = None
 						if boolean:
 							while answer not in ('yes','no'):
-								answer =  util_raw_input(prompt=colorise('32',prompt + ' (boolean - input "yes" or "no"): \n'),ispass=secret)
+								answer = shutit_util.util_raw_input(prompt=shutit_util.colorise('32',prompt + ' (boolean - input "yes" or "no"): \n'),ispass=secret)
 							if answer == 'yes':
 								answer = True
 							elif answer == 'no':
 								answer = False
 						else:
 							if re.search('assw',option) is None:
-								answer = util_raw_input(prompt=colorise('32',prompt) + ': \n',ispass=secret)
+								answer = shutit_util.util_raw_input(prompt=shutit_util.colorise('32',prompt) + ': \n',ispass=secret)
 							else:
-								answer = util_raw_input(ispass=True,prompt=colorise('32',prompt) + ': \n')
+								answer = shutit_util.util_raw_input(ispass=True,prompt=shutit_util.colorise('32',prompt) + ': \n')
 						if answer == '' and default != None:
 							answer = default
 						cfg[module_id][option] = answer
@@ -2333,7 +2333,7 @@ class ShutIt(object):
 	                            max_pause=None,
 	                            filename=None,
 	                            shutit_pexpect_child=None):
-		assert self.build['asciinema_session'] is None, print_debug()
+		assert self.build['asciinema_session'] is None, shutit_util.print_debug()
 		self.build['asciinema_session'] = True
 		self.build['asciinema_session_file'] = False
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
@@ -2348,20 +2348,20 @@ class ShutIt(object):
 		if title:
 			opts += ' -t "' + str(title) + '"'
 		if version < '1.3':
-			self.login(command='asciinema rec -c "' + shutit_global_object.bash_startup_command + '" ' + opts, go_home=False)
+			self.login(command='asciinema rec -c "' + shutit_global.shutit_global_object.bash_startup_command + '" ' + opts, go_home=False)
 		elif filename != None:
-			self.login(command='asciinema rec -c "' + shutit_global_object.bash_startup_command + '" ' + opts + ' ' + max_pause_str + ' ' + filename, go_home=False)
+			self.login(command='asciinema rec -c "' + shutit_global.shutit_global_object.bash_startup_command + '" ' + opts + ' ' + max_pause_str + ' ' + filename, go_home=False)
 		else:
-			self.login(command='asciinema rec -c "' + shutit_global_object.bash_startup_command + '" ' + opts + ' ' + max_pause_str, go_home=False)
+			self.login(command='asciinema rec -c "' + shutit_global.shutit_global_object.bash_startup_command + '" ' + opts + ' ' + max_pause_str, go_home=False)
 		return True
 
 
 	def end_asciinema_session(self,
 	                          shutit_pexpect_child=None):
-		assert self.build['asciinema_session'] is True, print_debug()
+		assert self.build['asciinema_session'] is True, shutit_util.print_debug()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		output = self.logout(timeout=shutit_global_object.default_timeout)
-		shutit_global_object.log(output,add_final_message=True,level=logging.INFO)
+		output = self.logout(timeout=shutit_global.shutit_global_object.default_timeout)
+		shutit_global.shutit_global_object.log(output,add_final_message=True,level=logging.INFO)
 		self.build['asciinema_session'] = None
 		self.build['asciinema_session_file'] = None
 		return True
@@ -2370,7 +2370,7 @@ class ShutIt(object):
 	def get_emailer(self, cfg_section):
 		"""Sends an email using the mailer
 		"""
-		import emailer
+		from shutit import emailer
 		return emailer.Emailer(cfg_section, self)
 
 
@@ -2450,7 +2450,7 @@ class ShutIt(object):
 	# value for the given context.
 	def get_echo_override(self, echo):
 		# Should we echo the output?
-		if self.build['always_echo'] is True or shutit_global_object.loglevel <= logging.DEBUG:
+		if self.build['always_echo'] is True or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
 			# Yes if it's set to always echo or is in debug
 			echo = True
 		if echo is None and self.build['walkthrough']:
@@ -2459,7 +2459,7 @@ class ShutIt(object):
 		if echo is None:
 			# No if it was not explicitly passed in
 			echo = False
-		if self.build['exam'] and shutit_global_object.loglevel not in ('DEBUG',):
+		if self.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 			# No if we are in exam mode
 			echo = False
 		return echo
@@ -2496,12 +2496,12 @@ class ShutIt(object):
 		"""
 		s = '\n'
 		s += '################################################################################\n'
-		s += '# COMMAND HISTORY BEGIN ' + shutit_global_object.build_id + '\n'
+		s += '# COMMAND HISTORY BEGIN ' + shutit_global.shutit_global_object.build_id + '\n'
 		s += self.get_commands()
-		s += '# COMMAND HISTORY END ' + shutit_global_object.build_id + '\n'
+		s += '# COMMAND HISTORY END ' + shutit_global.shutit_global_object.build_id + '\n'
 		s += '################################################################################\n'
 		s += '################################################################################\n'
-		s += '# BUILD REPORT FOR BUILD BEGIN ' + shutit_global_object.build_id + '\n'
+		s += '# BUILD REPORT FOR BUILD BEGIN ' + shutit_global.shutit_global_object.build_id + '\n'
 		s += '# ' + msg + '\n'
 		if self.build['report'] != '':
 			s += self.build['report'] + '\n'
@@ -2509,7 +2509,7 @@ class ShutIt(object):
 			s += '# Nothing to report\n'
 		if 'container_id' in self.target:
 			s += '# CONTAINER_ID: ' + self.target['container_id'] + '\n'
-		s += '# BUILD REPORT FOR BUILD END ' + shutit_global_object.build_id + '\n'
+		s += '# BUILD REPORT FOR BUILD END ' + shutit_global.shutit_global_object.build_id + '\n'
 		s += '###############################################################################\n'
 		s += '# INVOKING COMMAND WAS: ' + sys.executable
 		for arg in sys.argv:
@@ -2546,7 +2546,7 @@ class ShutIt(object):
 		for line in lines:
 			new_lines = new_lines + line.split('\n')
 		lines = new_lines
-		if not check_regexp(regexp):
+		if not shutit_util.check_regexp(regexp):
 			self.fail('Illegal regexp found in match_string call: ' + regexp) # pragma: no cover
 		for line in lines:
 			match = re.match(regexp, line)
@@ -2612,16 +2612,16 @@ class ShutIt(object):
 	def allowed_image(self, module_id):
 		"""Given a module id, determine whether the image is allowed to be built.
 		"""
-		shutit_global_object.log("In allowed_image: " + module_id,level=logging.DEBUG)
+		shutit_global.shutit_global_object.log("In allowed_image: " + module_id,level=logging.DEBUG)
 		cfg = self.cfg
 		if self.build['ignoreimage']:
-			shutit_global_object.log("ignoreimage == true, returning true" + module_id,level=logging.DEBUG)
+			shutit_global.shutit_global_object.log("ignoreimage == true, returning true" + module_id,level=logging.DEBUG)
 			return True
-		shutit_global_object.log(str(cfg[module_id]['shutit.core.module.allowed_images']),level=logging.DEBUG)
+		shutit_global.shutit_global_object.log(str(cfg[module_id]['shutit.core.module.allowed_images']),level=logging.DEBUG)
 		if cfg[module_id]['shutit.core.module.allowed_images']:
 			# Try allowed images as regexps
 			for regexp in cfg[module_id]['shutit.core.module.allowed_images']:
-				if not check_regexp(regexp):
+				if not shutit_util.check_regexp(regexp):
 					self.fail('Illegal regexp found in allowed_images: ' + regexp) # pragma: no cover
 				if re.match('^' + regexp + '$', self.target['docker_image']):
 					return True
@@ -2646,9 +2646,9 @@ class ShutIt(object):
 		"""Responsible for loading the shutit modules based on the configured module
 		paths.
 		"""
-		if shutit_global_object.loglevel <= logging.DEBUG:
-			shutit_global_object.log('ShutIt module paths now: ',level=logging.DEBUG)
-			shutit_global_object.log(self.host['shutit_module_path'],level=logging.DEBUG)
+		if shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
+			shutit_global.shutit_global_object.log('ShutIt module paths now: ',level=logging.DEBUG)
+			shutit_global.shutit_global_object.log(self.host['shutit_module_path'],level=logging.DEBUG)
 		for shutit_module_path in self.host['shutit_module_path']:
 			self.load_all_from_path(shutit_module_path)
 
@@ -2689,17 +2689,17 @@ class ShutIt(object):
 			run_config_file = os.path.expanduser(config_file_name)
 			if not os.path.isfile(run_config_file):
 				print('Did not recognise ' + run_config_file + ' as a file - do you need to touch ' + run_config_file + '?')
-				shutit_global_object.handle_exit(exit_code=0)
+				shutit_global.shutit_global_object.handle_exit(exit_code=0)
 			configs.append(run_config_file)
 		# Image to use to start off. The script should be idempotent, so running it
 		# on an already built image should be ok, and is advised to reduce diff space required.
-		if self.action['list_configs'] or shutit_global_object.loglevel <= logging.DEBUG:
+		if self.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
 			msg = ''
 			for c in configs:
 				if isinstance(c, tuple):
 					c = c[0]
 				msg = msg + '    \n' + c
-				shutit_global_object.log('    ' + c,level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('    ' + c,level=logging.DEBUG)
 
 		# Interpret any config overrides, write to a file and add them to the
 		# list of configs to be interpreted
@@ -2749,9 +2749,9 @@ class ShutIt(object):
 		self.host['dns']                         = cp.get('host', 'dns')
 		self.host['password']                    = cp.get('host', 'password')
 		if isinstance(self.host['password'],str):
-			shutit_global_object.secret_words_set.add(self.host['password'])
-		shutit_global_object.logfile = cp.get('host', 'logfile')
-		shutit_global_object.nocolor = cp.getboolean('host', 'nocolor')
+			shutit_global.shutit_global_object.secret_words_set.add(self.host['password'])
+		shutit_global.shutit_global_object.logfile = cp.get('host', 'logfile')
+		shutit_global.shutit_global_object.nocolor = cp.getboolean('host', 'nocolor')
 		self.host['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
 
 		# repository - information relating to docker repository/registry
@@ -2766,7 +2766,7 @@ class ShutIt(object):
 		self.repository['user']                  = cp.get('repository', 'user')
 		self.repository['password']              = cp.get('repository', 'password')
 		if isinstance(self.repository['password'],str):
-			shutit_global_object.secret_words_set.add(self.repository['password'])
+			shutit_global.shutit_global_object.secret_words_set.add(self.repository['password'])
 		self.repository['email']                 = cp.get('repository', 'email')
 		self.repository['tag_name']              = cp.get('repository', 'tag_name')
 		# END Read from config files
@@ -2780,10 +2780,10 @@ class ShutIt(object):
 		# rm is incompatible with repository actions
 		if self.target['rm'] and (self.repository['tag'] or self.repository['push'] or self.repository['save'] or self.repository['export']): # pragma: no cover
 			print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
-			shutit_global_object.handle_exit(exit_code=1)
+			shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		if self.target['hostname'] != '' and self.build['net'] != '' and self.build['net'] != 'bridge': # pragma: no cover
 			print('\n\ntarget/hostname or build/net configs must be blank\n\n')
-			shutit_global_object.handle_exit(exit_code=1)
+			shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		# FAILS ends
 
 
@@ -2798,7 +2798,7 @@ class ShutIt(object):
 		if not os.path.exists(path):
 			return
 		if os.path.exists(path + '/STOPBUILD') and not self.build['ignorestop']:
-			shutit_global_object.log('Ignoring directory: ' + path + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.',level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('Ignoring directory: ' + path + ' as it has a STOPBUILD file in it. Pass --ignorestop to shutit run to override.',level=logging.DEBUG)
 			return
 		for sub in glob.glob(os.path.join(path, '*')):
 			subpath = os.path.join(path, sub)
@@ -2829,7 +2829,7 @@ class ShutIt(object):
 				ok = True
 				break
 		if not ok:
-			shutit_global_object.log('Rejected file: ' + fpath,level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('Rejected file: ' + fpath,level=logging.DEBUG)
 			return
 		# Note that this attribute will only be set for 'new style' module loading, # this should be ok because 'old style' loading checks for duplicate # existing modules.
 		# TODO: this is quadratic complexity
@@ -2838,10 +2838,10 @@ class ShutIt(object):
 			if getattr(m, '__module_file', None) == fpath
 		]
 		if existingmodules:
-			shutit_global_object.log('Module already seen: ' + fpath,level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('Module already seen: ' + fpath,level=logging.DEBUG)
 			return
 		# Looks like it's ok to load this file
-		shutit_global_object.log('Loading source for: ' + fpath,level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Loading source for: ' + fpath,level=logging.DEBUG)
 
 		# Add this directory to the python path iff not already there.
 		directory = os.path.dirname(fpath)
@@ -2876,7 +2876,7 @@ class ShutIt(object):
 		When this is called we should know what's being built (ie after
 		dependency resolution).
 		"""
-		shutit_global_object.log('In config_collection_for_built',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('In config_collection_for_built',level=logging.DEBUG)
 		cfg = self.cfg
 		for module_id in self.module_ids():
 			# Get the config even if installed or building (may be needed in other hooks, eg test).
@@ -2928,7 +2928,7 @@ class ShutIt(object):
 			if self.build['imageerrorok']:
 				# useful for test scripts
 				print('Exiting on allowed images error, with return status 0')
-				shutit_global_object.handle_exit(exit_code=1)
+				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			else:
 				raise ShutItFailException('Allowed images checking failed') # pragma: no cover
 		return True
@@ -2937,7 +2937,7 @@ class ShutIt(object):
 	def config_collection(self):
 		"""Collect core config from config files for all seen modules.
 		"""
-		shutit_global_object.log('In config_collection',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('In config_collection',level=logging.DEBUG)
 		cfg = self.cfg
 		for module_id in self.module_ids():
 			# Default to None so we can interpret as ifneeded
@@ -3121,20 +3121,20 @@ class ShutIt(object):
 	def process_args(self, args):
 		"""Process the args we have.
 		"""
-		assert isinstance(args,ShutItInit), print_debug()
+		assert isinstance(args,ShutItInit), shutit_util.print_debug()
 
 		if args.action == 'version':
 			print('ShutIt version: ' + shutit.shutit_version)
-			shutit_global_object.handle_exit(exit_code=0)
+			shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
 		# Set up global object
-		shutit_global_object.logfile  = args.logfile
-		shutit_global_object.loglevel = args.log
-		shutit_global_object.nocolor  = args.nocolor
+		shutit_global.shutit_global_object.logfile  = args.logfile
+		shutit_global.shutit_global_object.loglevel = args.log
+		shutit_global.shutit_global_object.nocolor  = args.nocolor
 		# Logging
-		if shutit_global_object.loglevel in ('', None):
-			shutit_global_object.loglevel = 'INFO'
-		shutit_global_object.setup_logging()
+		if shutit_global.shutit_global_object.loglevel in ('', None):
+			shutit_global.shutit_global_object.loglevel = 'INFO'
+		shutit_global.shutit_global_object.setup_logging()
 
 		# What are we asking shutit to do?
 		self.action['list_configs'] = args.action == 'list_configs'
@@ -3147,7 +3147,7 @@ class ShutIt(object):
 		# This mode is a bit special - it's the only one with different arguments
 		if self.action['skeleton']:
 			self.handle_skeleton(args)
-			shutit_global_object.handle_exit()
+			shutit_global.shutit_global_object.handle_exit()
 		elif self.action['run']:
 			self.handle_run(args)
 			sys.exit(0)
@@ -3234,17 +3234,17 @@ class ShutIt(object):
 					shutitfile_delivery_method = _delivery_methods_seen.pop()
 					if delivery_method != shutitfile_delivery_method:
 						print('Conflicting delivery methods passed in vs. from shutitfile.\nPassed-in: ' + delivery_method + '\nShutitfile: ' + shutitfile_delivery_method)
-						shutit_global_object.handle_exit(exit_code=1)
+						shutit_global.shutit_global_object.handle_exit(exit_code=1)
 				else:
 					print('Too many delivery methods seen in shutitfiles: ' + str(_new_shutitfiles))
 					print('Delivery methods: ' + str(_delivery_methods_seen))
 					print('Delivery method passed in: ' + delivery_method)
-					shutit_global_object.handle_exit(exit_code=1)
+					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			else:
 				print('ShutItFiles: ' + str(_new_shutitfiles) + ' appear to not exist.')
-				shutit_global_object.handle_exit(exit_code=1)
+				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		if module_directory == '':
-			default_dir = self.host['calling_path'] + '/shutitskel_' + random_word()
+			default_dir = self.host['calling_path'] + '/shutitskel_' + shutit_util.random_word()
 			if accept_defaults:
 				module_directory = default_dir
 			else:
@@ -3255,7 +3255,7 @@ class ShutIt(object):
 				#readline.set_pre_input_hook(hook)
 				readline.set_startup_hook(lambda: readline.insert_text(default_dir))
 				print('Input a path for this module')
-				module_directory = util_raw_input(prompt='\n>> ', default=default_dir)
+				module_directory = shutit_util.util_raw_input(prompt='\n>> ', default=default_dir)
 				readline.set_startup_hook()
 		if module_directory[0] != '/':
 			module_directory = self.host['calling_path'] + '/' + module_directory
@@ -3287,7 +3287,7 @@ class ShutIt(object):
 					print(table.draw() + '\n')
 					print('Choose, but choose wisely: ')
 					readline.set_startup_hook(lambda: readline.insert_text('bash'))
-					pattern = util_raw_input(prompt='\n>> ')
+					pattern = shutit_util.util_raw_input(prompt='\n>> ')
 					readline.set_startup_hook()
 		# Sort out delivery method.
 		if delivery_method is None:
@@ -3306,7 +3306,7 @@ class ShutIt(object):
 				delivery = default_delivery
 			else:
 				delivery = ''
-				while delivery not in shutit_global_object.allowed_delivery_methods:
+				while delivery not in shutit_global.shutit_global_object.allowed_delivery_methods:
 					readline.set_startup_hook(lambda: readline.insert_text('bash'))
 					table = texttable.Texttable()
 					rows = [['Choice','Description'],
@@ -3317,7 +3317,7 @@ class ShutIt(object):
 					print(table.draw() + '\n')
 					print('Input a delivery method')
 					readline.set_startup_hook(lambda: readline.insert_text(default_delivery))
-					delivery = util_raw_input(prompt='>> ')
+					delivery = shutit_util.util_raw_input(prompt='>> ')
 					readline.set_startup_hook()
 		else:
 			delivery = delivery_method
@@ -3327,7 +3327,7 @@ class ShutIt(object):
 			'module_name':            module_name,
 			'base_image':             base_image,
 			'domain':                 domain,
-			'domain_hash':            str(get_hash(domain)),
+			'domain_hash':            str(shutit_util.get_hash(domain)),
 			'depends':                depends,
 			'script':                 script,
 			'shutitfiles':            _new_shutitfiles,
@@ -3375,8 +3375,8 @@ class ShutIt(object):
 			mkpath(shutit_home, 0o700)
 		if not os.path.isfile(os.path.join(shutit_home, 'config')):
 			f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
-			if shutit_global_object.ispy3:
-				os.write(f,bytes(default_cnf,shutit_global_object.default_encoding))
+			if shutit_global.shutit_global_object.ispy3:
+				os.write(f,bytes(default_cnf,shutit_global.shutit_global_object.default_encoding))
 			else:
 				os.write(f,default_cnf)
 			os.close(f)
@@ -3424,7 +3424,7 @@ class ShutIt(object):
 		elif args.delivery == 'bash' or args.delivery == 'dockerfile':
 			self.build['conn_module'] = 'shutit.tk.conn_bash'
 		else:
-			assert False, print_debug(msg='Build must have a delivery method')
+			assert False, shutit_util.print_debug(msg='Build must have a delivery method')
 
 		# Get these early for this part of the build.
 		# These should never be config arguments, since they are needed before config is passed in.
@@ -3433,12 +3433,12 @@ class ShutIt(object):
 			if '.' not in module_paths:
 				module_paths.append('.')
 			args.set.append(('host', 'shutit_module_path', ':'.join(module_paths)))
-		shutit_global_object.interactive      = int(args.interactive)
+		shutit_global.shutit_global_object.interactive      = int(args.interactive)
 
 		# Finished parsing args.
 		# Sort out config path
-		if self.action['list_configs'] or self.action['list_modules'] or self.action['list_deps'] or shutit_global_object.loglevel == logging.DEBUG:
-			self.build['log_config_path'] = shutit_global_object.shutit_state_dir + '/config'
+		if self.action['list_configs'] or self.action['list_modules'] or self.action['list_deps'] or shutit_global.shutit_global_object.loglevel == logging.DEBUG:
+			self.build['log_config_path'] = shutit_global.shutit_global_object.shutit_state_dir + '/config'
 			if not os.path.exists(self.build['log_config_path']):
 				os.makedirs(self.build['log_config_path'])
 				os.chmod(self.build['log_config_path'],0o777)
@@ -3458,20 +3458,20 @@ class ShutIt(object):
 				fail_str = fail_str + '\nchmod 0600 ' + config_file
 				files.append(config_file)
 		if fail_str != '':
-			if shutit_global_object.interactive > 1:
+			if shutit_global.shutit_global_object.interactive > 1:
 				fail_str = 'Files are not secure, mode should be 0600. Running the following commands to correct:\n' + fail_str + '\n'
 				# Actually show this to the user before failing...
-				shutit_global_object.log(fail_str,level=logging.INFO)
-				shutit_global_object.log('Do you want me to run this for you? (input y/n)',level=logging.INFO)
-				if shutit_global_object.interactive == 0 or util_raw_input(default='y') == 'y':
+				shutit_global.shutit_global_object.log(fail_str,level=logging.INFO)
+				shutit_global.shutit_global_object.log('Do you want me to run this for you? (input y/n)',level=logging.INFO)
+				if shutit_global.shutit_global_object.interactive == 0 or shutit_util.util_raw_input(default='y') == 'y':
 					for f in files:
-						shutit_global_object.log('Correcting insecure file permissions on: ' + f,level=logging.INFO)
+						shutit_global.shutit_global_object.log('Correcting insecure file permissions on: ' + f,level=logging.INFO)
 						os.chmod(f,0o600)
 					# recurse
 					return self.get_configs(configs)
 			else:
 				for f in files:
-					shutit_global_object.log('Correcting insecure file permissions on: ' + f,level=logging.INFO)
+					shutit_global.shutit_global_object.log('Correcting insecure file permissions on: ' + f,level=logging.INFO)
 					os.chmod(f,0o600)
 				# recurse
 				return self.get_configs(configs)
@@ -3616,8 +3616,8 @@ class ShutIt(object):
 		if args.action == 'version':
 			self.process_args(ShutItInit(args.action))
 		elif args.action == 'skeleton':
-			shutit_global_object.delaybeforesend = float(args.delaybeforesend)
-			shutit_global_object.prompt_command  = args.promptcommand
+			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
+			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
@@ -3639,8 +3639,8 @@ class ShutIt(object):
 			                             vagrant_upload=args.vagrant_upload,
 			                             vagrant_image_name=args.vagrant_image_name))
 		elif args.action == 'run':
-			shutit_global_object.delaybeforesend = float(args.delaybeforesend)
-			shutit_global_object.prompt_command  = args.promptcommand
+			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
+			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
@@ -3649,8 +3649,8 @@ class ShutIt(object):
 			                             echo=args.echo,
 			                             delivery = args.delivery))
 		elif args.action == 'build':
-			shutit_global_object.delaybeforesend = float(args.delaybeforesend)
-			shutit_global_object.prompt_command  = args.promptcommand
+			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
+			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
@@ -3684,9 +3684,9 @@ class ShutIt(object):
 					indent = indent # pylint
 					arg = arg # pylint
 					if event == 'call':
-						shutit_global_object.log('-> call function: ' + frame.f_code.co_name + ' ' + str(frame.f_code.co_varnames),level=logging.DEBUG)
+						shutit_global.shutit_global_object.log('-> call function: ' + frame.f_code.co_name + ' ' + str(frame.f_code.co_varnames),level=logging.DEBUG)
 					elif event == 'return':
-						shutit_global_object.log('<- exit function: ' + frame.f_code.co_name,level=logging.DEBUG)
+						shutit_global.shutit_global_object.log('<- exit function: ' + frame.f_code.co_name,level=logging.DEBUG)
 					return tracefunc
 				sys.settrace(tracefunc)
 
@@ -3708,9 +3708,9 @@ class ShutIt(object):
 	def conn_docker_start_container(self, shutit_session_name):
 		docker = self.host['docker_executable'].split(' ')
 		# Always-required options
-		if not os.path.exists(shutit_global_object.shutit_state_dir + '/cidfiles'):
-			os.makedirs(shutit_global_object.shutit_state_dir + '/cidfiles')
-		self.build['cidfile'] = shutit_global_object.shutit_state_dir + '/cidfiles/' + shutit_global_object.username + '_cidfile_' + shutit_global_object.build_id
+		if not os.path.exists(shutit_global.shutit_global_object.shutit_state_dir + '/cidfiles'):
+			os.makedirs(shutit_global.shutit_global_object.shutit_state_dir + '/cidfiles')
+		self.build['cidfile'] = shutit_global.shutit_global_object.shutit_state_dir + '/cidfiles/' + shutit_global.shutit_global_object.username + '_cidfile_' + shutit_global.shutit_global_object.build_id
 		cidfile_arg = '--cidfile=' + self.build['cidfile']
 		# Singly-specified options
 		privileged_arg   = ''
@@ -3771,36 +3771,36 @@ class ShutIt(object):
 		]
 		self.build['docker_command'] = ' '.join(docker_command)
 		# docker run happens here
-		shutit_global_object.log('Startup command is: ' + self.build['docker_command'],level=logging.DEBUG)
-		shutit_global_object.log('Downloading context, please be patient',level=logging.INFO)
-		shutit_pexpect_session = ShutItPexpectSession(self, shutit_session_name, docker_command[0], docker_command[1:])
+		shutit_global.shutit_global_object.log('Startup command is: ' + self.build['docker_command'],level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Downloading context, please be patient',level=logging.INFO)
+		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(self, shutit_session_name, docker_command[0], docker_command[1:])
 		target_child = shutit_pexpect_session.pexpect_child
-		expect = ['assword', shutit_global_object.base_prompt.strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
-		res = shutit_pexpect_session.expect(expect, timeout=shutit_global_object.default_timeout)
+		expect = ['assword', shutit_global.shutit_global_object.base_prompt.strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
+		res = shutit_pexpect_session.expect(expect, timeout=shutit_global.shutit_global_object.default_timeout)
 		while True:
 			if target_child.before == type(pexpect.exceptions.EOF):
 				self.fail('EOF exception seen') # pragma: no cover
 			try:
-				shutit_global_object.log(target_child.before + target_child.after,level=logging.DEBUG)
+				shutit_global.shutit_global_object.log(target_child.before + target_child.after,level=logging.DEBUG)
 			except Exception:
 				pass
 			if res == 0:
-				res = self.send(self.host['password'], shutit_pexpect_child=target_child, expect=expect, timeout=shutit_global_object.default_timeout, check_exit=False, fail_on_empty_before=False, echo=False)
+				res = self.send(self.host['password'], shutit_pexpect_child=target_child, expect=expect, timeout=shutit_global.shutit_global_object.default_timeout, check_exit=False, fail_on_empty_before=False, echo=False)
 			elif res == 1:
-				shutit_global_object.log('Prompt found, breaking out',level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('Prompt found, breaking out',level=logging.DEBUG)
 				break
 			elif res == 6:
 				self.fail('Docker not installed.') # pragma: no cover
 				break
 			elif res == 7:
-				shutit_global_object.log('Initial command timed out, assuming OK to continue.',level=logging.WARNING)
+				shutit_global.shutit_global_object.log('Initial command timed out, assuming OK to continue.',level=logging.WARNING)
 				break
 			elif res == 8:
 				self.fail('EOF seen.') # pragma: no cover
 			else:
-				res = shutit_pexpect_session.expect(expect, timeout=shutit_global_object.default_timeout)
+				res = shutit_pexpect_session.expect(expect, timeout=shutit_global.shutit_global_object.default_timeout)
 				continue
-		shutit_global_object.log('Getting cid',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Getting cid',level=logging.DEBUG)
 		# Get the cid, to determine whether the container started up ok.
 		# pexpect.spawn does not give us an easy way to determine the success of the run without closing the stream.
 		while True:
@@ -3811,7 +3811,7 @@ class ShutIt(object):
 				time.sleep(1)
 		if cid == '' or re.match('^[a-z0-9]+$', cid) is None:
 			self.fail('Could not get container_id - quitting. Check whether other containers may be clashing on port allocation or name.\nYou might want to try running: sudo docker kill ' + self.target['name'] + '; sudo docker rm ' + self.target['name'] + '\nto resolve a name clash or: ' + self.host['docker_executable'] + ' ps -a | grep ' + self.target['ports'] + " | awk '{print $1}' | " + 'xargs ' + self.host['docker_executable'] + ' kill\nto ' + 'resolve a port clash\n') # pragma: no cover
-		shutit_global_object.log('cid: ' + cid,level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('cid: ' + cid,level=logging.DEBUG)
 		self.target['container_id'] = cid
 		return target_child
 
@@ -3827,7 +3827,7 @@ class ShutIt(object):
 		# Some pexpect settings
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_id(target_child_id)
 		shutit_pexpect_session.pexpect_child = target_child
-		self.set_default_shutit_pexpect_session_expect(shutit_global_object.base_prompt)
+		self.set_default_shutit_pexpect_session_expect(shutit_global.shutit_global_object.base_prompt)
 		# target child
 		self.set_default_shutit_pexpect_session(shutit_pexpect_session)
 		shutit_pexpect_session.setup_prompt(prefix,prefix=prefix)
@@ -3836,11 +3836,11 @@ class ShutIt(object):
 
 	def setup_host_child_environment(self):
 		# Now let's have a host_child
-		shutit_global_object.log('Spawning host child',level=logging.DEBUG)
-		shutit_pexpect_session = ShutItPexpectSession(self, 'host_child', '/bin/bash')
+		shutit_global.shutit_global_object.log('Spawning host child',level=logging.DEBUG)
+		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(self, 'host_child', '/bin/bash')
 		# Set up prompts and let the user do things before the build
 		self.set_default_shutit_pexpect_session(shutit_pexpect_session)
-		self.set_default_shutit_pexpect_session_expect(shutit_global_object.base_prompt)
+		self.set_default_shutit_pexpect_session_expect(shutit_global.shutit_global_object.base_prompt)
 		# ORIGIN_ENV is a special case of the prompt maintained for performance reasons, don't change.
 		prefix = 'ORIGIN_ENV'
 		shutit_pexpect_session.setup_prompt('ORIGIN_ENV', prefix=prefix)
@@ -3852,7 +3852,7 @@ class ShutIt(object):
 			test = self.build['exam_object']
 			test.calculate_score()
 			test_output = str(test)
-			shutit_global_object.log(test_output,level=logging.CRITICAL)
+			shutit_global.shutit_global_object.log(test_output,level=logging.CRITICAL)
 			f = open('/tmp/shutit_exam_output', 'w')
 			f.write(test_output)
 			f.close()
@@ -3875,39 +3875,39 @@ class ShutIt(object):
 			f = open(fname,'w')
 			f.write(digraph_all)
 			f.close()
-			shutit_global_object.log('\n================================================================================\n' + digraph_all,level=logging.INFO)
-			shutit_global_object.log('\nAbove is the digraph for ALL MODULES SEEN in this ShutIt invocation. Use graphviz to render into an image, eg\n\n\tcat ' + fname + ' | dot -Tpng -o depgraph.png\n',level=logging.INFO)
-			shutit_global_object.log('\n================================================================================\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('\n================================================================================\n' + digraph_all,level=logging.INFO)
+			shutit_global.shutit_global_object.log('\nAbove is the digraph for ALL MODULES SEEN in this ShutIt invocation. Use graphviz to render into an image, eg\n\n\tcat ' + fname + ' | dot -Tpng -o depgraph.png\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('\n================================================================================\n',level=logging.INFO)
 			fname = self.build['log_config_path'] + '/digraph_this.txt'
 			f = open(fname,'w')
 			f.write(digraph_all)
 			f.close()
-			shutit_global_object.log('\n\n' + digraph,level=logging.INFO)
-			shutit_global_object.log('\n================================================================================\n' + digraph,level=logging.INFO)
-			shutit_global_object.log('\nAbove is the digraph for all modules configured to be built IN THIS ShutIt invocation. Use graphviz to render into an image, eg\n\ncat ' + fname + ' | dot -Tpng -o depgraph.png\n',level=logging.INFO)
-			shutit_global_object.log('\n================================================================================\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('\n\n' + digraph,level=logging.INFO)
+			shutit_global.shutit_global_object.log('\n================================================================================\n' + digraph,level=logging.INFO)
+			shutit_global.shutit_global_object.log('\nAbove is the digraph for all modules configured to be built IN THIS ShutIt invocation. Use graphviz to render into an image, eg\n\ncat ' + fname + ' | dot -Tpng -o depgraph.png\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('\n================================================================================\n',level=logging.INFO)
 			# Exit now
-			shutit_global_object.handle_exit()
+			shutit_global.shutit_global_object.handle_exit()
 		# Dependency validation done, now collect configs of those marked for build.
 		self.config_collection_for_built()
-		if self.action['list_configs'] or shutit_global_object.loglevel <= logging.DEBUG:
-			shutit_global_object.log(self.print_config(self.cfg, history=self.list_configs['cfghistory']),level=logging.INFO)
+		if self.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
+			shutit_global.shutit_global_object.log(self.print_config(self.cfg, history=self.list_configs['cfghistory']),level=logging.INFO)
 			# Set build completed
 			self.build['completed'] = True
 			f = open(self.build['log_config_path'] + '/cfg.txt','w')
 			f.write(self.print_config(self.cfg, history=self.list_configs['cfghistory']))
 			f.close()
-			shutit_global_object.log('================================================================================',level=logging.INFO)
-			shutit_global_object.log('Config details placed in: ' + self.build['log_config_path'],level=logging.INFO)
-			shutit_global_object.log('================================================================================',level=logging.INFO)
-			shutit_global_object.log('To render the digraph of this build into an image run eg:\n\ndot -Tgv -o ' + self.build['log_config_path'] + '/digraph.gv ' + self.build['log_config_path'] + '/digraph.txt && dot -Tpdf -o digraph.pdf ' + self.build['log_config_path'] + '/digraph.gv\n\n',level=logging.INFO)
-			shutit_global_object.log('================================================================================',level=logging.INFO)
-			shutit_global_object.log('To render the digraph of all visible modules into an image, run eg:\n\ndot -Tgv -o ' + self.build['log_config_path'] + '/digraph_all.gv ' + self.build['log_config_path'] + '/digraph_all.txt && dot -Tpdf -o digraph_all.pdf ' + self.build['log_config_path'] + '/digraph_all.gv\n\n',level=logging.INFO)
-			shutit_global_object.log('================================================================================',level=logging.INFO)
-			shutit_global_object.log('\nConfiguration details have been written to the folder: ' + self.build['log_config_path'] + '\n',level=logging.INFO)
-			shutit_global_object.log('================================================================================',level=logging.INFO)
+			shutit_global.shutit_global_object.log('================================================================================',level=logging.INFO)
+			shutit_global.shutit_global_object.log('Config details placed in: ' + self.build['log_config_path'],level=logging.INFO)
+			shutit_global.shutit_global_object.log('================================================================================',level=logging.INFO)
+			shutit_global.shutit_global_object.log('To render the digraph of this build into an image run eg:\n\ndot -Tgv -o ' + self.build['log_config_path'] + '/digraph.gv ' + self.build['log_config_path'] + '/digraph.txt && dot -Tpdf -o digraph.pdf ' + self.build['log_config_path'] + '/digraph.gv\n\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('================================================================================',level=logging.INFO)
+			shutit_global.shutit_global_object.log('To render the digraph of all visible modules into an image, run eg:\n\ndot -Tgv -o ' + self.build['log_config_path'] + '/digraph_all.gv ' + self.build['log_config_path'] + '/digraph_all.txt && dot -Tpdf -o digraph_all.pdf ' + self.build['log_config_path'] + '/digraph_all.gv\n\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('================================================================================',level=logging.INFO)
+			shutit_global.shutit_global_object.log('\nConfiguration details have been written to the folder: ' + self.build['log_config_path'] + '\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('================================================================================',level=logging.INFO)
 		if self.action['list_configs'] or self.action['list_deps']:
-			shutit_global_object.handle_exit(exit_code=0)
+			shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
 
 	def do_interactive_modules(self):
@@ -3916,7 +3916,7 @@ class ShutIt(object):
 		while True:
 			self.do_list_modules(long_output=False,sort_order='run_order')
 			# Which module do you want to toggle?
-			module_id = util_raw_input(prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n(you can enter a substring if it is uniquely matching)\n')
+			module_id = shutit_util.util_raw_input(prompt='Which module id do you want to toggle?\n(just hit return to continue with build)\n(you can enter a substring if it is uniquely matching)\n')
 			if module_id:
 				try:
 					_=cfg[module_id]
@@ -3943,26 +3943,26 @@ class ShutIt(object):
 					newcfg_list = []
 					while True:
 						print(self.print_config(cfg,module_id=module_id))
-						name = util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
+						name = shutit_util.util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
 						if name:
 							doing_list = False
 							while True:
 								if doing_list:
-									val_type = util_raw_input(prompt='Input the type for the next list item: b(oolean), s(tring).\n')
+									val_type = shutit_util.util_raw_input(prompt='Input the type for the next list item: b(oolean), s(tring).\n')
 									if val_type not in ('b','s',''):
 										continue
 								else:
-									val_type = util_raw_input(prompt='Input the type for that config item: b(oolean), s(tring), l(ist).\n')
+									val_type = shutit_util.util_raw_input(prompt='Input the type for that config item: b(oolean), s(tring), l(ist).\n')
 									if val_type not in ('b','s','l',''):
 										continue
 								if val_type == 's':
-									val = util_raw_input(prompt='Input the value new for that config item.\n')
+									val = shutit_util.util_raw_input(prompt='Input the value new for that config item.\n')
 									if doing_list:
 										newcfg_list.append(val)
 									else:
 										break
 								elif val_type == 'b':
-									val = util_raw_input(prompt='Input the value new for the boolean (t/f).\n')
+									val = shutit_util.util_raw_input(prompt='Input the value new for the boolean (t/f).\n')
 									if doing_list:
 										if val == 't':
 											newcfg_list.append(True)
@@ -4000,21 +4000,21 @@ class ShutIt(object):
 		self.load_configs()
 		# Try and ensure shutit is on the path - makes onboarding easier
 		# Only do this if we're in a terminal
-		if shutit_global_object.determine_interactive() and spawn.find_executable('shutit') is None:
+		if shutit_global.shutit_global_object.determine_interactive() and spawn.find_executable('shutit') is None:
 			self.setup_shutit_path()
 		self.load_mod_from_file(os.path.join(self.shutit_main_dir, 'shutit_setup.py'))
 		self.load_shutit_modules()
-		shutit_global_object.log('ShutIt modules loaded',level=logging.INFO)
+		shutit_global.shutit_global_object.log('ShutIt modules loaded',level=logging.INFO)
 		self.init_shutit_map()
 		self.config_collection()
-		shutit_global_object.log('Configuration loaded',level=logging.INFO)
+		shutit_global.shutit_global_object.log('Configuration loaded',level=logging.INFO)
 		if self.action['list_modules']:
 			self.do_list_modules()
-			shutit_global_object.handle_exit()
+			shutit_global.shutit_global_object.handle_exit()
 		if not self.action['list_deps'] and not self.action['list_modules']:
 			self.conn_target()
-			shutit_global_object.log('Connected to target',level=logging.INFO)
-		if shutit_global_object.interactive > 0 and self.build['choose_config']:
+			shutit_global.shutit_global_object.log('Connected to target',level=logging.INFO)
+		if shutit_global.shutit_global_object.interactive > 0 and self.build['choose_config']:
 			errs = self.do_interactive_modules()
 		else:
 			errs = []
@@ -4025,10 +4025,10 @@ class ShutIt(object):
 		# Cache the results of check_ready at the start.
 		errs.extend(self.check_ready(throw_error=False))
 		if errs:
-			shutit_global_object.log(self.print_modules(), level=logging.ERROR)
+			shutit_global.shutit_global_object.log(self.print_modules(), level=logging.ERROR)
 			child = None
 			for err in errs:
-				shutit_global_object.log(err[0], level=logging.ERROR)
+				shutit_global.shutit_global_object.log(err[0], level=logging.ERROR)
 				if not child and len(err) > 1:
 					child = err[1]
 			self.fail("Encountered some errors, quitting", shutit_pexpect_child=child) # pragma: no cover
@@ -4037,18 +4037,18 @@ class ShutIt(object):
 		self.do_test()
 		self.do_finalize()
 		self.finalize_target()
-		shutit_global_object.log(self.build_report('#Module: N/A (END)'), level=logging.DEBUG)
+		shutit_global.shutit_global_object.log(self.build_report('#Module: N/A (END)'), level=logging.DEBUG)
 		self.do_exam_output()
-		shutit_global_object.do_final_messages()
-		shutit_global_object.log('ShutIt run finished',level=logging.INFO)
-		shutit_global_object.handle_exit(exit_code=0)
+		shutit_global.shutit_global_object.do_final_messages()
+		shutit_global.shutit_global_object.log('ShutIt run finished',level=logging.INFO)
+		shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
 
 	def setup_shutit_path(self):
 		# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
 		if not self.host['add_shutit_to_path']:
 			return
-		res = util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
+		res = shutit_util.util_raw_input(prompt='shutit appears not to be on your path - should try and we find it and add it to your ~/.bashrc (Y/n)?')
 		if res in ['n','N']:
 			with open(os.path.join(self.host['shutit_path'], 'config'), 'a') as f:
 				f.write('\n[host]\nadd_shutit_to_path: no\n')
@@ -4060,7 +4060,7 @@ class ShutIt(object):
 				continue
 			path_to_shutit = path
 		while path_to_shutit == '':
-			d = util_raw_input(prompt='cannot auto-find shutit - please input the path to your shutit dir\n')
+			d = shutit_util.util_raw_input(prompt='cannot auto-find shutit - please input the path to your shutit dir\n')
 			path = os.path.abspath(d + '/shutit')
 			if not os.path.isfile(path):
 				continue
@@ -4071,7 +4071,7 @@ class ShutIt(object):
 				#http://unix.stackexchange.com/questions/26676/how-to-check-if-a-shell-is-login-interactive-batch
 				myfile.write('\nexport PATH="$PATH:' + os.path.dirname(path_to_shutit) + '"\n')
 			util_raw_input(prompt='\nPath set up - please open new terminal and re-run command\n')
-			shutit_global_object.handle_exit()
+			shutit_global.shutit_global_object.handle_exit()
 
 
 
@@ -4080,7 +4080,7 @@ class ShutIt(object):
 		"""Dependency checking phase is performed in this method.
 		"""
 		cfg = self.cfg
-		shutit_global_object.log('PHASE: dependencies', level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('PHASE: dependencies', level=logging.DEBUG)
 		self.pause_point('\nNow checking for dependencies between modules', print_input=False, level=3)
 		# Get modules we're going to build
 		to_build = [
@@ -4116,12 +4116,12 @@ class ShutIt(object):
 		if found_errs:
 			return [(err,) for err in found_errs]
 
-		shutit_global_object.log('Modules configured to be built (in order) are: ', level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('Modules configured to be built (in order) are: ', level=logging.DEBUG)
 		for module_id in self.module_ids():
 			module = self.shutit_map[module_id]
 			if cfg[module_id]['shutit.core.module.build']:
-				shutit_global_object.log(module_id + '    ' + str(module.run_order), level=logging.DEBUG)
-		shutit_global_object.log('\n', level=logging.DEBUG)
+				shutit_global.shutit_global_object.log(module_id + '    ' + str(module.run_order), level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('\n', level=logging.DEBUG)
 
 		return []
 
@@ -4131,7 +4131,7 @@ class ShutIt(object):
 		"""
 		cfg = self.cfg
 		# Now consider conflicts
-		shutit_global_object.log('PHASE: conflicts', level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('PHASE: conflicts', level=logging.DEBUG)
 		errs = []
 		self.pause_point('\nNow checking for conflicts between modules', print_input=False, level=3)
 		for module_id in self.module_ids():
@@ -4157,16 +4157,16 @@ class ShutIt(object):
 		(see shutit.is_installed).
 		"""
 		cfg = self.cfg
-		shutit_global_object.log('PHASE: check_ready', level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('PHASE: check_ready', level=logging.DEBUG)
 		errs = []
 		self.pause_point('\nNow checking whether we are ready to build modules configured to be built', print_input=False, level=3)
 		# Find out who we are to see whether we need to log in and out or not.
 		for module_id in self.module_ids():
 			module = self.shutit_map[module_id]
-			shutit_global_object.log('considering check_ready (is it ready to be built?): ' + module_id, level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('considering check_ready (is it ready to be built?): ' + module_id, level=logging.DEBUG)
 			if cfg[module_id]['shutit.core.module.build'] and module.module_id not in self.get_current_shutit_pexpect_session_environment().modules_ready and not self.is_installed(module):
-				shutit_global_object.log('checking whether module is ready to build: ' + module_id, level=logging.DEBUG)
-				self.login(prompt_prefix=module_id,command=shutit_global_object.bash_startup_command,echo=False)
+				shutit_global.shutit_global_object.log('checking whether module is ready to build: ' + module_id, level=logging.DEBUG)
+				self.login(prompt_prefix=module_id,command=shutit_global.shutit_global_object.bash_startup_command,echo=False)
 				# Move to the correct directory (eg for checking for the existence of files needed for build)
 				revert_dir = os.getcwd()
 				self.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(self.shutit_file_map[module_id])
@@ -4183,22 +4183,22 @@ class ShutIt(object):
 		"""
 		cfg = self.cfg
 		# Now get the run_order keys in order and go.
-		shutit_global_object.log('PHASE: remove', level=loglevel)
+		shutit_global.shutit_global_object.log('PHASE: remove', level=loglevel)
 		self.pause_point('\nNow removing any modules that need removing', print_input=False, level=3)
 		# Login at least once to get the exports.
 		for module_id in self.module_ids():
 			module = self.shutit_map[module_id]
-			shutit_global_object.log('considering whether to remove: ' + module_id, level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('considering whether to remove: ' + module_id, level=logging.DEBUG)
 			if cfg[module_id]['shutit.core.module.remove']:
-				shutit_global_object.log('removing: ' + module_id, level=logging.DEBUG)
-				self.login(prompt_prefix=module_id,command=shutit_global_object.bash_startup_command,echo=False)
+				shutit_global.shutit_global_object.log('removing: ' + module_id, level=logging.DEBUG)
+				self.login(prompt_prefix=module_id,command=shutit_global.shutit_global_object.bash_startup_command,echo=False)
 				if not module.remove(self):
-					shutit_global_object.log(self.print_modules(), level=logging.DEBUG)
+					shutit_global.shutit_global_object.log(self.print_modules(), level=logging.DEBUG)
 					self.fail(module_id + ' failed on remove', shutit_pexpect_child=self.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 				else:
 					if self.build['delivery'] in ('docker','dockerfile'):
 						# Create a directory and files to indicate this has been removed.
-						self.send(' command mkdir -p ' + shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + ' && command rm -f ' + shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/built && command touch ' + shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
+						self.send(' command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + ' && command rm -f ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/built && command touch ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
 						# Remove from "installed" cache
 						if module.module_id in self.get_current_shutit_pexpect_session_environment().modules_installed:
 							self.get_current_shutit_pexpect_session_environment().modules_installed.remove(module.module_id)
@@ -4212,14 +4212,14 @@ class ShutIt(object):
 		"""Build passed-in module.
 		"""
 		cfg = self.cfg
-		shutit_global_object.log('Building ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order), level=logging.INFO)
+		shutit_global.shutit_global_object.log('Building ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order), level=logging.INFO)
 		self.build['report'] = (self.build['report'] + '\nBuilding ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order))
 		if not module.build(self):
 			self.fail(module.module_id + ' failed on build', shutit_pexpect_child=self.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 		else:
 			if self.build['delivery'] in ('docker','dockerfile'):
 				# Create a directory and files to indicate this has been built.
-				self.send(' command mkdir -p ' + shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + ' && command touch ' + shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/built && command rm -f ' + shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
+				self.send(' command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + ' && command touch ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/built && command rm -f ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
 			# Put it into "installed" cache
 			self.get_current_shutit_pexpect_session_environment().modules_installed.append(module.module_id)
 			# Remove from "not installed" cache
@@ -4228,21 +4228,21 @@ class ShutIt(object):
 		self.pause_point('\nPausing to allow inspect of build for: ' + module.module_id, print_input=True, level=2)
 		self.build['report'] = (self.build['report'] + '\nCompleted module: ' + module.module_id)
 		if cfg[module.module_id]['shutit.core.module.tag']:
-			shutit_global_object.log(self.build_report('#Module:' + module.module_id), level=logging.DEBUG)
-		if not cfg[module.module_id]['shutit.core.module.tag'] and shutit_global_object.interactive >= 2:
+			shutit_global.shutit_global_object.log(self.build_report('#Module:' + module.module_id), level=logging.DEBUG)
+		if not cfg[module.module_id]['shutit.core.module.tag'] and shutit_global.shutit_global_object.interactive >= 2:
 			print("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
 			cfg[module.module_id]['shutit.core.module.tag'] = (util_raw_input(default='y') == 'y')
 		if cfg[module.module_id]['shutit.core.module.tag'] or self.build['tag_modules']:
-			shutit_global_object.log(module.module_id + ' configured to be tagged, doing repository work',level=logging.INFO)
+			shutit_global.shutit_global_object.log(module.module_id + ' configured to be tagged, doing repository work',level=logging.INFO)
 			# Stop all before we tag to avoid file changing errors, and clean up pid files etc..
 			self.stop_all(module.run_order)
 			self.do_repository_work(str(module.module_id) + '_' + str(module.run_order), password=self.host['password'], docker_executable=self.host['docker_executable'], force=True)
 			# Start all after we tag to ensure services are up as expected.
 			self.start_all(module.run_order)
-		if shutit_global_object.interactive >= 2:
+		if shutit_global.shutit_global_object.interactive >= 2:
 			print("\n\nDo you want to stop interactive mode? (input y/n)\n")
-			if util_raw_input(default='y') == 'y':
-				shutit_global_object.interactive = 0
+			if shutit_util.util_raw_input(default='y') == 'y':
+				shutit_global.shutit_global_object.interactive = 0
 
 
 	def do_build(self):
@@ -4250,13 +4250,13 @@ class ShutIt(object):
 		need building.
 		"""
 		cfg = self.cfg
-		shutit_global_object.log('PHASE: build, repository work', level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('PHASE: build, repository work', level=logging.DEBUG)
 		module_id_list = self.module_ids()
 		if self.build['deps_only']:
 			module_id_list_build_only = filter(lambda x: cfg[x]['shutit.core.module.build'], module_id_list)
 		for module_id in module_id_list:
 			module = self.shutit_map[module_id]
-			shutit_global_object.log('Considering whether to build: ' + module.module_id, level=logging.INFO)
+			shutit_global.shutit_global_object.log('Considering whether to build: ' + module.module_id, level=logging.INFO)
 			if cfg[module.module_id]['shutit.core.module.build']:
 				if self.build['delivery'] not in module.ok_delivery_methods:
 					self.fail('Module: ' + module.module_id + ' can only be built with one of these --delivery methods: ' + str(module.ok_delivery_methods) + '\nSee shutit build -h for more info, or try adding: --delivery <method> to your shutit invocation') # pragma: no cover
@@ -4271,12 +4271,12 @@ class ShutIt(object):
 						revert_dir = os.getcwd()
 						self.get_current_shutit_pexpect_session_environment().module_root_dir = os.path.dirname(self.shutit_file_map[module_id])
 						self.chdir(self.get_current_shutit_pexpect_session_environment().module_root_dir)
-						self.login(prompt_prefix=module_id,command=shutit_global_object.bash_startup_command,echo=False)
+						self.login(prompt_prefix=module_id,command=shutit_global.shutit_global_object.bash_startup_command,echo=False)
 						self.build_module(module)
 						self.logout(echo=False)
 						self.chdir(revert_dir)
 			if self.is_installed(module):
-				shutit_global_object.log('Starting module',level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('Starting module',level=logging.DEBUG)
 				if not module.start(self):
 					self.fail(module.module_id + ' failed on start', shutit_pexpect_child=self.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 
@@ -4285,17 +4285,17 @@ class ShutIt(object):
 		"""Runs test phase, erroring if any return false.
 		"""
 		if not self.build['dotest']:
-			shutit_global_object.log('Tests configured off, not running',level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('Tests configured off, not running',level=logging.DEBUG)
 			return
 		# Test in reverse order
-		shutit_global_object.log('PHASE: test', level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('PHASE: test', level=logging.DEBUG)
 		self.stop_all()
 		self.start_all()
 		for module_id in self.module_ids(rev=True):
 			# Only test if it's installed.
 			if self.is_installed(self.shutit_map[module_id]):
-				shutit_global_object.log('RUNNING TEST ON: ' + module_id, level=logging.DEBUG)
-				self.login(prompt_prefix=module_id,command=shutit_global_object.bash_startup_command,echo=False)
+				shutit_global.shutit_global_object.log('RUNNING TEST ON: ' + module_id, level=logging.DEBUG)
+				self.login(prompt_prefix=module_id,command=shutit_global.shutit_global_object.bash_startup_command,echo=False)
 				if not self.shutit_map[module_id].test(self):
 					self.fail(module_id + ' failed on test', shutit_pexpect_child=self.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 				self.logout(echo=False)
@@ -4309,12 +4309,12 @@ class ShutIt(object):
 			# Stop all the modules
 			self.stop_all()
 			# Finalize in reverse order
-			shutit_global_object.log('PHASE: finalizing object ' + str(self), level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('PHASE: finalizing object ' + str(self), level=logging.DEBUG)
 			# Login at least once to get the exports.
 			for module_id in self.module_ids(rev=True):
 				# Only finalize if it's thought to be installed.
 				if self.is_installed(self.shutit_map[module_id]):
-					self.login(prompt_prefix=module_id,command=shutit_global_object.bash_startup_command,echo=False)
+					self.login(prompt_prefix=module_id,command=shutit_global.shutit_global_object.bash_startup_command,echo=False)
 					if not self.shutit_map[module_id].finalize(self):
 						self.fail(module_id + ' failed on finalize', shutit_pexpect_child=self.get_shutit_pexpect_session_from_id('target_child').pexpect_child) # pragma: no cover
 					self.logout(echo=False)
@@ -4356,7 +4356,7 @@ class ShutIt(object):
 		Caches the result (as it's assumed not to change during the build).
 		"""
 		if shutit_module_obj.module_id in self.get_current_shutit_pexpect_session_environment().modules_ready:
-			shutit_global_object.log('is_ready: returning True from cache',level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('is_ready: returning True from cache',level=logging.DEBUG)
 			return True
 		ready = shutit_module_obj.check_ready(self)
 		if ready:
@@ -4377,9 +4377,9 @@ class ShutIt(object):
 		modules = self.shutit_modules
 		# Have we got anything to process outside of special modules?
 		if len([mod for mod in modules if mod.run_order > 0]) < 1:
-			shutit_global_object.log(modules,level=logging.DEBUG)
+			shutit_global.shutit_global_object.log(modules,level=logging.DEBUG)
 			path = ':'.join(self.host['shutit_module_path'])
-			shutit_global_object.log('\nIf you are new to ShutIt, see:\n\n\thttp://ianmiell.github.io/shutit/\n\nor try running\n\n\tshutit skeleton\n\n',level=logging.INFO)
+			shutit_global.shutit_global_object.log('\nIf you are new to ShutIt, see:\n\n\thttp://ianmiell.github.io/shutit/\n\nor try running\n\n\tshutit skeleton\n\n',level=logging.INFO)
 			if path == '':
 				self.fail('No ShutIt modules aside from core ones found and no ShutIt module path given.\nDid you set --shutit_module_path/-m wrongly?\n') # pragma: no cover
 			elif path == '.':
@@ -4387,12 +4387,12 @@ class ShutIt(object):
 			else:
 				self.fail('No modules aside from core ones found and no ShutIt modules in path:\n\n' + path + '\n\nor their subfolders. Check your --shutit_module_path/-m setting and check that there are ShutIt modules below without STOP* files in any relevant directories.') # pragma: no cover
 
-		shutit_global_object.log('PHASE: base setup', level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('PHASE: base setup', level=logging.DEBUG)
 
 		run_orders = {}
 		has_core_module = False
 		for module in modules:
-			assert isinstance(module, ShutItModule), print_debug()
+			assert isinstance(module, ShutItModule), shutit_util.print_debug()
 			if module.module_id in self.shutit_map:
 				self.fail('Duplicated module id: ' + module.module_id + '\n\nYou may want to check your --shutit_module_path setting') # pragma: no cover
 			if module.run_order in run_orders:
@@ -4439,7 +4439,7 @@ class ShutIt(object):
 	def resolve_dependencies(self, to_build, depender):
 		"""Add any required dependencies.
 		"""
-		shutit_global_object.log('In resolve_dependencies',level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('In resolve_dependencies',level=logging.DEBUG)
 		cfg = self.cfg
 		for dependee_id in depender.depends_on:
 			dependee = self.shutit_map.get(dependee_id)
@@ -4472,7 +4472,7 @@ class ShutIt(object):
 
 	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, color=None):
 		self = self
-		return get_input(msg,
+		return shutit_util.get_input(msg,
 		                 default=default,
 		                 valid=valid,
 		                 boolean=boolean,
@@ -4483,7 +4483,7 @@ class ShutIt(object):
 	# Pass through log to global function.
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True, color_code=0):
 		self = self # For linters: we want this to be available to shutit object users
-		shutit_global_object.log(msg,
+		shutit_global.shutit_global_object.log(msg,
 		                                       add_final_message=add_final_message,
 		                                       level=level,
 		                                       transient=transient,
@@ -4498,7 +4498,7 @@ class ShutIt(object):
 	                   rm=None,
 	                   loglevel='WARNING'):
 		self = self # For linters: we want this to be available to shutit object users
-		return shutit_global_object.create_session(session_type=session_type,
+		return shutit_global.shutit_global_object.create_session(session_type=session_type,
 		                                                         docker_image=docker_image,
 		                                                         rm=rm,
 		                                                         loglevel=loglevel)
@@ -4510,7 +4510,7 @@ class ShutIt(object):
 
 	# Returns true if the global session is interactive.
 	def is_interactive(self):
-		return shutit_global_object.determine_interactive()
+		return shutit_global.shutit_global_object.determine_interactive()
 
 
 def check_dependee_order(depender, dependee, dependee_id):
@@ -4575,7 +4575,7 @@ password:
 logfile:
 # ShutIt paths to look up modules in separated by ":", eg /path1/here:/opt/path2/there
 shutit_module_path:.
-# Whether to colorise output
+# Whether to shutit_util.colorise output
 nocolor:no
 
 # Repository information

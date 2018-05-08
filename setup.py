@@ -13,13 +13,6 @@ setup(
 	author='Ian Miell',
 	author_email='ian.miell@gmail.com',
 	license='MIT',
-	classifiers=[
-		'Development Status :: 4 - Beta',
-		'Intended Audience :: Developers',
-		'Topic :: Software Development :: Build Tools',
-		'License :: OSI Approved :: MIT License',
-		'Programming Language :: Python :: 2.7',
-	],
 	keywords='Docker pexpect expect automation build',
 	packages=['shutit'],
 	install_requires=['pexpect>=4.0','jinja2>=0.1','texttable>=0.1','six>=1.10','future>=0.15'],

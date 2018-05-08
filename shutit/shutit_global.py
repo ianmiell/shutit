@@ -315,4 +315,4 @@ shutit_global_object = ShutItGlobal()
 from shutit import shutit_class
 from shutit import shutit_util
 
-shutit_global_object.add_shutit_session(ShutIt(standalone=False))
+shutit_global_object.add_shutit_session(shutit_class.ShutIt(standalone=False))

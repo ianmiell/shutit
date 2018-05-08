@@ -89,7 +89,7 @@ class ShutItBackgroundCommand(object):
 
 
 	def check_background_command_state(self):
-		shutit_global_object.log('CHECKING background task: ' + self.sendspec.send + ', id: ' + self.id,level=logging.DEBUG)
+		shutit_global.shutit_global_object.log('CHECKING background task: ' + self.sendspec.send + ', id: ' + self.id,level=logging.DEBUG)
 		assert self.start_time is not None, print_debug()
 		# Check the command has been started
 		if not self.sendspec.started:
@@ -121,7 +121,7 @@ class ShutItBackgroundCommand(object):
             #   U       Marks a process in uninterruptible wait.
             #   Z       Marks a dead process (a ``zombie'').
 			if self.run_state in ('I','R','T','U','Z'):
-				shutit_global_object.log('background task run state: ' + self.run_state, level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('background task run state: ' + self.run_state, level=logging.DEBUG)
 				self.run_state = 'S'
 			try:
 				assert self.run_state in ('S',), print_debug(msg='State should be in S having gleaned from ps, is in fact: ' + self.run_state)
@@ -145,7 +145,7 @@ class ShutItBackgroundCommand(object):
 		else:
 			# Task is finished.
 			self.run_state = 'C'
-			shutit_global_object.log('background task: ' + self.sendspec.send + ', id: ' + self.id + ' complete',level=logging.DEBUG)
+			shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ', id: ' + self.id + ' complete',level=logging.DEBUG)
 			# Stop this from blocking other commands from here.
 			assert self.return_value is None, print_debug(msg='check_background_command_state called with self.return_value already set?' + str(self))
 			self.sendspec.shutit_pexpect_child.quick_send(' wait ' + self.pid)
@@ -153,22 +153,22 @@ class ShutItBackgroundCommand(object):
 			self.return_value = self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file, ignore_background=True)
 			# If the return value is deemed a failure:
 			if self.return_value not in self.sendspec.exit_values:
-				shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
-				shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.output_file, ignore_background=True), level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' failed with output: ' + self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.output_file, ignore_background=True), level=logging.DEBUG)
 				if self.retry > 0:
-					shutit_global_object.log('background task: ' + self.sendspec.send + ' retrying',level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' retrying',level=logging.DEBUG)
 					self.retry -= 1
 					self.run_background_command()
 					# recurse
 					return self.check_background_command_state()
 				else:
-					shutit_global_object.log('background task final failure: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
+					shutit_global.shutit_global_object.log('background task final failure: ' + self.sendspec.send + ' failed with exit code: ' + self.return_value, level=logging.DEBUG)
 					self.run_state = 'F'
 				assert self.run_state in ('C','F'), print_debug()
 				return self.run_state
 			else:
 				# Task succeeded.
-				shutit_global_object.log('background task: ' + self.sendspec.send + ' succeeded with exit code: ' + self.return_value, level=logging.DEBUG)
+				shutit_global.shutit_global_object.log('background task: ' + self.sendspec.send + ' succeeded with exit code: ' + self.return_value, level=logging.DEBUG)
 			assert self.run_state in ('C',), print_debug()
 			return self.run_state
 		# Should never get here.
