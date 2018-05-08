@@ -76,7 +76,7 @@ def main():
 		sys.exit(1)
 
 
-shutit_version='1.0.107'
+shutit_version='1.0.109'
 
 
 if __name__ == '__main__':
