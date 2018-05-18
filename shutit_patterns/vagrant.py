@@ -361,13 +361,13 @@ import inspect'''
 vagrant_run
 secret''')
 	gitignore_file.close()
-	os.chmod(gitignore_filename,0700)
+	os.chmod(gitignore_filename,700)
 
 	secretfile_filename = skel_path + '/secret'
 	secretfile_file = open(secretfile_filename,'w+')
 	secretfile_file.write(sudo_password)
 	secretfile_file.close()
-	os.chmod(secretfile_filename,0400)
+	os.chmod(secretfile_filename,400)
 
 	# README.md
 	readme_filename = skel_path + '/README.md'
@@ -390,7 +390,7 @@ cd [this repo file]
 ```
 ''')
 	readme_file.close()
-	os.chmod(readme_filename,0700)
+	os.chmod(readme_filename,700)
 
 	# run.sh
 	runsh_filename = skel_path + '/run.sh'
@@ -411,7 +411,7 @@ then
 	exit 1
 fi''')
 	runsh_file.close()
-	os.chmod(runsh_filename,0o755)
+	os.chmod(runsh_filename,755)
 
 	# destroy_vms.sh
 	destroyvmssh_filename = skel_path + '/destroy_vms.sh'
@@ -461,7 +461,7 @@ then
 fi'''
 	destroyvmssh_file.write(destroyvmssh_file_contents)
 	destroyvmssh_file.close()
-	os.chmod(destroyvmssh_filename,0o755)
+	os.chmod(destroyvmssh_filename,755)
 
 	# build.cnf
 	os.system('mkdir -p ' + skel_path + '/configs')
@@ -664,7 +664,7 @@ shutit.core.module.build:yes''')
 [''' + skel_domain + '''.''' +  skel_module_name + module_modifier + ''']
 shutit.core.module.build:yes''')
 				build_cnf_file.close()
-		os.chmod(build_cnf_filename,0o400)
+		os.chmod(build_cnf_filename,400)
 ################################################################################
 # END SHUTITFILE HANDLING
 ################################################################################
@@ -755,7 +755,7 @@ def module():
 shutit.core.module.build:yes''')
 
 		build_cnf_file.close()
-		os.chmod(build_cnf_filename,0o400)
+		os.chmod(build_cnf_filename,400)
 ################################################################################
 # END MODULE SETUP
 ################################################################################
