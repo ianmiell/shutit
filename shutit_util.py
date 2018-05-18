@@ -240,15 +240,15 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	sanitize_terminal()
 	if shutit_global.shutit_global_object.interactive == 0:
 		return default
-	# See: https//github.com/ianmiell/shutit/issues/299 - python3 made input == python 2's raw_input
-	if not shutit_global.shutit_global_object.ispy3:
-		input = raw_input
-	try:
-		input
-	except NameError:
-		print('input not available, printing debug')
-		print_debug()
-		sys.exit(1)
+	## See: https//github.com/ianmiell/shutit/issues/299 - python3 made input == python 2's raw_input
+	#if not shutit_global.shutit_global_object.ispy3:
+	#	input = raw_input
+	#try:
+	#	input
+	#except NameError:
+	#	print('input not available, printing debug')
+	#	print_debug()
+	#	sys.exit(1)
 	if not shutit_global.shutit_global_object.determine_interactive():
 		return default
 	while True:
@@ -309,6 +309,7 @@ def print_debug(exc_info=None, msg=''):
 	for env in os.environ:
 		environ_string += 'export ' + env + '=' + str(os.environ[env]) + ';'
 	shutit_global.shutit_global_object.log('\n=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
+	shutit_global.shutit_global_object.log('This file: '              + os.path.dirname(os.path.realpath(__file__)),level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Python version: '         + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version),level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Shutit version: '         + shutit.shutit_version,level=logging.CRITICAL)
 	shutit_global.shutit_global_object.log('Server: '                 + socket.gethostname(),level=logging.CRITICAL)
