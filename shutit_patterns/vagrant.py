@@ -208,8 +208,6 @@ If you want to change a config, choose the number: ''')
 				shutit.pause_point("machine: " + machine + " appears not to have come up cleanly")
 			ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''')
 			machines.get(machine).update({'ip':ip})
-			# Check that the landrush entry is there.
-			shutit_session.send('vagrant landrush ls | grep -w ' + machines[machine]['fqdn'])
 			shutit_session.login(command='vagrant ssh ' + machine)
 			shutit_session.login(command='sudo su - ')
 			# Correct /etc/hosts
@@ -226,6 +224,8 @@ If you want to change a config, choose the number: ''')
 						break
 				# Send this on the host (shutit, not shutit_session)
 				shutit.send('vagrant landrush set ' + machines[machine]['fqdn'] + ' ' + ipaddr)
+			# Check that the landrush entry is there.
+			shutit_session.send('vagrant landrush ls | grep -w ' + machines[machine]['fqdn'])
 		# Gather landrush info
 		for machine in sorted(machines.keys()):
 			ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''')
