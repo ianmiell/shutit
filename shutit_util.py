@@ -34,6 +34,7 @@ import os
 import random
 import re
 import readline
+import signal
 import socket
 import stat
 import string
@@ -117,6 +118,11 @@ def get_wide_hex(char):
 		return r'\x' + hex(ord(char))[2:]
 	return r'\u' + hex(0x10000 + (ord(char[0]) - 0xD800) * 0x400 + (ord(char[1]) - 0xDC00))[2:]
 
+# REGULAR REPORT PANE HANDLING CODE STARTS
+def alrm(a, frame):
+	# TODO: fill this out with reporting
+	signal.alarm(1)
+# REGULAR REPORT PANE HANDLING CODE ENDS
 
 # CTRL-\ HANDLING CODE STARTS
 def ctrl_quit_signal_handler(_,frame):

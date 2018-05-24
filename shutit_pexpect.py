@@ -119,6 +119,8 @@ class ShutItPexpectSession(object):
 		                                             codec_errors=codec_errors,
 		                                             dimensions=dimensions,
 		                                             delaybeforesend=delaybeforesend)
+		# The pane to which this pexpect session is assigned.
+		self.pexpect_session_pane       = None
 
 	def __str__(self):
 		str_repr = '\n======= SHUTIT_PEXPECT_SESSION BEGIN ======='

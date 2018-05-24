@@ -25,16 +25,10 @@
 
 """ShutIt is a means of building stateless target hosts in a flexible and predictable way.
 """
-from __future__ import print_function
 import logging
 import sys
 import shutit_global
 import shutit_util
-
-
-import curtsies
-import traceback
-import threading
 
 
 def create_session(session_type='bash',
@@ -83,33 +77,10 @@ def main():
 
 shutit_version='1.0.112'
 
-def main_tracker():
-	print("\n*** STACKTRACE - START ***\n")
-	code = []
-	for thread_id, stack in sys._current_frames().items():
-		# ignore own thread:
-		if thread_id == threading.get_ident():
-			continue
-		code.append("\n# ThreadID: %s" % thread_id)
-		for filename, lineno, name, line in traceback.extract_stack(stack):
-			code.append('File: "%s", line %d, in %s' % (filename, lineno, name))
-			if line:
-				code.append("  %s" % (line.strip()))
-	for line in code:
-		print(line)
-	print("\n*** STACKTRACE - END ***\n")
-	time.sleep(5)
-	main_tracker()
-
-def track_main_thread():
-	t = threading.Thread(target=main_tracker)
-	t.daemon = True
-	t.start()
-
 if __name__ == '__main__':
 	# Switched off for now
 	track_main=False
 	if track_main:
-		track_main_thread()
+		shutit_curtsies.track_main_thread()
 	shutit_global.setup_signals()
 	main()
