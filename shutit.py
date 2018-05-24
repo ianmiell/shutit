@@ -30,6 +30,7 @@ import logging
 import sys
 import shutit_global
 import shutit_util
+import curtsies
 
 
 def create_session(session_type='bash',
