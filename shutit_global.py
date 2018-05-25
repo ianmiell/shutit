@@ -307,9 +307,6 @@ class ShutItGlobal(object):
 def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
-	# TODO: use this to wake up regularly in another pane.
-	signal.signal(signal.SIGALRM, shutit_util.alrm)
-	signal.alarm(1)
 
 shutit_global_object = ShutItGlobal()
 

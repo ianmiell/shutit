@@ -784,14 +784,14 @@ class ShutItPexpectSession(object):
 				# TODO: sigwinch. Line assumes no change.
 				self.pexpect_child.setwinsize(shutit_global.shutit_global_object.root_window_size[0],shutit_global.shutit_global_object.root_window_size[1])
 				# TODO: handle exams better?
-				self.pexpect_child.expect('.*')
+				self.expect('.*')
 				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
 					if self.in_shell:
 						# Give them a 'normal' shell.
 						assert not self.sendline(ShutItSendSpec(self,
 						                                        send=' bash',
 						                                        ignore_background=True)), shutit_util.print_debug()
-						self.pexpect_child.expect('.*')
+						self.expect('.*')
 					else:
 						shutit_global.shutit_global_object.log('Cannot create subshell, as not in a shell.',level=logging.DEBUG)
 				if interact:
@@ -1512,14 +1512,6 @@ class ShutItPexpectSession(object):
 		TODO: see how https://github.com/noahspurrier/pexpect/blob/master/pxssh.py handles this
 		"""
 		shutit_global.shutit_global_object.log('Resetting terminal begin.',level=logging.DEBUG)
-		#exp_string = 'SHUTIT_TERMINAL_RESET'
-		#assert not self.sendline(ShutItSendSpec(self,
-		#                                        send=' echo ' + exp_string,
-		#                                        ignore_background=True)), shutit_util.print_debug()
-		#self.expect(exp_string)
-		#expect = expect or self.default_expect
-		#self.expect(expect)
-
 		########################################################################
 		# Cribbed from https://github.com/noahspurrier/pexpect/blob/master/pxssh.py#L145
 		# All of these timing pace values are magic.
@@ -3484,7 +3476,7 @@ $'"""
 		assert not self.sendline(ShutItSendSpec(self,
 		                                        send=' truncate -s 0 '+ fname,
 		                                        ignore_background=True)), shutit_util.print_debug()
-		self.pexpect_child.expect(expect)
+		self.expect(expect)
 		size = shutit_global.shutit_global_object.line_limit
 		while working_str:
 			curr_str = working_str[:size]

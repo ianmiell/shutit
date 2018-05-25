@@ -27,6 +27,7 @@
 """
 import logging
 import sys
+import shutit_curtsies
 import shutit_global
 import shutit_util
 
@@ -79,7 +80,7 @@ shutit_version='1.0.112'
 
 if __name__ == '__main__':
 	# Switched off for now
-	track_main=False
+	track_main=True
 	if track_main:
 		shutit_curtsies.track_main_thread()
 	shutit_global.setup_signals()

@@ -31,7 +31,7 @@ from distutils.dir_util import mkpath
 from distutils import spawn
 import texttable
 import pexpect
-import shutit
+from shutit_curtsies import PaneManager
 import shutit_util
 import shutit_global
 import shutit_skeleton
@@ -369,6 +369,7 @@ class ShutIt(object):
 		self.shutitfile                      = {}
 		self.cfg['shutitfile']               = self.shutitfile   # required for patterns
 		self.cfg['skeleton']                 = {}                # required for patterns
+		self.pane_manager                    = PaneManager()
 
 
 	def __str__(self):
@@ -870,10 +871,10 @@ class ShutIt(object):
 		else:
 			if shutit_global.shutit_global_object.determine_interactive():
 				shutit_pexpect_child.send('\x03')
-				res = shutit_pexpect_child.expect(expect,timeout=1)
+				res = shutit_pexpect_session.expect(expect,timeout=1)
 				if res == len(expect):
 					shutit_pexpect_child.send('\x1a')
-					res = shutit_pexpect_child.expect(expect,timeout=1)
+					res = shutit_pexpect_session.expect(expect,timeout=1)
 					if res == len(expect):
 						self.fail('CTRL-C sent by ShutIt following a timeout, and could not recover') # pragma: no cover
 				shutit_pexpect_session.pause_point('CTRL-C sent by ShutIt following a timeout; the command has been cancelled')
