@@ -27,6 +27,7 @@ import sys
 import subprocess
 import textwrap
 import time
+import shutit
 from distutils.dir_util import mkpath
 from distutils import spawn
 import texttable
