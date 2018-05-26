@@ -51,28 +51,35 @@ class PaneManager(object):
 		"""
 		assert self.only_one is None
 		self.only_one is True
+		# TODO: screen width and height
+		# Keep it simple for now by creating four panes
+		top_left     = SessionPane()
+		top_right    = SessionPane()
+		bottom_left  = SessionPane()
+		bottom_right = SessionPane()
+		# TODO: place panes in appropriate locations.
+		# TODO: logs directed to one pane.
+		# TODO: send/expect to another
+		# TODO: code context to another
+		
 
 
 # Represents a line in the array of output
 class PexpectSessionLine(object):
-	def __init__(self, line_str, time_seen, line_type):
+	def __init__(self, line_str, time_seen):
 		self.line_str        = line_str
 		self.time_seen       = time_seen
-		self.line_type       = line_type
-		# A 'display_sync_line' is an empty line designed to ensure that display syncs time-wise.
-		assert self.line_type in ('program_output','display_sync_line')
 
 
 # Represents a pane with no concept of context or content.
 class SessionPane(object):
 
-	def __init__(self, name, color):
+	def __init__(self, name):
 		self.name                 = name
 		self.top_left_x           = -1
 		self.top_left_y           = -1
 		self.bottom_right_x       = -1
 		self.bottom_right_y       = -1
-		self.color                = color
 		assert self.name in ('top_left','bottom_left','top_right','bottom_right')
 
 	def __str__(self):
