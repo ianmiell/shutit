@@ -436,7 +436,7 @@ fi'''
 MODULE_NAME=''' + skel_module_name + '''
 rm -rf $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/vagrant_run/*
 XARGS_FLAG='--no-run-if-empty'
-if echo '' | xargs --no-run-if-empty
+if ! echo '' | xargs --no-run-if-empty >/dev/null 2>&1
 then
 	XARGS_FLAG=''
 fi
