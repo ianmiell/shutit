@@ -213,7 +213,7 @@ If you want to change a config, choose the number: ''')
 			# Correct /etc/hosts
 			shutit_session.send(r'''cat <(echo -n $(ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/') $(hostname)) <(cat /etc/hosts | grep -v $(hostname -s)) > /tmp/hosts && mv -f /tmp/hosts /etc/hosts''')
 			# Correct any broken ip addresses.
-			if shutit_session.send_and_get_output('''vagrant landrush ls | grep ''' + machine + ''' | grep 10.0.2.15 | wc -l''') != '0':
+			if shutit.send_and_get_output('''vagrant landrush ls | grep ''' + machine + ''' | grep 10.0.2.15 | wc -l''') != '0':
 				shutit_session.log('A 10.0.2.15 landrush ip was detected for machine: ' + machine + ', correcting.',level=logging.WARNING)
 				# This beaut gets all the eth0 addresses from the machine and picks the first one that it not 10.0.2.15.
 				while True:
@@ -225,7 +225,7 @@ If you want to change a config, choose the number: ''')
 				# Send this on the host (shutit, not shutit_session)
 				shutit.send('vagrant landrush set ' + machines[machine]['fqdn'] + ' ' + ipaddr)
 			# Check that the landrush entry is there.
-			shutit_session.send('vagrant landrush ls | grep -w ' + machines[machine]['fqdn'])
+			shutit.send('vagrant landrush ls | grep -w ' + machines[machine]['fqdn'])
 		# Gather landrush info
 		for machine in sorted(machines.keys()):
 			ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''')
