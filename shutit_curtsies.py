@@ -53,10 +53,10 @@ class PaneManager(object):
 		self.only_one is True
 		# TODO: screen width and height
 		# Keep it simple for now by creating four panes
-		top_left     = SessionPane()
-		top_right    = SessionPane()
-		bottom_left  = SessionPane()
-		bottom_right = SessionPane()
+		top_left     = SessionPane('top_left')
+		top_right    = SessionPane('top_right')
+		bottom_left  = SessionPane('bottom_left')
+		bottom_right = SessionPane('bottom_right')
 		# TODO: place panes in appropriate locations.
 		# TODO: logs directed to one pane.
 		# TODO: send/expect to another
