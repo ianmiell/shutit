@@ -76,7 +76,7 @@ def main():
 		sys.exit(1)
 
 
-shutit_version='1.0.113'
+shutit_version='1.0.114'
 
 if __name__ == '__main__':
 	# Switched off for now
