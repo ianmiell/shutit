@@ -110,7 +110,7 @@ class ShutItPexpectSession(object):
 		self.pexpect_session_id        = pexpect_session_id
 		self.login_stack               = ShutItLoginStack()
 		self.current_environment       = None
-		self.queue                     = queue.Queue()
+		self.session_queue             = queue.Queue()
 		# Array of PexpectSessionLine objects
 		self.pexpect_session_output_lines = []
 		args = args or []
@@ -594,11 +594,8 @@ class ShutItPexpectSession(object):
 			self.pexpect_child.searchwindowsize = old_searchwindowsize
 		if maxread != None:
 			self.pexpect_child.maxread = old_maxread
-		# Now report on before and after for pane to read:
-		#print('BEFORE')
-		#print(self.pexpect_child.before)
-		#print('AFTER')
-		#print(self.pexpect_child.after)
+		# Add to session_queue
+		self.session_queue.put(self.pexpect.child.before + self.pexpect_child.after)
 		return res
 
 
