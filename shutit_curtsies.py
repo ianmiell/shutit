@@ -12,8 +12,7 @@ def main_tracker():
 	code = []
 	for thread_id, stack in sys._current_frames().items():
 		# ignore own thread:
-		# TODO: does not work in python2
-		if thread_id == threading.get_ident():
+		if thread_id == threading.current_thread().ident:
 			continue
 		code.append("\n# ThreadID: %s" % thread_id)
 		for filename, lineno, name, line in traceback.extract_stack(stack):
