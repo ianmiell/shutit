@@ -399,8 +399,8 @@ class PaneManager(object):
 	def do_layout_default(self):
 		main_session_pane = None
 		bottom_left_pane  = None
-	    bottom_right_pane = None
-	    top_right_pane    = None
+		bottom_right_pane = None
+		top_right_pane    = None
 		for session in self.pexpect_sessions:
 			if session.session_number == 0:
 				main_session_pane = session.session_pane
