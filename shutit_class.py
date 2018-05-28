@@ -16,6 +16,10 @@ import hashlib
 import imp
 import json
 import logging
+try:
+	from cStringIO import StringIO      # Python 2
+except ImportError:
+	from io import StringIO 
 import operator
 import os
 import tarfile
@@ -3653,7 +3657,10 @@ class ShutIt(object):
 		elif args.action == 'build':
 			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
 			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
-			shutit_global.shutit_global_object.pane            = args.pane
+			shutit_global.shutit_global_object.managed_pane    = args.pane
+			if args.pane:
+				shutit_global.shutit_global_object.logstream   = StringIO()
+				args.logfile = None
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,

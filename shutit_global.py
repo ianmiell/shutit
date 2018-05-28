@@ -63,6 +63,7 @@ class ShutItGlobal(object):
 
 		self.secret_words_set = set()
 		self.logfile          = None
+		self.logstream        = None
 		self.loglevel         = None
 		self.signal_id        = None
 		self.window_size_max  = 65535
@@ -70,7 +71,7 @@ class ShutItGlobal(object):
 		self.default_timeout  = 3600
 		self.delaybeforesend  = 0
 		self.default_encoding = 'utf-8'
-		self.pane             = False
+		self.managed_panes    = False
 		self.pane_manager     = PaneManager()
 		# Quotes here are intentional. Some versions of sleep don't support fractional seconds.
 		# True is called to take up the time require
@@ -264,13 +265,28 @@ class ShutItGlobal(object):
 
 	def setup_logging(self):
 		# If loglevel is an int, this has already been set up.
-		print(self.pane)
-		if self.pane:
+		assert (self.logfile is not None and not self.managed_panes) or (self.logfile is None and self.managed_panes and self.logstream)
+		assert self.logfile is not None and self.managed_panes is not None
+		if self.managed_panes:
 			shutit_curtsies.track_main_thread()
 		if isinstance(self.loglevel, int):
 			return
 		logformat='%(asctime)s %(levelname)s: %(message)s'
-		if self.logfile == '' and not self.pane:
+		if self.managed_panes:
+			# Set up logging for https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string
+			if self.loglevel == 'DEBUG':
+				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.DEBUG)
+			elif self.loglevel == 'ERROR':
+				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.ERROR)
+			elif self.loglevel in ('WARN','WARNING'):
+				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.WARNING)
+			elif self.loglevel == 'CRITICAL':
+				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.CRITICAL)
+			elif self.loglevel == 'INFO':
+				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.INFO)
+			else:
+				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.DEBUG)
+		elif self.logfile == '':
 			self.loglevel = self.loglevel.upper()
 			if self.loglevel == 'DEBUG':
 				logging.basicConfig(format=logformat,level=logging.DEBUG)
@@ -284,9 +300,6 @@ class ShutItGlobal(object):
 				logging.basicConfig(format=logformat,level=logging.INFO)
 			else:
 				logging.basicConfig(format=logformat,level=logging.DEBUG)
-		elif self.logfile == '' and self.pane:
-			# Set up logging for https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string
-			pass
 		else:
 			self.loglevel = self.loglevel.upper()
 			if self.loglevel == 'DEBUG':
