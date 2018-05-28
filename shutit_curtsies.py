@@ -58,7 +58,7 @@ class PaneManager(object):
 		bottom_left  = SessionPane('bottom_left')
 		bottom_right = SessionPane('bottom_right')
 		# TODO: place panes in appropriate locations.
-		# TODO: logs directed to one pane.
+		# TODO: logs directed to one pane. https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string - log to stringio and then clear
 		# TODO: send/expect to another
 		# TODO: code context to another
 		

@@ -79,9 +79,5 @@ def main():
 shutit_version='1.0.114'
 
 if __name__ == '__main__':
-	# Switched off for now
-	track_main=False
-	if track_main:
-		shutit_curtsies.track_main_thread()
 	shutit_global.setup_signals()
 	main()

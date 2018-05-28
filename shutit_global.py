@@ -31,6 +31,10 @@ import time
 import getpass
 import datetime
 import logging
+try:
+    from cStringIO import StringIO      # Python 2
+except ImportError:
+    from io import StringIO
 import fcntl
 import pwd
 import termios
@@ -38,6 +42,8 @@ import signal
 import struct
 from distutils.dir_util import mkpath
 import pexpect
+import shutit_curtsies
+from shutit_curtsies import PaneManager
 
 
 class ShutItGlobal(object):
@@ -64,6 +70,8 @@ class ShutItGlobal(object):
 		self.default_timeout  = 3600
 		self.delaybeforesend  = 0
 		self.default_encoding = 'utf-8'
+		self.pane             = False
+		self.pane_manager     = PaneManager()
 		# Quotes here are intentional. Some versions of sleep don't support fractional seconds.
 		# True is called to take up the time require
 		self.prompt_command          = "'sleep .05||sleep 1'"
@@ -256,10 +264,13 @@ class ShutItGlobal(object):
 
 	def setup_logging(self):
 		# If loglevel is an int, this has already been set up.
+		print(self.pane)
+		if self.pane:
+			shutit_curtsies.track_main_thread()
 		if isinstance(self.loglevel, int):
 			return
 		logformat='%(asctime)s %(levelname)s: %(message)s'
-		if self.logfile == '':
+		if self.logfile == '' and not self.pane:
 			self.loglevel = self.loglevel.upper()
 			if self.loglevel == 'DEBUG':
 				logging.basicConfig(format=logformat,level=logging.DEBUG)
@@ -273,6 +284,9 @@ class ShutItGlobal(object):
 				logging.basicConfig(format=logformat,level=logging.INFO)
 			else:
 				logging.basicConfig(format=logformat,level=logging.DEBUG)
+		elif self.logfile == '' and self.pane:
+			# Set up logging for https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string
+			pass
 		else:
 			self.loglevel = self.loglevel.upper()
 			if self.loglevel == 'DEBUG':

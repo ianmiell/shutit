@@ -584,6 +584,11 @@ class ShutItPexpectSession(object):
 			self.pexpect_child.searchwindowsize = old_searchwindowsize
 		if maxread != None:
 			self.pexpect_child.maxread = old_maxread
+		# Now report on before and after for pane to read:
+		#print('BEFORE')
+		#print(self.pexpect_child.before)
+		#print('AFTER')
+		#print(self.pexpect_child.after)
 		return res
 
 

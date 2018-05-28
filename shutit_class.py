@@ -32,7 +32,6 @@ from distutils.dir_util import mkpath
 from distutils import spawn
 import texttable
 import pexpect
-from shutit_curtsies import PaneManager
 import shutit_util
 import shutit_global
 import shutit_skeleton
@@ -370,7 +369,6 @@ class ShutIt(object):
 		self.shutitfile                      = {}
 		self.cfg['shutitfile']               = self.shutitfile   # required for patterns
 		self.cfg['skeleton']                 = {}                # required for patterns
-		self.pane_manager                    = PaneManager()
 
 
 	def __str__(self):
@@ -3578,6 +3576,7 @@ class ShutIt(object):
 		sub_parsers['build'].add_argument('--video', help='Run in video mode. Same as walkthrough, but waits n seconds rather than for input', nargs=1, default=-1)
 		sub_parsers['build'].add_argument('--training', help='Run in "training" mode, where correct input is required at key points', default=False, action='store_const', const=True)
 		sub_parsers['build'].add_argument('--exam', help='Run in "exam" mode, where correct input is required at key points and progress is tracked', default=False, action='store_const', const=True)
+		sub_parsers['build'].add_argument('--pane', help='Pane-based output', const=True, default=False, action='store_const')
 
 		# Just list_configs
 		sub_parsers['list_configs'].add_argument('--history', help='Show config with history', const=True, default=False, action='store_const')
@@ -3654,6 +3653,7 @@ class ShutIt(object):
 		elif args.action == 'build':
 			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
 			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
+			shutit_global.shutit_global_object.pane            = args.pane
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
