@@ -111,6 +111,8 @@ class ShutItPexpectSession(object):
 		self.login_stack               = ShutItLoginStack()
 		self.current_environment       = None
 		self.queue                     = queue.Queue()
+		# Array of PexpectSessionLine objects
+		self.pexpect_session_output_lines = []
 		args = args or []
 		if not delaybeforesend:
 			delaybeforesend=shutit_global.shutit_global_object.delaybeforesend
@@ -3611,7 +3613,18 @@ $'"""
 
 
 
+# Represents a line in the array of output
+class PexpectSessionLine(object):
+	def __init__(self, line_str, time_seen, line_type):
+		self.line_str        = line_str
+		self.time_seen       = time_seen
+		self.time_seen       = time_seen
+
+
+
 def add_shutit_pexpect_session_environment(pexpect_session_environment):
 	"""Adds an environment object to a shutit_pexpect_session object.
 	"""
 	shutit_global.shutit_global_object.shutit_pexpect_session_environments.add(pexpect_session_environment)
+
+
