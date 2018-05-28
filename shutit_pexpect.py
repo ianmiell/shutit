@@ -14,7 +14,7 @@
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# ITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
 # THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
@@ -66,6 +66,13 @@ from shutit_module import ShutItFailException
 from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
 from shutit_background import ShutItBackgroundCommand
 
+# Example queue code:                                                                                                                                                       
+if sys.version_info[0] >= 3:                                                                                                                                                
+	import queue                                                                                                                                                            
+else:                                                                                                                                                                       
+	import Queue                                                                                                                                                            
+	queue = Queue          
+
 class ShutItPexpectSession(object):
 
 	def __init__(self,
@@ -103,6 +110,7 @@ class ShutItPexpectSession(object):
 		self.pexpect_session_id        = pexpect_session_id
 		self.login_stack               = ShutItLoginStack()
 		self.current_environment       = None
+		self.queue                     = queue.Queue()
 		args = args or []
 		if not delaybeforesend:
 			delaybeforesend=shutit_global.shutit_global_object.delaybeforesend

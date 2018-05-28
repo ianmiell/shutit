@@ -5,14 +5,6 @@ import traceback
 import sys
 
 
-# Example queue code:
-if sys.version_info[0] >= 3:
-	import queue
-else:
-	import Queue
-	queue = Queue
-
-
 def main_tracker():
 	import shutit_global
 	lines = []
@@ -51,7 +43,7 @@ class PaneManager(object):
 		"""
 		assert self.only_one is None
 		self.only_one is True
-		# TODO: screen width and height
+		# TODO: screen width and height
 		# Keep it simple for now by creating four panes
 		top_left     = SessionPane('top_left')
 		top_right    = SessionPane('top_right')
