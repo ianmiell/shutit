@@ -12,6 +12,7 @@ def main_tracker():
 	code = []
 	for thread_id, stack in sys._current_frames().items():
 		# ignore own thread:
+		# TODO: does not work in python2
 		if thread_id == threading.get_ident():
 			continue
 		code.append("\n# ThreadID: %s" % thread_id)
@@ -50,8 +51,8 @@ class PaneManager(object):
 		bottom_left  = SessionPane('bottom_left')
 		bottom_right = SessionPane('bottom_right')
 		# TODO: place panes in appropriate locations.
-		# TODO: logs directed to one pane. https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string - log to stringio and then clear
-		# TODO: send/expect to another
+		# TODO: logs directed to one pane. https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string - log to stringio and then clear
+		# TODO: send/expect to another
 		# TODO: code context to another
 		
 

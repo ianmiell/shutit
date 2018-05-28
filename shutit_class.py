@@ -197,7 +197,6 @@ class ShutItInit(object):
 	             exam=False):
 
 		assert isinstance(action,str), shutit_util.print_debug()
-		assert isinstance(logfile,str), shutit_util.print_debug()
 		assert isinstance(log,str), shutit_util.print_debug()
 
 		self.action  = action
@@ -2455,7 +2454,10 @@ class ShutIt(object):
 	# value for the given context.
 	def get_echo_override(self, echo):
 		# Should we echo the output?
-		if self.build['always_echo'] is True or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
+		if shutit_global.shutit_global_object.managed_panes:
+			# Never echo if in managed panes
+			echo = False
+		elif self.build['always_echo'] is True or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
 			# Yes if it's set to always echo or is in debug
 			echo = True
 		if echo is None and self.build['walkthrough']:
@@ -3657,10 +3659,9 @@ class ShutIt(object):
 		elif args.action == 'build':
 			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
 			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
-			shutit_global.shutit_global_object.managed_pane    = args.pane
+			shutit_global.shutit_global_object.managed_panes   = args.pane
 			if args.pane:
 				shutit_global.shutit_global_object.logstream   = StringIO()
-				args.logfile = None
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,

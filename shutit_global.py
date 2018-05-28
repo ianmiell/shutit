@@ -265,8 +265,9 @@ class ShutItGlobal(object):
 
 	def setup_logging(self):
 		# If loglevel is an int, this has already been set up.
-		assert (self.logfile is not None and not self.managed_panes) or (self.logfile is None and self.managed_panes and self.logstream)
-		assert self.logfile is not None and self.managed_panes is not None
+		assert not self.managed_panes or (self.managed_panes and self.logstream)
+		assert self.logfile is not None
+		# TODO: managed_panes and echo are incompatible
 		if self.managed_panes:
 			shutit_curtsies.track_main_thread()
 		if isinstance(self.loglevel, int):
