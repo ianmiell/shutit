@@ -103,8 +103,6 @@ class ShutItPexpectSession(object):
 		self.pexpect_session_id        = pexpect_session_id
 		self.login_stack               = ShutItLoginStack()
 		self.current_environment       = None
-		# Array of PexpectSessionLine objects
-		self.session_output_lines      = []
 		args = args or []
 		if not delaybeforesend:
 			delaybeforesend=shutit_global.shutit_global_object.delaybeforesend
@@ -123,6 +121,8 @@ class ShutItPexpectSession(object):
 		                                             delaybeforesend=delaybeforesend)
 		# The pane to which this pexpect session is assigned.
 		self.pexpect_session_pane       = None
+		# Array of PexpectSessionLine objects
+		self.session_output_lines      = []
 
 	def __str__(self):
 		str_repr = '\n======= SHUTIT_PEXPECT_SESSION BEGIN ======='
@@ -588,7 +588,7 @@ class ShutItPexpectSession(object):
 			self.pexpect_child.maxread = old_maxread
 		# Add to session lines
 		self.session_output_lines.append(PexpectSessionLine(line_str=self.pexpect_child.before, time_seen=time.time(), line_type='log'))
-		self.session_output_lines.append(PexpectSessionLine(line_str=self.pexpect_child.after, time_seen=time.time(), line_type='log'))
+		self.session_output_lines.append(PexpectSessionLine(line_str=self.pexpect_child.after,  time_seen=time.time(), line_type='log'))
 		return res
 
 
@@ -3601,6 +3601,9 @@ $'"""
 				return '\x1d'
 		return input_string
 
+	def write_out_session_to_fit_pane(self):
+		if self.pane is None:
+			return
 
 
 # Represents a line in the array of output
