@@ -42,8 +42,8 @@ import signal
 import struct
 from distutils.dir_util import mkpath
 import pexpect
+import curtsies
 import shutit_curtsies
-from shutit_curtsies import PaneManager
 
 
 class ShutItGlobal(object):

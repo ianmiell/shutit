@@ -66,13 +66,6 @@ from shutit_module import ShutItFailException
 from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
 from shutit_background import ShutItBackgroundCommand
 
-# Example queue code:                                                                                                                                                       
-if sys.version_info[0] >= 3:                                                                                                                                                
-	import queue                                                                                                                                                            
-else:                                                                                                                                                                       
-	import Queue                                                                                                                                                            
-	queue = Queue          
-
 class ShutItPexpectSession(object):
 
 	def __init__(self,
@@ -110,9 +103,8 @@ class ShutItPexpectSession(object):
 		self.pexpect_session_id        = pexpect_session_id
 		self.login_stack               = ShutItLoginStack()
 		self.current_environment       = None
-		self.session_queue             = queue.Queue()
 		# Array of PexpectSessionLine objects
-		self.pexpect_session_output_lines = []
+		self.session_output_lines      = []
 		args = args or []
 		if not delaybeforesend:
 			delaybeforesend=shutit_global.shutit_global_object.delaybeforesend
@@ -594,8 +586,9 @@ class ShutItPexpectSession(object):
 			self.pexpect_child.searchwindowsize = old_searchwindowsize
 		if maxread != None:
 			self.pexpect_child.maxread = old_maxread
-		# Add to session_queue
-		self.session_queue.put(self.pexpect.child.before + self.pexpect_child.after)
+		# Add to session lines
+		self.session_output_lines.append(PexpectSessionLine(line_str=self.pexpect_child.before, time_seen=time.time(), line_type='log')
+		self.session_output_lines.append(PexpectSessionLine(line_str=self.pexpect_child.after, time_seen=time.time(), line_type='log')
 		return res
 
 
@@ -3613,6 +3606,7 @@ $'"""
 # Represents a line in the array of output
 class PexpectSessionLine(object):
 	def __init__(self, line_str, time_seen, line_type):
+		assert line_type in ('log','before','after')
 		self.line_str        = line_str
 		self.time_seen       = time_seen
 		self.time_seen       = time_seen
