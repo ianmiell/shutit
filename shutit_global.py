@@ -392,7 +392,7 @@ class PaneManager(object):
 				line = ' '*self.wwidth
 				self.screen_arr[y:y+1,0:len(line)] = [line]
 		# TODO: get sessions - for each ShutIt object in shutit_global
-		for shutit_pexpect_session in self.get_shutit_pexpect_sessions()
+		for shutit_pexpect_session in self.get_shutit_pexpect_sessions():
 			shutit_pexpect_session.write_out_session_to_fit_pane()
 
 	def get_shutit_pexpect_sessions(self):
