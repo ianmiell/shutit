@@ -72,7 +72,7 @@ class ShutItGlobal(object):
 		self.delaybeforesend  = 0
 		self.default_encoding = 'utf-8'
 		self.managed_panes    = False
-		self.pane_manager     = PaneManager()
+		self.pane_manager     = None
 		# Quotes here are intentional. Some versions of sleep don't support fractional seconds.
 		# True is called to take up the time require
 		self.prompt_command          = "'sleep .05||sleep 1'"
@@ -269,6 +269,7 @@ class ShutItGlobal(object):
 		assert self.logfile is not None
 		# TODO: managed_panes and echo are incompatible
 		if self.managed_panes:
+			self.pane_manager     = PaneManager()
 			shutit_curtsies.track_main_thread()
 		if isinstance(self.loglevel, int):
 			return
@@ -371,8 +372,8 @@ class PaneManager(object):
 		self.wheight_bottom_start = int(self.wheight / 2)
 		self.wwidth_left_end      = int(self.wwidth / 2)
 		self.wwidth_right_start   = int(self.wwidth / 2)
-		assert self.wheight >= 24, 'Terminal not tall enough!'
-		assert self.wwidth >= 80, 'Terminal not wide enough!'
+		assert self.wheight >= 24, 'Terminal not tall enough: ' + str(self.wheight) + ' < 24'
+		assert self.wwidth >= 80, 'Terminal not wide enough: ' + str(self.wwidth) + ' < 80'
 
 
 	def draw_screen(self, clear_screen=False, quick_help='HELP TODO'):
