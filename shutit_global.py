@@ -371,8 +371,8 @@ class PaneManager(object):
 		self.wheight_bottom_start = int(self.wheight / 2)
 		self.wwidth_left_end      = int(self.wwidth / 2)
 		self.wwidth_right_start   = int(self.wwidth / 2)
-		assert self.wheight >= 24, self.quit_autotrace('Terminal not tall enough!')
-		assert self.wwidth >= 80, self.quit_autotrace('Terminal not wide enough!')
+		assert self.wheight >= 24, 'Terminal not tall enough!'
+		assert self.wwidth >= 80, 'Terminal not wide enough!'
 
 
 	def draw_screen(self, clear_screen=False, quick_help='HELP TODO'):
