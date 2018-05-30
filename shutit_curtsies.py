@@ -6,7 +6,7 @@ import sys
 
 
 def managing_thread_main():
-	#import shutit_global
+	import shutit_global
 	#lines = []
 	#lines.append("\n*** STACKTRACE - START ***\n")
 	#code = []
@@ -25,6 +25,7 @@ def managing_thread_main():
 	#lines.append("\n*** STACKTRACE - END ***\n")
 	#lines.append(shutit_global.shutit_global_object)
 	print('managing')
+	shutit_global.shutit_global_object.draw_screen()
 	time.sleep(5)
 	managing_thread_main()
 

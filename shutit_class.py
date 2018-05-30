@@ -3659,8 +3659,10 @@ class ShutIt(object):
 		elif args.action == 'build':
 			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
 			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
+			# If we are in panes mode, tell the global object.
 			shutit_global.shutit_global_object.managed_panes   = args.pane
-			if args.pane:
+			# If we are in panes mode, set up logIO.
+			if shutit_global.shutit_global_object.managed_panes:
 				shutit_global.shutit_global_object.logstream   = StringIO()
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
