@@ -37,12 +37,16 @@ except ImportError:
     from io import StringIO
 import fcntl
 import pwd
+import re
 import termios
 import signal
 import struct
 from distutils.dir_util import mkpath
 import pexpect
 import curtsies
+from curtsies.fmtfuncs import black, yellow, magenta, cyan, gray, blue, red, green, on_black, on_dark, on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_gray, bold, dark, underline, blink, invert, plain
+from curtsies.events import PasteEvent
+from curtsies.input import Input
 import shutit_curtsies
 
 
@@ -269,7 +273,8 @@ class ShutItGlobal(object):
 		assert self.logfile is not None
 		# TODO: managed_panes and echo are incompatible
 		if self.managed_panes:
-			self.pane_manager     = PaneManager()
+			self.nocolor          = True
+			self.pane_manager     = PaneManager(self)
 			shutit_curtsies.track_main_thread()
 		if isinstance(self.loglevel, int):
 			return
@@ -336,7 +341,7 @@ class ShutItGlobal(object):
 # shutit_global.shutit_objects have the pexpect sessions in their shutit_pexpect_sessions variable.
 class PaneManager(object):
 	only_one = None
-	def __init__(self):
+	def __init__(self, shutit_global_object):
 		"""
 		
 		only_one             - singleton insurance
@@ -345,10 +350,11 @@ class PaneManager(object):
 		self.only_one is True
 		# TODO: screen width and height
 		# Keep it simple for now by creating four panes
-		top_left_session_pane     = SessionPane('top_left')
-		top_right_session_pane    = SessionPane('top_right')
-		bottom_left_session_pane  = SessionPane('bottom_left')
-		bottom_right_session_pane = SessionPane('bottom_right')
+		self.shutit_global             = shutit_global_object
+		self.top_left_session_pane     = SessionPane('top_left')
+		self.top_right_session_pane    = SessionPane('top_right')
+		self.bottom_left_session_pane  = SessionPane('bottom_left')
+		self.bottom_right_session_pane = SessionPane('bottom_right')
 		self.window     = None
 		self.screen_arr = None
 		self.wheight    = None
@@ -373,61 +379,73 @@ class PaneManager(object):
 		assert self.wwidth >= 80, 'Terminal not wide enough: ' + str(self.wwidth) + ' < 80'
 
 
-	def draw_screen(self, layout='default', quick_help='HELP TODO'):
-		assert draw_type in ('sessions','help','clearscreen')
+	def draw_screen(self, draw_type='default', quick_help='HELP TODO'):
+		assert draw_type in ('default','clearscreen')
 		self.screen_arr = curtsies.FSArray(self.wheight, self.wwidth)
 		# Header
-		header_text = 'Shutit'
+		header_text = u'Shutit'
 		self.screen_arr[0:1,0:len(header_text)] = [blue(header_text)]
 		# Footer
 		space = (self.wwidth - len(quick_help))*' '
 		footer_text = space + quick_help
-		self.screen_arr[self.wheight-1:self.wheight,0:len(footer_text)] = [invert(blue(footer_text))]
-		if layout == 'default':
+		footer_text_unicode = footer_text.decode('utf-8')
+		self.screen_arr[self.wheight-1:self.wheight,0:len(footer_text_unicode)] = [invert(blue(footer_text_unicode))]
+		if draw_type == 'default':
 			# Draw the sessions.
 			self.do_layout_default()
 			# TODO: get sessions - for each ShutIt object in shutit_global
-			write_out_log_to_fit_pane(self.top_left_session_pane)
-			for shutit_pexpect_session in self.get_shutit_pexpect_sessions():
-				shutit_pexpect_session.write_out_session_to_fit_pane()
-		elif layout == 'clearscreen':
+			self.write_out_log_to_fit_pane(self.top_left_session_pane)
+			#for shutit_pexpect_session in self.get_shutit_pexpect_sessions():
+			#	shutit_pexpect_session.write_out_session_to_fit_pane()
+		elif draw_type == 'clearscreen':
 			for y in range(0,self.wheight):
 				line = ' '*self.wwidth
 				self.screen_arr[y:y+1,0:len(line)] = [line]
 		else:
-			assert False, 'Layout not handled: ' + layout
+			assert False, 'Layout not handled: ' + draw_type
+		# Write out screen
+		self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,int(self.wwidth/4*3)))
 
 
 	def write_out_log_to_fit_pane(self, pane):
 		assert pane is not None
 		assert isinstance(pane, SessionPane)
-		pane_width  = self.session_pane.get_width()
-		pane_height = self.session_pane.get_height()
+		pane_width  = pane.get_width()
+		pane_height = pane.get_height()
 		# We reserve one row at the end as a pane status line
-		available_pane_height   = self.session_pane.get_height() - 1
+		available_pane_height   = pane.get_height() - 1
 		lines_in_pane_str_arr   = []
-		# Take the next line in the stream. If it's greater than the pane_width,
-		# Then parcel over multiple lines
-		while True:
-			line = self.logstream.readline()
-			print(line)
-#while len(line) > pane_width-1:
-#    # When we get to the top visible line index, kick off the
-#    # counter and up one for each pane line computed.
-#    lines_in_pane_str_arr.append([line[:pane_width-1], output_lines_cursor])
-#    line = line[pane_width-1:]
-#    if pane_line_counter is not None:
-#        pane_line_counter += 1
-#        if pane_line_counter > available_pane_height:
-#            # Make sure we finish this line, so iterate until done!
-#            break_at_end_of_this_line = True
+		# Scrub any ansi escape sequences.
+		ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+		lines = [ ansi_escape.sub('', line.rstrip().decode('utf-8')) for line in self.shutit_global.logstream.getvalue().split('\n') ]
+		if lines[-1] == '':
+			lines = lines[:-1]
+		for line in lines:
+			# Take the next line in the stream. If it's greater than the pane_width,
+			# Then parcel over multiple lines
+			while len(line) > pane_width-1 and len(line) > 0:
+				lines_in_pane_str_arr.append(line[:pane_width-1])
+				line = line[pane_width-1:]
+			lines_in_pane_str_arr.append(line)
+		# Status line:
+		lines_in_pane_str_arr.append(u'Logs')
+		top_y                                      = pane.top_left_y
+		bottom_y                                   = pane.bottom_right_y
+		for i, line in zip(reversed(range(top_y,bottom_y)), reversed(lines_in_pane_str_arr)):
+			# Status on bottom line
+			# If    this is on the top, and height + top_y value == i (ie this is the last line of the pane)
+			#    OR this is on the bottom (ie top_y is not 1), and height + top_y == i
+			if (top_y == 1 and available_pane_height + top_y == i) or (top_y != 1 and available_pane_height + top_y == i):
+				self.screen_arr[i:i+1, pane.top_left_x:pane.top_left_x+len(line)] = [cyan(invert(line))]
+			else:
+				self.screen_arr[i:i+1, pane.top_left_x:pane.top_left_x+len(line)] = [line]
 
 
 	def get_shutit_pexpect_sessions(self):
 		sessions = []
-		for shutit_object in self.shutit_objects:
-			for shutit_pexpect_session in shutit_object.shutit_pexpect_sessions:
-				sessions.append(shutit_pexpect_session)
+		for shutit_object in self.shutit_global.shutit_objects:
+			for key in shutit_object.shutit_pexpect_sessions:
+				sessions.append(shutit_object.shutit_pexpect_sessions[key])
 		return sessions
 
 
@@ -437,19 +455,22 @@ class PaneManager(object):
 		bottom_right_pane     = None
 		top_right_pane        = None
 		# top_left_session_pane is the logging pane by default
-		for session in self.pexpect_sessions:
+		top_left_session_pane = self.top_left_session_pane
+		for session in self.get_shutit_pexpect_sessions():
 			if session.pexpect_session_pane and session.pexpect_session_pane.name == 'bottom_left':
 				bottom_left_pane    = session.pexpect_session_pane
 			elif session.pexpect_session_pane and session.pexpect_session_pane.name == 'bottom_right':
 				bottom_right_pane   = session.pexpect_session_pane
 			elif session.pexpect_session_pane and session.pexpect_session_pane.name == 'top_right':
 				top_right_pane      = session.pexpect_session_pane
-		assert top_left_session_pane is not None and bottom_left_pane is not None
 		# Keep it simple with 4 panes always for now
 		top_left_session_pane.set_position(top_left_x=0,                       top_left_y=1,                         bottom_right_x=self.wwidth_left_end, bottom_right_y=self.wheight_bottom_start)
-		top_right_pane.set_position       (top_left_x=self.wwidth_right_start, top_left_y=1,                         bottom_right_x=self.wwidth,          bottom_right_y=self.wheight_bottom_start)
-		bottom_right_pane.set_position    (top_left_x=self.wwidth_right_start, top_left_y=self.wheight_bottom_start, bottom_right_x=self.wwidth,          bottom_right_y=self.wheight-1)
-		bottom_left_pane.set_position     (top_left_x=0,                       top_left_y=self.wheight_bottom_start, bottom_right_x=self.wwidth_left_end, bottom_right_y=self.wheight-1)
+		if top_right_pane is not None:
+			top_right_pane.set_position       (top_left_x=self.wwidth_right_start, top_left_y=1,                         bottom_right_x=self.wwidth,          bottom_right_y=self.wheight_bottom_start)
+		if bottom_right_pane is not None:
+			bottom_right_pane.set_position    (top_left_x=self.wwidth_right_start, top_left_y=self.wheight_bottom_start, bottom_right_x=self.wwidth,          bottom_right_y=self.wheight-1)
+		if bottom_left_pane is not None:
+			bottom_left_pane.set_position     (top_left_x=0,                       top_left_y=self.wheight_bottom_start, bottom_right_x=self.wwidth_left_end, bottom_right_y=self.wheight-1)
 
 
 # Represents a window pane with no concept of context or content.
@@ -480,7 +501,7 @@ class SessionPane(object):
 	def get_width(self):
 		return self.bottom_right_x - self.top_left_x
 	def get_height(self):
-		return self.bottom_right_y - self.top_left_
+		return self.bottom_right_y - self.top_left_y
 
 
 def setup_signals():

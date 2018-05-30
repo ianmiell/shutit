@@ -24,9 +24,8 @@ def managing_thread_main():
 	#	lines.append(line)
 	#lines.append("\n*** STACKTRACE - END ***\n")
 	#lines.append(shutit_global.shutit_global_object)
-	print('managing')
-	shutit_global.shutit_global_object.draw_screen()
-	time.sleep(5)
+	time.sleep(0.25)
+	shutit_global.shutit_global_object.pane_manager.draw_screen()
 	managing_thread_main()
 
 
