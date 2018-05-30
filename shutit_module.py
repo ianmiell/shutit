@@ -133,7 +133,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 		self.module_id = module_id
 		if not isinstance(module_id, str): # pragma: no cover
 			err = str(module_id) + '\'s module_id is not a string'
-			print(err)
+			shutit_util.shutit_print(err)
 			raise ShutItModuleError(err)
 		# run_order for the module (a float).
 		# It should be a float and not duplicated within the shutit_module path.
@@ -147,7 +147,7 @@ class ShutItModule(with_metaclass(ShutItMeta)):
 		# side effect if float doesn't work.
 		if not isinstance(run_order, decimal.Decimal): # pragma: no cover
 			err = module_id + '\'s run order is not a decimal'
-			print(err)
+			shutit_util.shutit_print(err)
 			raise ShutItModuleError(err)
 		self.run_order = run_order
 		# module ids depended on

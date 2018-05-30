@@ -50,6 +50,11 @@ from curtsies.input import Input
 import shutit_curtsies
 
 
+PY3 = sys.version_info[0] >= 3                                                                                                                                                                
+if PY3:                                                                                                                                                                                       
+	unicode = str
+
+
 class ShutItGlobal(object):
 	"""Single object to store all the separate ShutIt sessions.
 	"""
@@ -62,21 +67,22 @@ class ShutItGlobal(object):
 		self.shutit_objects = []
 		# Primitive singleton enforcer.
 		assert self.only_one is None, shutit_util.print_debug()
-		self.only_one         = True
-		self.ispy3            = (sys.version_info[0] >= 3)
+		self.only_one             = True
+		self.ispy3                = (sys.version_info[0] >= 3)
 
-		self.secret_words_set = set()
-		self.logfile          = None
-		self.logstream        = None
-		self.loglevel         = None
-		self.signal_id        = None
-		self.window_size_max  = 65535
-		self.username         = os.environ.get('LOGNAME', '')
-		self.default_timeout  = 3600
-		self.delaybeforesend  = 0
-		self.default_encoding = 'utf-8'
-		self.managed_panes    = False
-		self.pane_manager     = None
+		self.secret_words_set     = set()
+		self.logfile              = None
+		self.logstream            = None
+		self.loglevel             = None
+		self.signal_id            = None
+		self.window_size_max      = 65535
+		self.username             = os.environ.get('LOGNAME', '')
+		self.default_timeout      = 3600
+		self.delaybeforesend      = 0
+		self.default_encoding     = 'utf-8'
+		self.managed_panes        = False
+		self.pane_manager         = None
+		self.stacktrace_lines_arr = []
 		# Quotes here are intentional. Some versions of sleep don't support fractional seconds.
 		# True is called to take up the time require
 		self.prompt_command          = "'sleep .05||sleep 1'"
@@ -394,12 +400,13 @@ class PaneManager(object):
 			# Draw the sessions.
 			self.do_layout_default()
 			# TODO: get sessions - for each ShutIt object in shutit_global
-			self.write_out_log_to_fit_pane(self.top_left_session_pane)
+			self.write_out_lines_to_fit_pane(self.top_left_session_pane, self.shutit_global.logstream.getvalue().split('\n'), u'Logs')
+			self.write_out_lines_to_fit_pane(self.top_right_session_pane, self.shutit_global.stacktrace_lines_arr, u'Stack')
 			#for shutit_pexpect_session in self.get_shutit_pexpect_sessions():
 			#	shutit_pexpect_session.write_out_session_to_fit_pane()
 		elif draw_type == 'clearscreen':
 			for y in range(0,self.wheight):
-				line = ' '*self.wwidth
+				line = u' '*self.wwidth
 				self.screen_arr[y:y+1,0:len(line)] = [line]
 		else:
 			assert False, 'Layout not handled: ' + draw_type
@@ -407,9 +414,10 @@ class PaneManager(object):
 		self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,int(self.wwidth/4*3)))
 
 
-	def write_out_log_to_fit_pane(self, pane):
+	def write_out_lines_to_fit_pane(self, pane, p_lines, title):
 		assert pane is not None
 		assert isinstance(pane, SessionPane)
+		assert isinstance(title, unicode)
 		pane_width  = pane.get_width()
 		pane_height = pane.get_height()
 		# We reserve one row at the end as a pane status line
@@ -417,7 +425,8 @@ class PaneManager(object):
 		lines_in_pane_str_arr   = []
 		# Scrub any ansi escape sequences.
 		ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
-		lines = [ ansi_escape.sub('', line.rstrip().decode('utf-8')) for line in self.shutit_global.logstream.getvalue().split('\n') ]
+		lines = [ ansi_escape.sub('', line).strip().decode('utf-8') for line in p_lines ]
+		# If the last line is blank we can just skip it.
 		if lines[-1] == '':
 			lines = lines[:-1]
 		for line in lines:
@@ -450,23 +459,21 @@ class PaneManager(object):
 
 
 	def do_layout_default(self):
-		top_left_session_pane = None
+		top_left_pane         = None
 		bottom_left_pane      = None
 		bottom_right_pane     = None
 		top_right_pane        = None
-		# top_left_session_pane is the logging pane by default
-		top_left_session_pane = self.top_left_session_pane
+		# top_left_pane is the logging pane by default
+		top_left_pane  = self.top_left_session_pane
+		top_right_pane = self.top_right_session_pane
 		for session in self.get_shutit_pexpect_sessions():
 			if session.pexpect_session_pane and session.pexpect_session_pane.name == 'bottom_left':
 				bottom_left_pane    = session.pexpect_session_pane
 			elif session.pexpect_session_pane and session.pexpect_session_pane.name == 'bottom_right':
 				bottom_right_pane   = session.pexpect_session_pane
-			elif session.pexpect_session_pane and session.pexpect_session_pane.name == 'top_right':
-				top_right_pane      = session.pexpect_session_pane
 		# Keep it simple with 4 panes always for now
-		top_left_session_pane.set_position(top_left_x=0,                       top_left_y=1,                         bottom_right_x=self.wwidth_left_end, bottom_right_y=self.wheight_bottom_start)
-		if top_right_pane is not None:
-			top_right_pane.set_position       (top_left_x=self.wwidth_right_start, top_left_y=1,                         bottom_right_x=self.wwidth,          bottom_right_y=self.wheight_bottom_start)
+		top_left_pane.set_position(top_left_x=0,                       top_left_y=1,                         bottom_right_x=self.wwidth_left_end, bottom_right_y=self.wheight_bottom_start)
+		top_right_pane.set_position       (top_left_x=self.wwidth_right_start, top_left_y=1,                         bottom_right_x=self.wwidth,          bottom_right_y=self.wheight_bottom_start)
 		if bottom_right_pane is not None:
 			bottom_right_pane.set_position    (top_left_x=self.wwidth_right_start, top_left_y=self.wheight_bottom_start, bottom_right_x=self.wwidth,          bottom_right_y=self.wheight-1)
 		if bottom_left_pane is not None:

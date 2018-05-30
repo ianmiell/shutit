@@ -120,7 +120,7 @@ def get_wide_hex(char):
 
 # CTRL-\ HANDLING CODE STARTS
 def ctrl_quit_signal_handler(_,frame):
-	print(r'CRTL-\ caught, hard-exiting ShutIt')
+	shutit_print(r'CRTL-\ caught, hard-exiting ShutIt')
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
 		shutit_class.do_finalize()
@@ -151,18 +151,18 @@ def ctrl_c_signal_handler(_, frame):
 	if in_ctrlc:
 		msg = 'CTRL-C hit twice, quitting'
 		if shutit_frame:
-			print('\n')
+			shutit_print('\n')
 			shutit = shutit_frame.f_locals['shutit']
 			shutit.log(msg,level=logging.CRITICAL)
 		else:
-			print(msg)
+			shutit_print(msg)
 		shutit_global.shutit_global_object.handle_exit(exit_code=1)
 	if shutit_frame:
 		shutit = shutit_frame.f_locals['shutit']
 		if shutit.build['ctrlc_passthrough']:
 			shutit.self.get_current_shutit_pexpect_session().pexpect_child.sendline(r'')
 			return
-		print(colorise(31,"\r" + r"You may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit."))
+		shutit_print(colorise(31,"\r" + r"You may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit."))
 		shutit.build['ctrlc_stop'] = True
 		t = threading.Thread(target=ctrlc_background)
 		t.daemon = True
@@ -170,9 +170,9 @@ def ctrl_c_signal_handler(_, frame):
 		# Reset the ctrl-c calls
 		ctrl_c_calls = 0
 		return
-	print(colorise(31,'\n' + '*' * 80))
-	print(colorise(31,"CTRL-c caught, CTRL-c twice to quit."))
-	print(colorise(31,'*' * 80))
+	shutit_print(colorise(31,'\n' + '*' * 80))
+	shutit_print(colorise(31,"CTRL-c caught, CTRL-c twice to quit."))
+	shutit_print(colorise(31,'*' * 80))
 	t = threading.Thread(target=ctrlc_background)
 	t.daemon = True
 	t.start()
@@ -195,10 +195,14 @@ ctrl_c_calls = 0
 # CTRL-C HANDLING CODE ENDS
 
 
+def shutit_print(msg):
+	print(msg)
+
+
 def print_frame_recurse(frame):
 	if frame.f_back:
-		print('=' * 77)
-		print(frame.f_locals)
+		shutit_print('=' * 77)
+		shutit_print(frame.f_locals)
 		print_frame_recurse(frame.f_back)
 
 
@@ -245,7 +249,7 @@ def util_raw_input(prompt='', default=None, ispass=False, use_readline=True):
 	#try:
 	#	input
 	#except NameError:
-	#	print('input not available, printing debug')
+	#	shutit_print('input not available, printing debug')
 	#	print_debug()
 	#	sys.exit(1)
 	if not shutit_global.shutit_global_object.determine_interactive():

@@ -272,21 +272,21 @@ class ShutItInit(object):
 			self.long               = long
 			# Video/exam/training logic
 			if self.exam and not self.training:
-				print('Exam starting up')
+				shutit_util.shutit_print('Exam starting up')
 				self.training = True
 			if (self.exam or self.training) and not self.walkthrough:
 				if not self.exam:
-					print('--training or --exam implies --walkthrough, setting --walkthrough on!')
+					shutit_util.shutit_print('--training or --exam implies --walkthrough, setting --walkthrough on!')
 				self.walkthrough = True
 			if isinstance(self.video, list) and self.video[0] >= 0:
 				self.walkthrough      = True
 				self.walkthrough_wait = self.video[0]
 				self.video            = True
 			if (self.video != -1 and self.video) and self.training:
-				print('--video and --training mode incompatible')
+				shutit_util.shutit_print('--video and --training mode incompatible')
 				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			if (self.video != -1 and self.video) and self.exam:
-				print('--video and --exam mode incompatible')
+				shutit_util.shutit_print('--video and --exam mode incompatible')
 				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			#assert isinstance(self.delivery,str), shutit_util.print_debug()
 			# If the image_tag has been set then ride roughshod over the ignoreimage value if not supplied
@@ -297,7 +297,7 @@ class ShutItInit(object):
 				self.ignoreimage = False
 			if self.delivery in ('bash',):
 				if self.image_tag != '': # pragma: no cover
-					print('delivery method specified (' + self.delivery + ') and image_tag argument make no sense')
+					shutit_util.shutit_print('delivery method specified (' + self.delivery + ') and image_tag argument make no sense')
 					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 
 
@@ -732,7 +732,7 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		ignore_background = not wait
-		#print('SEND: ' + send)
+		#shutit_util.shutit_print('SEND: ' + send)
 		return shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,
 		                                                  send,
 		                                                  expect=expect,
@@ -817,10 +817,10 @@ class ShutIt(object):
 			else:
 				if training_input != '' and self.build['training']:
 					if len(training_input.split('\n')) == 1:
-						print(shutit_util.colorise('31',message))
+						shutit_util.shutit_print(shutit_util.colorise('31',message))
 						while shutit_util.util_raw_input(prompt=shutit_util.colorise('32','Enter the command to continue (or "s" to skip typing it in): ')) not in (training_input,'s'):
-							print('Wrong! Try again!')
-						print(shutit_util.colorise('31','OK!'))
+							shutit_util.shutit_print('Wrong! Try again!')
+						shutit_util.shutit_print(shutit_util.colorise('31','OK!'))
 					else:
 						self.pause_point(message + '\nToo long to use for training, so skipping the option to type in!\nHit CTRL-] to continue', color=31)
 				else:
@@ -2695,7 +2695,7 @@ class ShutIt(object):
 		for config_file_name in self.build['extra_configs']:
 			run_config_file = os.path.expanduser(config_file_name)
 			if not os.path.isfile(run_config_file):
-				print('Did not recognise ' + run_config_file + ' as a file - do you need to touch ' + run_config_file + '?')
+				shutit_util.shutit_print('Did not recognise ' + run_config_file + ' as a file - do you need to touch ' + run_config_file + '?')
 				shutit_global.shutit_global_object.handle_exit(exit_code=0)
 			configs.append(run_config_file)
 		# Image to use to start off. The script should be idempotent, so running it
@@ -2786,10 +2786,10 @@ class ShutIt(object):
 		# FAILS begins
 		# rm is incompatible with repository actions
 		if self.target['rm'] and (self.repository['tag'] or self.repository['push'] or self.repository['save'] or self.repository['export']): # pragma: no cover
-			print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
+			shutit_util.shutit_print("Can't have [target]/rm and [repository]/(push/save/export) set to true")
 			shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		if self.target['hostname'] != '' and self.build['net'] != '' and self.build['net'] != 'bridge': # pragma: no cover
-			print('\n\ntarget/hostname or build/net configs must be blank\n\n')
+			shutit_util.shutit_print('\n\ntarget/hostname or build/net configs must be blank\n\n')
 			shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		# FAILS ends
 
@@ -2928,13 +2928,13 @@ class ShutIt(object):
 				if not self.allowed_image(module_id):
 					passed = False
 					if not silent:
-						print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' + str(cfg[module_id]['shutit.core.module.allowed_images']) + ' but the configured image is: ' + self.target['docker_image'] + '\n\nIs your shutit_module_path set correctly?\n\nIf you want to ignore this, pass in the --ignoreimage flag to shutit.\n\n')
+						shutit_util.shutit_print('\n\nWARNING!\n\nAllowed images for ' + module_id + ' are: ' + str(cfg[module_id]['shutit.core.module.allowed_images']) + ' but the configured image is: ' + self.target['docker_image'] + '\n\nIs your shutit_module_path set correctly?\n\nIf you want to ignore this, pass in the --ignoreimage flag to shutit.\n\n')
 		if not passed:
 			if not throw_error:
 				return False
 			if self.build['imageerrorok']:
 				# useful for test scripts
-				print('Exiting on allowed images error, with return status 0')
+				shutit_util.shutit_print('Exiting on allowed images error, with return status 0')
 				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			else:
 				raise ShutItFailException('Allowed images checking failed') # pragma: no cover
@@ -3079,7 +3079,7 @@ class ShutIt(object):
 					colwidths[n] = len(str(item[n]))
 		table.set_cols_width(colwidths)
 		msg = table.draw()
-		print('\n' + msg)
+		shutit_util.shutit_print('\n' + msg)
 
 
 	def print_config(self, cfg, hide_password=True, history=False, module_id=None):
@@ -3131,7 +3131,7 @@ class ShutIt(object):
 		assert isinstance(args,ShutItInit), shutit_util.print_debug()
 
 		if args.action == 'version':
-			print('ShutIt version: ' + shutit.shutit_version)
+			shutit_util.shutit_print('ShutIt version: ' + shutit.shutit_version)
 			shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
 		# Set up global object
@@ -3199,15 +3199,15 @@ class ShutIt(object):
 					try:
 						shutitfile_representation, ok = shutit_skeleton.process_shutitfile(self, candidate_shutitfile_contents)
 						if not ok or candidate_shutitfile_contents.strip() == '':
-							print('Ignoring file (failed to parse candidate shutitfile): ' + shutitfile)
+							shutit_util.shutit_print('Ignoring file (failed to parse candidate shutitfile): ' + shutitfile)
 						else:
 							_new_shutitfiles.append(shutitfile)
 							if shutitfile_representation['shutitfile']['delivery']:
 								_delivery_methods_seen.add(shutitfile_representation['shutitfile']['delivery'][0][1])
 					except Exception as e:
-						print('')
-						print(e)
-						print('Ignoring file (failed to parse candidate shutitfile): ' + shutitfile)
+						shutit_util.shutit_print('')
+						shutit_util.shutit_print(e)
+						shutit_util.shutit_print('Ignoring file (failed to parse candidate shutitfile): ' + shutitfile)
 				elif os.path.isdir(shutitfile):
 					for root, subfolders, files in os.walk(shutitfile):
 						subfolders.sort()
@@ -3221,15 +3221,15 @@ class ShutIt(object):
 									candidate_shutitfile_fh.close()
 									shutitfile_representation, ok = shutit_skeleton.process_shutitfile(shutit, candidate_shutitfile_contents)
 									if not ok or candidate_shutitfile_contents.strip() == '':
-										print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
+										shutit_util.shutit_print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
 									else:
 										_new_shutitfiles.append(candidate_shutitfile)
 										if shutitfile_representation['shutitfile']['delivery']:
 											_delivery_methods_seen.add(shutitfile_representation['shutitfile']['delivery'][0][1])
 								else:
-									print('Ignoring filename (not a normal file): ' + fname)
+									shutit_util.shutit_print('Ignoring filename (not a normal file): ' + fname)
 							except:
-								print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
+								shutit_util.shutit_print('Ignoring file (failed to parse candidate shutitfile): ' + candidate_shutitfile)
 			if _new_shutitfiles:
 				if not _delivery_methods_seen and delivery_method is None:
 					delivery_method = 'bash'
@@ -3240,15 +3240,15 @@ class ShutIt(object):
 				elif len(_delivery_methods_seen) == 1:
 					shutitfile_delivery_method = _delivery_methods_seen.pop()
 					if delivery_method != shutitfile_delivery_method:
-						print('Conflicting delivery methods passed in vs. from shutitfile.\nPassed-in: ' + delivery_method + '\nShutitfile: ' + shutitfile_delivery_method)
+						shutit_util.shutit_print('Conflicting delivery methods passed in vs. from shutitfile.\nPassed-in: ' + delivery_method + '\nShutitfile: ' + shutitfile_delivery_method)
 						shutit_global.shutit_global_object.handle_exit(exit_code=1)
 				else:
-					print('Too many delivery methods seen in shutitfiles: ' + str(_new_shutitfiles))
-					print('Delivery methods: ' + str(_delivery_methods_seen))
-					print('Delivery method passed in: ' + delivery_method)
+					shutit_util.shutit_print('Too many delivery methods seen in shutitfiles: ' + str(_new_shutitfiles))
+					shutit_util.shutit_print('Delivery methods: ' + str(_delivery_methods_seen))
+					shutit_util.shutit_print('Delivery method passed in: ' + delivery_method)
 					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			else:
-				print('ShutItFiles: ' + str(_new_shutitfiles) + ' appear to not exist.')
+				shutit_util.shutit_print('ShutItFiles: ' + str(_new_shutitfiles) + ' appear to not exist.')
 				shutit_global.shutit_global_object.handle_exit(exit_code=1)
 		if module_directory == '':
 			default_dir = self.host['calling_path'] + '/shutitskel_' + shutit_util.random_word()
@@ -3261,7 +3261,7 @@ class ShutIt(object):
 				#readline.redisplay()
 				#readline.set_pre_input_hook(hook)
 				readline.set_startup_hook(lambda: readline.insert_text(default_dir))
-				print('Input a path for this module')
+				shutit_util.shutit_print('Input a path for this module')
 				module_directory = shutit_util.util_raw_input(prompt='\n>> ', default=default_dir)
 				readline.set_startup_hook()
 		if module_directory[0] != '/':
@@ -3291,8 +3291,8 @@ class ShutIt(object):
 					        ['docker_tutorial','Creates a Docker-based tutorial environment'],
 					        ['shutitfile','A ShutItFile based project (can be docker-, bash-, or vagrant-based)']]
 					table.add_rows(rows)
-					print(table.draw() + '\n')
-					print('Choose, but choose wisely: ')
+					shutit_util.shutit_print(table.draw() + '\n')
+					shutit_util.shutit_print('Choose, but choose wisely: ')
 					readline.set_startup_hook(lambda: readline.insert_text('bash'))
 					pattern = shutit_util.util_raw_input(prompt='\n>> ')
 					readline.set_startup_hook()
@@ -3321,8 +3321,8 @@ class ShutIt(object):
 					        ['bash','Run commands directly within bash'],
 					        ['vagrant','Build an n-node Vagrant cluster']]
 					table.add_rows(rows)
-					print(table.draw() + '\n')
-					print('Input a delivery method')
+					shutit_util.shutit_print(table.draw() + '\n')
+					shutit_util.shutit_print('Input a delivery method')
 					readline.set_startup_hook(lambda: readline.insert_text(default_delivery))
 					delivery = shutit_util.util_raw_input(prompt='>> ')
 					readline.set_startup_hook()
@@ -3939,10 +3939,10 @@ class ShutIt(object):
 						if re.match('.*'+module_id+'.*',m):
 							matched_to.append(m)
 					if len(matched_to) > 1:
-						print('Please input a uniquely matchable module id. Matches were: ' + str(matched_to))
+						shutit_util.shutit_print('Please input a uniquely matchable module id. Matches were: ' + str(matched_to))
 						continue
 					elif matched_to:
-						print('Please input a valid module id')
+						shutit_util.shutit_print('Please input a valid module id')
 					else:
 						module_id = matched_to[0]
 				cfg[module_id]['shutit.core.module.build'] = not cfg[module_id]['shutit.core.module.build']
@@ -3955,7 +3955,7 @@ class ShutIt(object):
 					# TODO: does this catch all the ones switched on? Once done, get configs for all those.
 					newcfg_list = []
 					while True:
-						print(self.print_config(cfg,module_id=module_id))
+						shutit_util.shutit_print(self.print_config(cfg,module_id=module_id))
 						name = shutit_util.util_raw_input(prompt='Above is the config for that module. Hit return to continue, or a config item you want to update.\n')
 						if name:
 							doing_list = False
@@ -3982,7 +3982,7 @@ class ShutIt(object):
 										elif val == 'f':
 											newcfg_list.append(False)
 										else:
-											print('Input t or f please')
+											shutit_util.shutit_print('Input t or f please')
 											continue
 									else:
 										break
@@ -4243,7 +4243,7 @@ class ShutIt(object):
 		if cfg[module.module_id]['shutit.core.module.tag']:
 			shutit_global.shutit_global_object.log(self.build_report('#Module:' + module.module_id), level=logging.DEBUG)
 		if not cfg[module.module_id]['shutit.core.module.tag'] and shutit_global.shutit_global_object.interactive >= 2:
-			print("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
+			shutit_util.shutit_print("\n\nDo you want to save state now we\'re at the " + "end of this module? (" + module.module_id + ") (input y/n)")
 			cfg[module.module_id]['shutit.core.module.tag'] = (shutit_util.util_raw_input(default='y') == 'y')
 		if cfg[module.module_id]['shutit.core.module.tag'] or self.build['tag_modules']:
 			shutit_global.shutit_global_object.log(module.module_id + ' configured to be tagged, doing repository work',level=logging.INFO)
@@ -4253,7 +4253,7 @@ class ShutIt(object):
 			# Start all after we tag to ensure services are up as expected.
 			self.start_all(module.run_order)
 		if shutit_global.shutit_global_object.interactive >= 2:
-			print("\n\nDo you want to stop interactive mode? (input y/n)\n")
+			shutit_util.shutit_print("\n\nDo you want to stop interactive mode? (input y/n)\n")
 			if shutit_util.util_raw_input(default='y') == 'y':
 				shutit_global.shutit_global_object.interactive = 0
 

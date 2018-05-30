@@ -802,11 +802,11 @@ class ShutItPexpectSession(object):
 				if interact:
 					self.pexpect_child.interact()
 				try:
-					#print('pre interact')
+					#shutit_util.shutit_print('pre interact')
 					self.pexpect_child.interact(input_filter=self._pause_input_filter)
-					#print('post interact')
+					#shutit_util.shutit_print('post interact')
 					self.handle_pause_point_signals()
-					#print('post handle_pause_point_signals')
+					#shutit_util.shutit_print('post handle_pause_point_signals')
 				except Exception as e:
 					shutit.fail('Terminating ShutIt within pause point.\r\n' + str(e)) # pragma: no cover
 				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
@@ -826,7 +826,7 @@ class ShutItPexpectSession(object):
 
 	def handle_pause_point_signals(self):
 		shutit = self.shutit
-		#print('in handle_pause_point_signals, signal_id: ' + str(shutit_global.shutit_global_object.signal_id))
+		#shutit_util.shutit_print('in handle_pause_point_signals, signal_id: ' + str(shutit_global.shutit_global_object.signal_id))
 		if shutit_global.shutit_global_object.signal_id == 29:
 			shutit_global.shutit_global_object.log('\r\nCTRL-] caught, continuing with run...',level=logging.INFO,transient=True)
 		elif isinstance(shutit_global.shutit_global_object.signal_id, int) and shutit_global.shutit_global_object.signal_id not in (0,4,7,8,17,19):
@@ -3553,7 +3553,7 @@ $'"""
 	def _pause_input_filter(self, input_string):
 		"""Input filter for pause point to catch special keystrokes
 		"""
-		#print('in _pause_input_filter, ord(input_string): ' + str(ord(input_string)))
+		#shutit_util.shutit_print('in _pause_input_filter, ord(input_string): ' + str(ord(input_string)))
 		shutit = self.shutit
 		# Can get errors with eg up/down chars
 		if len(input_string) == 1:
