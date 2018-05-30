@@ -165,7 +165,7 @@ def process_shutitfile(shutit, shutitfile_contents):
 				shutitfile_representation['shutitfile']['base_image'] = item[1]
 				shutit.shutitfile['base_image'] = item[1]
 			else:
-				print('Ignoring FROM line as this it has already been set.') # pragma: no cover
+				shutit_util.shutit_print('Ignoring FROM line as this it has already been set.') # pragma: no cover
 		elif shutitfile_command == 'ONBUILD':
 			# TESTED? NO
 			# Maps to finalize :) - can we have more than one of these? assume yes

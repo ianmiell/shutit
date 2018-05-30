@@ -196,7 +196,8 @@ ctrl_c_calls = 0
 
 
 def shutit_print(msg):
-	print(msg)
+	#print(msg)
+	pass
 
 
 def print_frame_recurse(frame):
