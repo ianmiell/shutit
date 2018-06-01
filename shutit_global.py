@@ -394,8 +394,9 @@ class PaneManager(object):
 		# Footer
 		space = (self.wwidth - len(quick_help))*' '
 		footer_text = space + quick_help
-		footer_text_unicode = footer_text.decode('utf-8')
-		self.screen_arr[self.wheight-1:self.wheight,0:len(footer_text_unicode)] = [invert(blue(footer_text_unicode))]
+		if not PY3:
+			footer_text = footer_text.decode('utf-8')
+		self.screen_arr[self.wheight-1:self.wheight,0:len(footer_text)] = [invert(blue(footer_text))]
 		if draw_type == 'default':
 			# Draw the sessions.
 			self.do_layout_default()
@@ -425,7 +426,10 @@ class PaneManager(object):
 		lines_in_pane_str_arr   = []
 		# Scrub any ansi escape sequences.
 		ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
-		lines = [ ansi_escape.sub('', line).strip().decode('utf-8') for line in p_lines ]
+		if not PY3:
+			lines = [ ansi_escape.sub('', line).strip().decode('utf-8') for line in p_lines ]
+		else:
+			lines = [ ansi_escape.sub('', line).strip() for line in p_lines ]
 		# If the last line is blank we can just skip it.
 		if lines[-1] == '':
 			lines = lines[:-1]
