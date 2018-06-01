@@ -73,6 +73,7 @@ class ShutItGlobal(object):
 		self.secret_words_set     = set()
 		self.logfile              = None
 		self.logstream            = None
+		self.logstream_lock       = False
 		self.loglevel             = None
 		self.signal_id            = None
 		self.window_size_max      = 65535
@@ -217,6 +218,8 @@ class ShutItGlobal(object):
 		@param color_code         Color of log line (default based on loglevel).
 		                          if 0, then take defaults, else override
 		"""
+		while self.logstream_lock:
+			time.sleep(0.1)
 		if mask_password:
 			for password in shutit_global_object.secret_words_set:
 				if password in msg:
@@ -386,7 +389,6 @@ class PaneManager(object):
 
 
 	def draw_screen(self, draw_type='default', quick_help='HELP TODO'):
-		f=open('/tmp/a','w+')
 		assert draw_type in ('default','clearscreen')
 		# Header
 		header_text = u'Shutit'
@@ -413,7 +415,9 @@ class PaneManager(object):
 		else:
 			assert False, 'Layout not handled: ' + draw_type
 		# TODO: synchronise with main thread to stop race conditions.
+		self.logstream_lock = True
 		self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,int(self.wwidth/4*3)))
+		self.logstream_lock = False
 
 
 	def write_out_lines_to_fit_pane(self, pane, p_lines, title):
