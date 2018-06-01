@@ -386,10 +386,11 @@ class PaneManager(object):
 
 
 	def draw_screen(self, draw_type='default', quick_help='HELP TODO'):
+		f=open('/tmp/a','w+')
 		assert draw_type in ('default','clearscreen')
-		self.screen_arr = curtsies.FSArray(self.wheight, self.wwidth)
 		# Header
 		header_text = u'Shutit'
+		self.screen_arr           = curtsies.FSArray(self.wheight, self.wwidth)
 		self.screen_arr[0:1,0:len(header_text)] = [blue(header_text)]
 		# Footer
 		space = (self.wwidth - len(quick_help))*' '
