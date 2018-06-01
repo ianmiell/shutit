@@ -373,9 +373,9 @@ class PaneManager(object):
 
 	def refresh_window(self):
 		self.window               = curtsies.FullscreenWindow(hide_cursor=True)
-		self.screen_arr           = None
 		self.wheight              = self.window.height
 		self.wwidth               = self.window.width
+		self.screen_arr           = None 
 		# Divide the screen up into two, to keep it simple for now
 		self.wheight_top_end      = int(self.wheight / 2)
 		self.wheight_bottom_start = int(self.wheight / 2)
@@ -411,7 +411,7 @@ class PaneManager(object):
 				self.screen_arr[y:y+1,0:len(line)] = [line]
 		else:
 			assert False, 'Layout not handled: ' + draw_type
-		# Write out screen
+		# TODO: synchronise with main thread to stop race conditions.
 		self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,int(self.wwidth/4*3)))
 
 
@@ -441,7 +441,7 @@ class PaneManager(object):
 				line = line[pane_width-1:]
 			lines_in_pane_str_arr.append(line)
 		# Status line:
-		lines_in_pane_str_arr.append(u'Logs')
+		lines_in_pane_str_arr.append(title)
 		top_y                                      = pane.top_left_y
 		bottom_y                                   = pane.bottom_right_y
 		for i, line in zip(reversed(range(top_y,bottom_y)), reversed(lines_in_pane_str_arr)):

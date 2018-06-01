@@ -418,7 +418,11 @@ class ShutIt(object):
 		pexpect child.
 		"""
 		self.handle_note(note)
-		res = self.get_current_shutit_pexpect_session().current_environment
+		current_session = self.get_current_shutit_pexpect_session()
+		if current_session is not None:
+			res = current_session.current_environment
+		else:
+			res = None
 		self.handle_note_after(note)
 		return res
 

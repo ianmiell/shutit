@@ -6,6 +6,7 @@ import sys
 
 
 def managing_thread_main():
+	time.sleep(1)
 	import shutit_global
 	shutit_global.shutit_global_object.stacktrace_lines_arr = []
 	shutit_global.shutit_global_object.stacktrace_lines_arr.append("*** STACKTRACE - START ***")
@@ -17,20 +18,15 @@ def managing_thread_main():
 		code.append("# ThreadID: %s" % thread_id)
 		level = 0
 		for filename, lineno, name, line in traceback.extract_stack(stack):
-			level += 1
-			if level < 5:
-				continue
-			code.append('File: "%s", line %d, in %s' % (filename, lineno, name))
-			if line:
-				code.append("  %s" % (line.strip()))
+			level+=1
+			code.append('%d, File: "%s", line %d, in %s, line %s: ' % (level, filename, lineno, name, str(line.strip())))
+	# TODO: if the file is in the same folder or subfolder as a folder in: self.host['shutit_module_path']
+	#       then show that context
 	for line in code:
 		shutit_global.shutit_global_object.stacktrace_lines_arr.append(line)
+		#print(line)
 	shutit_global.shutit_global_object.stacktrace_lines_arr.append("*** STACKTRACE - END ***")
-	
-	#lines.append(shutit_global.shutit_global_object)
-	time.sleep(0.25)
-	#shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
-	shutit_global.shutit_global_object.pane_manager.draw_screen()
+	shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='default')
 	managing_thread_main()
 
 
