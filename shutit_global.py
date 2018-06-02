@@ -80,6 +80,7 @@ class ShutItGlobal(object):
 		self.logfile              = None
 		self.logstream            = None
 		self.loglevel             = None
+		self.logging_setup_done   = False
 		self.signal_id            = None
 		self.window_size_max      = 65535
 		self.username             = os.environ.get('LOGNAME', '')
@@ -284,20 +285,21 @@ class ShutItGlobal(object):
 
 
 	def setup_logging(self):
-		# If loglevel is an int, this has already been set up.
+		if self.logging_setup_done:
+			return
 		assert not self.managed_panes or (self.managed_panes and self.logstream)
 		assert self.logfile is not None
+		assert self.pane_manager is None
 		# TODO: managed_panes and echo are incompatible
 		if self.managed_panes:
 			self.nocolor          = True
 			self.pane_manager     = PaneManager(self)
 			shutit_curtsies.track_main_thread()
-		if isinstance(self.loglevel, int):
-			return
 		logformat='%(asctime)s %(levelname)s: %(message)s'
 		logobj = logging.getLogger(__name__)
 		if self.managed_panes:
 			# Set up logging for https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string
+			self.loglevel = self.loglevel.upper()
 			if self.loglevel == 'DEBUG':
 				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.DEBUG)
 			elif self.loglevel == 'ERROR':
@@ -339,6 +341,7 @@ class ShutItGlobal(object):
 			else:
 				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.DEBUG)
 		self.loglevel = logobj.getEffectiveLevel()
+		self.logging_setup_done = True
 
 
 	def handle_exit(self,exit_code=0,loglevel=logging.CRITICAL,msg=None):
@@ -423,6 +426,7 @@ class PaneManager(object):
 		else:
 			assert False, 'Layout not handled: ' + draw_type
 		self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,int(self.wwidth/4*3)))
+
 
 	def write_out_lines_to_fit_pane(self, pane, p_lines, title):
 		assert pane is not None

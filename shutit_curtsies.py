@@ -5,6 +5,11 @@ import traceback
 import sys
 
 
+# TODO: reject tmux sessions - it does not seem to play nice
+# TODO: return screen on pause_point
+# TODO: keep a time counter after the line
+# TODO: show context of line (ie lines around)
+
 def managing_thread_main():
 	import shutit_global
 	def gather_module_paths():
@@ -23,14 +28,13 @@ def managing_thread_main():
 		return shutit_module_paths
 	time.sleep(1)
 	shutit_module_paths = gather_module_paths()
+	shutit_global.shutit_global_object.stacktrace_lines_arr = ['CONTEXT',]
 	while True:
 		# Acquire lock to write screen. Prevents nasty race conditions.
 		if shutit_global.shutit_global_object.global_thread_lock.acquire(False):
 			# Go to sleep as spinning doesn't help anyone here.
 			time.sleep(1)
 			continue
-		shutit_global.shutit_global_object.stacktrace_lines_arr = []
-		shutit_global.shutit_global_object.stacktrace_lines_arr.append("*** Context for thread ***")
 		code = []
 		for thread_id, stack in sys._current_frames().items():
 			# ignore own thread:
@@ -41,8 +45,10 @@ def managing_thread_main():
 				# then show that context
 				for shutit_module_path in shutit_module_paths:
 					if filename.find(shutit_module_path) == 0:
-						code.append('File: "%s", line %d, in %s, line %s: ' % (filename, lineno, name, str(line.strip())))
-						break
+						line = '===> ' + str(line.strip())
+						if shutit_global.shutit_global_object.stacktrace_lines_arr[-1] != line:
+							code.append('=> %s:%d:%s' % (filename, lineno, name))
+							code.append('%s' % (line,))
 		for line in code:
 			shutit_global.shutit_global_object.stacktrace_lines_arr.append(line)
 		shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='default')
