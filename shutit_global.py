@@ -337,7 +337,7 @@ class ShutItGlobal(object):
 				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.INFO)
 			else:
 				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.DEBUG)
-		self.loglevel = logging.getLogger().getEffectiveLevel()
+		self.loglevel = logging.getLogger(__name__).getEffectiveLevel()
 
 
 	def handle_exit(self,exit_code=0,loglevel=logging.CRITICAL,msg=None):
