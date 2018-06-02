@@ -488,6 +488,7 @@ class ShutIt(object):
 		@param throw_exception: Whether to throw an exception.
 		@type throw_exception: boolean
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		# Note: we must not default to a child here
 		if shutit_pexpect_child is not None:
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -502,12 +503,14 @@ class ShutIt(object):
 			# This is an "OK" failure, ie we don't need to throw an exception.
 			# However, it's still a "failure", so return 1
 			shutit_global.shutit_global_object.handle_exit(exit_code=1,msg=msg)
+		shutit_global.shutit_global_object.yield_to_draw()
 
 
 	def get_current_environment(self, note=None):
 		"""Returns the current environment id from the current
 		shutit_pexpect_session
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		self.handle_note(note)
 		res = self.get_current_shutit_pexpect_session_environment().environment_id
 		self.handle_note_after(note)
@@ -545,6 +548,7 @@ class ShutIt(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		assert isinstance(send_dict, dict), shutit_util.print_debug()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
@@ -576,6 +580,7 @@ class ShutIt(object):
 		"""Send string and require the item in the output.
 		See send_until
 	    """
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.send_and_require(send,
@@ -609,6 +614,7 @@ class ShutIt(object):
 		@param echo:                 See send()
 		@param note:                 See send()
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.send_until(send,
@@ -656,6 +662,7 @@ class ShutIt(object):
 		                             command = check for output of single command
 		                             golf    = user gets a pause point, and when leaving, command follow_on_context['check_command'] is run to check the output
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.challenge(self,
@@ -733,10 +740,10 @@ class ShutIt(object):
 		@return: The pexpect return value (ie which expected string in the list matched)
 		@rtype: string
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		ignore_background = not wait
-		#shutit_util.shutit_print('SEND: ' + send)
 		return shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,
 		                                                  send,
 		                                                  expect=expect,
@@ -780,6 +787,7 @@ class ShutIt(object):
 	                           loglevel=logging.INFO):
 		"""Returns true if a good exit code was received (usually 0)
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=send,
@@ -809,6 +817,7 @@ class ShutIt(object):
 
 		@param note:                 See send()
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		if self.build['walkthrough'] and note != None and note != '':
 			assert isinstance(note, str), shutit_util.print_debug()
 			wait = self.build['walkthrough_wait']
@@ -833,6 +842,7 @@ class ShutIt(object):
 
 
 	def handle_note_after(self, note, training_input=''):
+		shutit_global.shutit_global_object.yield_to_draw()
 		if self.build['walkthrough'] and note != None:
 			wait = self.build['walkthrough_wait']
 			if wait >= 0:
@@ -850,6 +860,7 @@ class ShutIt(object):
 		"""This function allows you to interrupt the run at more or less any
 		point by breaking up the timeout into interactive chunks.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		accum_timeout = 0
 		if isinstance(expect, str):
@@ -911,6 +922,7 @@ class ShutIt(object):
 		@type script:    string
 		@type in_shell:  boolean
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.run_script(script,in_shell=in_shell,note=note,loglevel=loglevel)
@@ -939,6 +951,7 @@ class ShutIt(object):
 		@type path:         string
 		@type contents:     string
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.send_file(path,
@@ -964,6 +977,7 @@ class ShutIt(object):
 		@param timeout:       Timeout on response
 		@param note:          See send()
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.chdir(path,timeout=timeout,note=note,loglevel=loglevel)
@@ -991,6 +1005,7 @@ class ShutIt(object):
 		@type path:           string
 		@type hostfilepath:   string
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -1044,6 +1059,7 @@ class ShutIt(object):
 		@type path:          string
 		@type hostfilepath:  string
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -1117,6 +1133,7 @@ class ShutIt(object):
 
 		@rtype: boolean
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.file_exists(filename=filename,directory=directory,note=note,loglevel=loglevel)
@@ -1138,6 +1155,7 @@ class ShutIt(object):
 
 		@rtype:           string
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.get_file_perms(filename,note=note,loglevel=loglevel)
@@ -1174,6 +1192,7 @@ class ShutIt(object):
 		@return:              True if the line was matched and deleted, False otherwise.
 		@rtype:               boolean
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.remove_line_from_file(line,filename,match_regexp=match_regexp,literal=literal,note=note,loglevel=loglevel)
@@ -1216,6 +1235,7 @@ class ShutIt(object):
 		                      If not line_oriented, the regexp is considered on with the flags re.DOTALL, re.MULTILINE
 		                      enabled
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -1248,6 +1268,7 @@ class ShutIt(object):
 		"""Insert a chunk of text at the end of a file, or after (or before) the first matching pattern
 		in given file fname.
 		See change_text"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		return self.change_text(text=text,
 		                        fname=fname,
 		                        pattern=pattern,
@@ -1277,6 +1298,7 @@ class ShutIt(object):
 		"""Delete a chunk of text from a file.
 		See insert_text.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		return self.change_text(text,
 		                        fname,
 		                        pattern,
@@ -1304,6 +1326,7 @@ class ShutIt(object):
 		"""Replace a chunk of text from a file.
 		See insert_text.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		return self.change_text(text,
 		                        fname,
 		                        pattern,
@@ -1339,6 +1362,7 @@ class ShutIt(object):
 		@type match_regexp:   string
 
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		if isinstance(line, str):
 			lines = [line]
 		elif isinstance(line, list):
@@ -1371,6 +1395,7 @@ class ShutIt(object):
 		@param match_regexp:  See add_line_to_file()
 		@param note:          See send()
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		shutit_pexpect_session.add_to_bashrc(line,match_regexp=match_regexp,note=note,loglevel=loglevel)
@@ -1413,6 +1438,7 @@ class ShutIt(object):
 		@return: True if the download was completed successfully, False otherwise.
 		@rtype: boolean
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.get_url(filename,
@@ -1442,6 +1468,7 @@ class ShutIt(object):
 
 		@rtype:        boolean
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session(user,note=note,loglevel=loglevel)
@@ -1470,6 +1497,7 @@ class ShutIt(object):
 	                      shutit_pexpect_child=None,
 	                      note=None,
 	                      loglevel=logging.DEBUG):
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.command_available(command,note=note,loglevel=loglevel)
@@ -1484,6 +1512,7 @@ class ShutIt(object):
 		@param module_id: Identifying string of shutit module
 		@param note:      See send()
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.is_shutit_installed(module_id,note=note,loglevel=loglevel)
 
@@ -1501,6 +1530,7 @@ class ShutIt(object):
 
 		@rtype:             list of strings
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.is_shutit_installed(directory,note=note,loglevel=loglevel)
 
@@ -1522,6 +1552,7 @@ class ShutIt(object):
 		@return:           boolean
 		@rtype:            string
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		self.handle_note(note)
 		# Only handle for docker initially, return false in case we care
 		if self.build['delivery'] != 'docker':
@@ -1559,6 +1590,7 @@ class ShutIt(object):
 		@return: the value entered by the user
 		@rtype:  string
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfgstr        = '[%s]/%s' % (sec, name)
 		config_parser = self.config_parser
 		usercfg       = os.path.join(self.host['shutit_path'], 'config')
@@ -1618,6 +1650,7 @@ class ShutIt(object):
 	def step_through(self, msg='', shutit_pexpect_child=None, level=1, print_input=True, value=True):
 		"""Implements a step-through function, using pause_point.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		if (not shutit_global.shutit_global_object.determine_interactive() or not shutit_global.shutit_global_object.interactive or
@@ -1639,6 +1672,7 @@ class ShutIt(object):
 	            wait=-1):
 		"""Same as pause_point, but sets up the terminal ready for unmediated
 		interaction."""
+		shutit_global.shutit_global_object.yield_to_draw()
 		self.pause_point(msg=msg,
 		                 shutit_pexpect_child=shutit_pexpect_child,
 		                 print_input=print_input,
@@ -1687,6 +1721,7 @@ class ShutIt(object):
 
 		@return:             True if pause point handled ok, else false
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		if (not shutit_global.shutit_global_object.determine_interactive() or shutit_global.shutit_global_object.interactive < 1 or
 			shutit_global.shutit_global_object.interactive < level):
 			return True
@@ -1728,6 +1763,7 @@ class ShutIt(object):
 		@type retry:     integer
 		@type strip:     boolean
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.send_and_match_output(send,
@@ -1766,6 +1802,7 @@ class ShutIt(object):
 		@type retry:     integer
 		@type strip:     boolean
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		ignore_background = not wait
@@ -1819,6 +1856,7 @@ class ShutIt(object):
 		@return: True if all ok (ie it's installed), else False.
 		@rtype: boolean
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		# If separated by spaces, install separately
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
@@ -1856,6 +1894,7 @@ class ShutIt(object):
 		         False otherwise.
 		@rtype: boolean
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		# If separated by spaces, remove separately
 		if package.find(' ') != -1:
 			for p in package.split(' '):
@@ -1878,6 +1917,7 @@ class ShutIt(object):
 		@param user:    username we are getting password for
 		@param msg:     message to put out there
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.get_env_pass(user=user,
@@ -1897,6 +1937,7 @@ class ShutIt(object):
 		@return: the first group found
 		@rtype: string
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.whoarewe(note=note,
@@ -1920,6 +1961,7 @@ class ShutIt(object):
 	          loglevel=logging.DEBUG):
 		"""Logs user in on default child.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.login(ShutItSendSpec(shutit_pexpect_session,user=user,
 		                                                   send=command,
@@ -1950,6 +1992,7 @@ class ShutIt(object):
 			@param command:         Command to run to log out (default=exit)
 			@param note:            See send()
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.logout(ShutItSendSpec(shutit_pexpect_session,send=command,
 		                                                    note=note,
@@ -1961,6 +2004,7 @@ class ShutIt(object):
 
 
 	def wait(self, cadence=2):
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.wait(cadence=cadence)
 
@@ -1970,6 +2014,7 @@ class ShutIt(object):
 	               shutit_pexpect_child=None,
 	               note=None):
 		"""Returns memory available for use in k as an int"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.get_memory(note=note)
@@ -1990,6 +2035,7 @@ class ShutIt(object):
 
 		@param shutit_pexpect_child:       See send()
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.get_distro_info(loglevel=loglevel)
@@ -2000,6 +2046,7 @@ class ShutIt(object):
 	                loglevel=logging.DEBUG):
 		"""Get distro information from lsb_release.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.lsb_release(loglevel=loglevel)
@@ -2019,6 +2066,7 @@ class ShutIt(object):
 		@param shutit_pexpect_child:       See send()
 		@param note:        See send()
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.set_password(password,user=user,note=note)
@@ -2035,6 +2083,7 @@ class ShutIt(object):
 		@return: the output of "whoami"
 		@rtype: string
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.whoami(note=note,loglevel=loglevel)
@@ -2056,6 +2105,7 @@ class ShutIt(object):
 		@rtype:          boolean
 		@return:         True is the specified user id is not used yet, False if it's already been assigned to a user.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.is_user_id_available(user_id,
@@ -2080,6 +2130,7 @@ class ShutIt(object):
 		@type repository:           string
 		@type docker_executable:    string
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		self.handle_note(note)
 		shutit_pexpect_child = shutit_pexpect_child or self.get_shutit_pexpect_session_from_id('host_child').pexpect_child
 		expect               = expect or self.expect_prompts['ORIGIN_ENV']
@@ -2126,6 +2177,7 @@ class ShutIt(object):
 		@type password:             string
 		@type force:                boolean
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		# TODO: make host and client configurable
 		self.handle_note(note)
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
@@ -2281,6 +2333,7 @@ class ShutIt(object):
 		@type forcenone:     boolean
 		@type hint:          string
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		if module_id not in cfg.keys():
 			cfg[module_id] = {}
@@ -2341,6 +2394,7 @@ class ShutIt(object):
 	                            max_pause=None,
 	                            filename=None,
 	                            shutit_pexpect_child=None):
+		shutit_global.shutit_global_object.yield_to_draw()
 		assert self.build['asciinema_session'] is None, shutit_util.print_debug()
 		self.build['asciinema_session'] = True
 		self.build['asciinema_session_file'] = False
@@ -2366,6 +2420,7 @@ class ShutIt(object):
 
 	def end_asciinema_session(self,
 	                          shutit_pexpect_child=None):
+		shutit_global.shutit_global_object.yield_to_draw()
 		assert self.build['asciinema_session'] is True, shutit_util.print_debug()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		output = self.logout(timeout=shutit_global.shutit_global_object.default_timeout)
@@ -2378,18 +2433,21 @@ class ShutIt(object):
 	def get_emailer(self, cfg_section):
 		"""Sends an email using the mailer
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		import emailer
 		return emailer.Emailer(cfg_section, self)
 
 
 	# eg sys.stdout or None
 	def divert_output(self, output):
+		shutit_global.shutit_global_object.yield_to_draw()
 		for key in self.shutit_pexpect_sessions:
 			self.shutit_pexpect_sessions[key].pexpect_child.logfile = output
 		return True
 
 
 	def add_shutit_pexpect_session(self, shutit_pexpect_child):
+		shutit_global.shutit_global_object.yield_to_draw()
 		pexpect_session_id = shutit_pexpect_child.pexpect_session_id
 		# Check id is unique
 		if self.shutit_pexpect_sessions.has_key(pexpect_session_id) and self.shutit_pexpect_sessions[pexpect_session_id] != shutit_pexpect_child:
@@ -2398,6 +2456,7 @@ class ShutIt(object):
 
 
 	def remove_shutit_pexpect_session(self, shutit_pexpect_session_id=None, shutit_pexpect_child=None):
+		shutit_global.shutit_global_object.yield_to_draw()
 		if shutit_pexpect_session_id is None and shutit_pexpect_child is None:
 			self.fail('Must pass value into remove_pexpect_child.',throw_exception=True) # pragma: no cover
 		if shutit_pexpect_session_id is None:
@@ -2409,6 +2468,7 @@ class ShutIt(object):
 	def get_shutit_pexpect_session_from_child(self, shutit_pexpect_child):
 		"""Given a pexpect/child object, return the shutit_pexpect_session object.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		if not isinstance(shutit_pexpect_child, pexpect.pty_spawn.spawn):
 			self.fail('Wrong type in get_shutit_pexpect_session_child: ' + str(type(shutit_pexpect_child)),throw_exception=True) # pragma: no cover
 		for key in self.shutit_pexpect_sessions:
@@ -2418,6 +2478,7 @@ class ShutIt(object):
 
 
 	def get_shutit_pexpect_session_id(self, shutit_pexpect_child):
+		shutit_global.shutit_global_object.yield_to_draw()
 		"""Given a pexpect child object, return the shutit_pexpect_session_id object.
 		"""
 		if not isinstance(shutit_pexpect_child, pexpect.pty_spawn.spawn):
@@ -2429,6 +2490,7 @@ class ShutIt(object):
 
 
 	def get_shutit_pexpect_session_from_id(self, shutit_pexpect_id):
+		shutit_global.shutit_global_object.yield_to_draw()
 		"""Get the pexpect session from the given identifier.
 		"""
 		for key in self.shutit_pexpect_sessions:
@@ -2438,6 +2500,7 @@ class ShutIt(object):
 
 
 	def print_session_state(self):
+		shutit_global.shutit_global_object.yield_to_draw()
 		ret = '\n'
 		for key in self.shutit_pexpect_sessions:
 			ret += '===============================================================================\n'
@@ -2457,6 +2520,7 @@ class ShutIt(object):
 	# given a shutit object and an echo value, return the appropriate echo
 	# value for the given context.
 	def get_echo_override(self, echo):
+		shutit_global.shutit_global_object.yield_to_draw()
 		# Should we echo the output?
 		if shutit_global.shutit_global_object.managed_panes:
 			# Never echo if in managed panes
@@ -2479,11 +2543,13 @@ class ShutIt(object):
 
 
 	def check_sudo(self, shutit_pexpect_session=None):
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_session = shutit_pexpect_session or self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.check_sudo()
 
 
 	def get_sudo_pass_if_needed(self, shutit, ignore_brew=False):
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
 		return shutit_pexpect_session.get_sudo_pass_if_needed(shutit, ignore_brew=ignore_brew)
 
@@ -2491,6 +2557,7 @@ class ShutIt(object):
 	def get_commands(self):
 		"""Gets command that have been run and have not been redacted.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		s = ''
 		for c in self.build['shutit_command_history']:
 			if isinstance(c, str):
@@ -2505,6 +2572,7 @@ class ShutIt(object):
 		"""Resposible for constructing a report to be output as part of the build.
 		Returns report as a string.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		s = '\n'
 		s += '################################################################################\n'
 		s += '# COMMAND HISTORY BEGIN ' + shutit_global.shutit_global_object.build_id + '\n'
@@ -2546,6 +2614,7 @@ class ShutIt(object):
 		Returns True if there are no groups selected in the regexp.
 		else returns matching group (ie non-None)
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		if not isinstance(string_to_match, str):
 			return None
 		lines = string_to_match.split('\r\n')
@@ -2572,6 +2641,7 @@ class ShutIt(object):
 		"""Gets a list of module ids guaranteed to be sorted by run_order, ignoring conn modules
 		(run order < 0).
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		ids = sorted(list(self.shutit_map.keys()),key=lambda module_id: self.shutit_map[module_id].run_order)
 		if rev:
 			return list(reversed(ids))
@@ -2581,6 +2651,7 @@ class ShutIt(object):
 	def is_to_be_built_or_is_installed(self, shutit_module_obj):
 		"""Returns true if this module is configured to be built, or if it is already installed.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		if cfg[shutit_module_obj.module_id]['shutit.core.module.build']:
 			return True
@@ -2591,6 +2662,7 @@ class ShutIt(object):
 		"""Returns true if this module is installed.
 		Uses cache where possible.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		# Cache first
 		if shutit_module_obj.module_id in self.get_current_shutit_pexpect_session_environment().modules_installed:
 			return True
@@ -2610,6 +2682,7 @@ class ShutIt(object):
 
 
 	def determine_compatibility(self, module_id):
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		# Allowed images
 		if (cfg[module_id]['shutit.core.module.allowed_images'] and self.target['docker_image'] not in cfg[module_id]['shutit.core.module.allowed_images']) and not self.allowed_image(module_id):
@@ -2623,6 +2696,7 @@ class ShutIt(object):
 	def allowed_image(self, module_id):
 		"""Given a module id, determine whether the image is allowed to be built.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_global.shutit_global_object.log("In allowed_image: " + module_id,level=logging.DEBUG)
 		cfg = self.cfg
 		if self.build['ignoreimage']:
@@ -2642,6 +2716,7 @@ class ShutIt(object):
 	def print_modules(self):
 		"""Returns a string table representing the modules in the ShutIt module map.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		module_string = ''
 		module_string += 'Modules: \n'
@@ -2657,6 +2732,7 @@ class ShutIt(object):
 		"""Responsible for loading the shutit modules based on the configured module
 		paths.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		if shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
 			shutit_global.shutit_global_object.log('ShutIt module paths now: ',level=logging.DEBUG)
 			shutit_global.shutit_global_object.log(self.host['shutit_module_path'],level=logging.DEBUG)
@@ -2668,6 +2744,7 @@ class ShutIt(object):
 		"""Helper function for osx - return gnu utils rather than default for
 		   eg head and md5sum where possible and needed.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		if command in ('md5sum','sed','head'):
 			if self.get_current_shutit_pexpect_session_environment().distro == 'osx':
 				return 'g' + command
@@ -2677,6 +2754,7 @@ class ShutIt(object):
 	def get_send_command(self, send):
 		"""Internal helper function to get command that's really sent
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		if send is None:
 			return send
 		cmd_arr = send.split()
@@ -2690,6 +2768,7 @@ class ShutIt(object):
 		"""Responsible for loading config files into ShutIt.
 		Recurses down from configured shutit module paths.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		# Get root default config.
 		# TODO: change default_cnf so it places whatever the values are at this stage of the build.
 		configs = [('defaults', StringIO(default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(self.host['shutit_path'], 'config'), 'configs/build.cnf']
@@ -2734,6 +2813,7 @@ class ShutIt(object):
 	# that have been sanity-checked.
 	# Should only be called from load_configs above.
 	def get_base_config(self):
+		shutit_global.shutit_global_object.yield_to_draw()
 		"""Responsible for getting core configuration from config files.
 		"""
 		cp = self.config_parser
@@ -2799,6 +2879,7 @@ class ShutIt(object):
 
 
 	def load_all_from_path(self, path):
+		shutit_global.shutit_global_object.yield_to_draw()
 		"""Dynamically imports files within the same directory (in the end, the path).
 		"""
 		#111: handle expanded paths
@@ -2828,6 +2909,7 @@ class ShutIt(object):
 		(automatically inserting the module into shutit_global) or it's not a shutit
 		module.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		fpath = os.path.abspath(fpath)
 		file_ext = os.path.splitext(os.path.split(fpath)[-1])[-1]
 		if file_ext.lower() != '.py':
@@ -2887,6 +2969,7 @@ class ShutIt(object):
 		When this is called we should know what's being built (ie after
 		dependency resolution).
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_global.shutit_global_object.log('In config_collection_for_built',level=logging.DEBUG)
 		cfg = self.cfg
 		for module_id in self.module_ids():
@@ -2948,6 +3031,7 @@ class ShutIt(object):
 	def config_collection(self):
 		"""Collect core config from config files for all seen modules.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_global.shutit_global_object.log('In config_collection',level=logging.DEBUG)
 		cfg = self.cfg
 		for module_id in self.module_ids():
@@ -3006,6 +3090,7 @@ class ShutIt(object):
 
 		Dependencies: operator
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		# list of module ids and other details
 		# will also contain column headers
@@ -3089,6 +3174,7 @@ class ShutIt(object):
 	def print_config(self, cfg, hide_password=True, history=False, module_id=None):
 		"""Returns a string representing the config of this ShutIt run.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cp = self.config_parser
 		s = ''
 		keys1 = list(cfg.keys())
@@ -3132,6 +3218,7 @@ class ShutIt(object):
 	def process_args(self, args):
 		"""Process the args we have.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		assert isinstance(args,ShutItInit), shutit_util.print_debug()
 
 		if args.action == 'version':
@@ -3169,6 +3256,7 @@ class ShutIt(object):
 
 
 	def handle_skeleton(self, args):
+		shutit_global.shutit_global_object.yield_to_draw()
 		delivery_method        = args.delivery
 		accept_defaults        = args.accept
 		shutitfiles            = args.shutitfiles
@@ -3357,6 +3445,7 @@ class ShutIt(object):
 
 
 	def handle_run(self, args):
+		shutit_global.shutit_global_object.yield_to_draw()
 		module_name      = shutit_util.random_id(chars=string.ascii_letters)
 		module_dir       = "/tmp/shutit_built/" + module_name
 		module_domain    = module_name + '.' + module_name
@@ -3379,6 +3468,7 @@ class ShutIt(object):
 
 	# TODO: rationalise/tidy
 	def handle_build(self, args):
+		shutit_global.shutit_global_object.yield_to_draw()
 		# We're not creating a skeleton, so make sure we have the infrastructure
 		# in place for a user-level storage area
 		shutit_home = self.host['shutit_path'] = os.path.expanduser('~/.shutit')
@@ -3459,6 +3549,7 @@ class ShutIt(object):
 		"""Reads config files in, checking their security first
 		(in case passwords/sensitive info is in them).
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cp  = LayerConfigParser()
 		fail_str = ''
 		files    = []
@@ -3512,6 +3603,7 @@ class ShutIt(object):
 		eg ' a\ b c\\ \\d \\\e\' becomes '', 'a b', 'c\', '\d', '\\e\'
 		SHUTIT_OPTIONS is ignored if we are creating a skeleton
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		# These are in order of their creation
 		actions = ['build', 'run', 'list_configs', 'list_modules', 'list_deps', 'skeleton', 'version']
 
@@ -3723,6 +3815,7 @@ class ShutIt(object):
 
 
 	def conn_docker_start_container(self, shutit_session_name):
+		shutit_global.shutit_global_object.yield_to_draw()
 		docker = self.host['docker_executable'].split(' ')
 		# Always-required options
 		if not os.path.exists(shutit_global.shutit_global_object.shutit_state_dir + '/cidfiles'):
@@ -3834,6 +3927,7 @@ class ShutIt(object):
 
 
 	def conn_docker_destroy_container(self, host_shutit_session_name, container_shutit_session_name, container_id, loglevel=logging.DEBUG):
+		shutit_global.shutit_global_object.yield_to_draw()
 		# Close connection.
 		self.get_shutit_pexpect_session_from_id(container_shutit_session_name).pexpect_child.close()
 		host_child = self.get_shutit_pexpect_session_from_id(host_shutit_session_name).pexpect_child
@@ -3841,6 +3935,7 @@ class ShutIt(object):
 
 
 	def setup_target_child_environment(self, target_child, target_child_id='target_child',prefix='root'):
+		shutit_global.shutit_global_object.yield_to_draw()
 		# Some pexpect settings
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_id(target_child_id)
 		shutit_pexpect_session.pexpect_child = target_child
@@ -3852,6 +3947,7 @@ class ShutIt(object):
 
 
 	def setup_host_child_environment(self):
+		shutit_global.shutit_global_object.yield_to_draw()
 		# Now let's have a host_child
 		shutit_global.shutit_global_object.log('Spawning host child',level=logging.DEBUG)
 		shutit_pexpect_session = ShutItPexpectSession(self, 'host_child', '/bin/bash')
@@ -3865,6 +3961,7 @@ class ShutIt(object):
 
 
 	def do_exam_output(self):
+		shutit_global.shutit_global_object.yield_to_draw()
 		if self.build['exam_object']:
 			test = self.build['exam_object']
 			test.calculate_score()
@@ -3876,6 +3973,7 @@ class ShutIt(object):
 
 
 	def do_lists(self):
+		shutit_global.shutit_global_object.yield_to_draw()
 		if self.action['list_deps']:
 			cfg = self.cfg
 			# Show dependency graph
@@ -3928,6 +4026,7 @@ class ShutIt(object):
 
 
 	def do_interactive_modules(self):
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		errs = []
 		while True:
@@ -4011,6 +4110,7 @@ class ShutIt(object):
 
 
 	def setup_shutit_obj(self):
+		shutit_global.shutit_global_object.yield_to_draw()
 		# Parse command-line arguments
 		self.parse_args()
 		# Load configuration from files. Should this go before parse_args?
@@ -4062,6 +4162,7 @@ class ShutIt(object):
 
 
 	def setup_shutit_path(self):
+		shutit_global.shutit_global_object.yield_to_draw()
 		# try the current directory, the .. directory, or the ../shutit directory, the ~/shutit
 		if not self.host['add_shutit_to_path']:
 			return
@@ -4096,6 +4197,7 @@ class ShutIt(object):
 	def check_deps(self):
 		"""Dependency checking phase is performed in this method.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		shutit_global.shutit_global_object.log('PHASE: dependencies', level=logging.DEBUG)
 		self.pause_point('\nNow checking for dependencies between modules', print_input=False, level=3)
@@ -4146,6 +4248,7 @@ class ShutIt(object):
 	def check_conflicts(self):
 		"""Checks for any conflicts between modules configured to be built.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		# Now consider conflicts
 		shutit_global.shutit_global_object.log('PHASE: conflicts', level=logging.DEBUG)
@@ -4173,6 +4276,7 @@ class ShutIt(object):
 		each of those configured to be built and not already installed
 		(see shutit.is_installed).
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		shutit_global.shutit_global_object.log('PHASE: check_ready', level=logging.DEBUG)
 		errs = []
@@ -4198,6 +4302,7 @@ class ShutIt(object):
 	def do_remove(self, loglevel=logging.DEBUG):
 		"""Remove modules by calling remove method on those configured for removal.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		# Now get the run_order keys in order and go.
 		shutit_global.shutit_global_object.log('PHASE: remove', level=loglevel)
@@ -4228,6 +4333,7 @@ class ShutIt(object):
 	def build_module(self, module, loglevel=logging.DEBUG):
 		"""Build passed-in module.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		shutit_global.shutit_global_object.log('Building ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order), level=logging.INFO)
 		self.build['report'] = (self.build['report'] + '\nBuilding ShutIt module: ' + module.module_id + ' with run order: ' + str(module.run_order))
@@ -4266,6 +4372,7 @@ class ShutIt(object):
 		"""Runs build phase, building any modules that we've determined
 		need building.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		shutit_global.shutit_global_object.log('PHASE: build, repository work', level=logging.DEBUG)
 		module_id_list = self.module_ids()
@@ -4301,6 +4408,7 @@ class ShutIt(object):
 	def do_test(self):
 		"""Runs test phase, erroring if any return false.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		if not self.build['dotest']:
 			shutit_global.shutit_global_object.log('Tests configured off, not running',level=logging.DEBUG)
 			return
@@ -4322,6 +4430,7 @@ class ShutIt(object):
 		"""Runs finalize phase; run after all builds are complete and all modules
 		have been stopped.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		def _finalize(self):
 			# Stop all the modules
 			self.stop_all()
@@ -4344,6 +4453,7 @@ class ShutIt(object):
 		Used when target is exporting itself mid-build, so we clean up state
 		before committing run files etc.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		# sort them so they're stopped in reverse order
 		for module_id in self.module_ids(rev=True):
 			shutit_module_obj = self.shutit_map[module_id]
@@ -4359,6 +4469,7 @@ class ShutIt(object):
 		Used when target is exporting itself mid-build, so we can export a clean
 		target and still depended-on modules running if necessary.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		# sort them so they're started in order
 		for module_id in self.module_ids():
 			shutit_module_obj = self.shutit_map[module_id]
@@ -4372,6 +4483,7 @@ class ShutIt(object):
 		"""Returns true if this module is ready to be built.
 		Caches the result (as it's assumed not to change during the build).
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		if shutit_module_obj.module_id in self.get_current_shutit_pexpect_session_environment().modules_ready:
 			shutit_global.shutit_global_object.log('is_ready: returning True from cache',level=logging.DEBUG)
 			return True
@@ -4391,6 +4503,7 @@ class ShutIt(object):
 		Sets up common config.
 		Sets up map of modules.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		modules = self.shutit_modules
 		# Have we got anything to process outside of special modules?
 		if len([mod for mod in modules if mod.run_order > 0]) < 1:
@@ -4426,6 +4539,7 @@ class ShutIt(object):
 	def conn_target(self):
 		"""Connect to the target.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		conn_module = None
 		for mod in self.conn_modules:
 			if mod.module_id == self.build['conn_module']:
@@ -4442,6 +4556,7 @@ class ShutIt(object):
 	def finalize_target(self):
 		"""Finalize the target using the core finalize method.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		self.pause_point('\nFinalizing the target module (' + self.shutit_main_dir + '/shutit_setup.py)', print_input=False, level=3)
 		# Can assume conn_module exists at this point
 		for mod in self.conn_modules:
@@ -4456,6 +4571,7 @@ class ShutIt(object):
 	def resolve_dependencies(self, to_build, depender):
 		"""Add any required dependencies.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_global.shutit_global_object.log('In resolve_dependencies',level=logging.DEBUG)
 		cfg = self.cfg
 		for dependee_id in depender.depends_on:
@@ -4471,6 +4587,7 @@ class ShutIt(object):
 	def check_dependee_exists(self, depender, dependee, dependee_id):
 		"""Checks whether a depended-on module is available.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		# If the module id isn't there, there's a problem.
 		if dependee is None:
 			return 'module: \n\n' + dependee_id + '\n\nnot found in paths: ' + str(self.host['shutit_module_path']) + ' but needed for ' + depender.module_id + '\nCheck your --shutit_module_path setting and ensure that all modules configured to be built are in that path setting, eg "--shutit_module_path /path/to/other/module/:."\n\nAlso check that the module is configured to be built with the correct module id in that module\'s configs/build.cnf file.\n\nSee also help.'
@@ -4480,6 +4597,7 @@ class ShutIt(object):
 	def check_dependee_build(self, depender, dependee, dependee_id):
 		"""Checks whether a depended on module is configured to be built.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
 		# If depender is installed or will be installed, so must the dependee
 		if not (cfg[dependee.module_id]['shutit.core.module.build'] or
@@ -4488,6 +4606,7 @@ class ShutIt(object):
 		return ''
 
 	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, color=None):
+		shutit_global.shutit_global_object.yield_to_draw()
 		self = self
 		return shutit_util.get_input(msg,
 		                      default=default,
@@ -4499,6 +4618,7 @@ class ShutIt(object):
 
 	# Pass through log to global function.
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True, color_code=0):
+		shutit_global.shutit_global_object.yield_to_draw()
 		self = self # For linters: we want this to be available to shutit object users
 		shutit_global.shutit_global_object.log(msg,
 		                                       add_final_message=add_final_message,
@@ -4514,6 +4634,7 @@ class ShutIt(object):
 	                   docker_image=None,
 	                   rm=None,
 	                   loglevel='WARNING'):
+		shutit_global.shutit_global_object.yield_to_draw()
 		self = self # For linters: we want this to be available to shutit object users
 		return shutit_global.shutit_global_object.create_session(session_type=session_type,
 		                                                         docker_image=docker_image,
@@ -4521,12 +4642,14 @@ class ShutIt(object):
 		                                                         loglevel=loglevel)
 
 	def get_os(self):
+		shutit_global.shutit_global_object.yield_to_draw()
 		self = self # For linters: we want this to be available to shutit object users
 		return self.current_shutit_pexpect_session.get_os()
 
 
 	# Returns true if the global session is interactive.
 	def is_interactive(self):
+		shutit_global.shutit_global_object.yield_to_draw()
 		return shutit_global.shutit_global_object.determine_interactive()
 
 
@@ -4535,6 +4658,7 @@ def check_dependee_order(depender, dependee, dependee_id):
 	"""
 	# If it depends on a module id, then the module id should be higher up
 	# in the run order.
+	shutit_global.shutit_global_object.yield_to_draw()
 	if dependee.run_order > depender.run_order:
 		return 'depender module id:\n\n' + depender.module_id + '\n\n(run order: ' + str(depender.run_order) + ') ' + 'depends on dependee module_id:\n\n' + dependee_id + '\n\n(run order: ' + str(dependee.run_order) + ') ' + 'but the latter is configured to run after the former'
 	return ''
@@ -4543,6 +4667,7 @@ def check_dependee_order(depender, dependee, dependee_id):
 def make_dep_graph(depender):
 	"""Returns a digraph string fragment based on the passed-in module
 	"""
+	shutit_global.shutit_global_object.yield_to_draw()
 	digraph = ''
 	for dependee_id in depender.depends_on:
 		digraph = (digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n')

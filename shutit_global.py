@@ -44,6 +44,7 @@ import struct
 from distutils.dir_util import mkpath
 import pexpect
 import curtsies
+import threading
 from curtsies.fmtfuncs import black, yellow, magenta, cyan, gray, blue, red, green, on_black, on_dark, on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_gray, bold, dark, underline, blink, invert, plain
 from curtsies.events import PasteEvent
 from curtsies.input import Input
@@ -68,6 +69,11 @@ class ShutItGlobal(object):
 		# Primitive singleton enforcer.
 		assert self.only_one is None, shutit_util.print_debug()
 		self.only_one             = True
+		# Capture the original working directory
+		self.owd                  = os.getcwd()
+		self.global_thread_lock   = threading.Lock()
+		# Acquire the lock by default.
+		self.global_thread_lock.acquire()
 		self.ispy3                = (sys.version_info[0] >= 3)
 
 		self.secret_words_set     = set()
@@ -156,6 +162,10 @@ class ShutItGlobal(object):
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
 
+	def yield_to_draw(self):
+		# Release the lock to allow the screen to be drawn, then acquire again.
+		self.global_thread_lock.release()
+		self.global_thread_lock.acquire()
 
 	def create_session(self,
 	                   session_type='bash',
@@ -411,7 +421,6 @@ class PaneManager(object):
 				self.screen_arr[y:y+1,0:len(line)] = [line]
 		else:
 			assert False, 'Layout not handled: ' + draw_type
-		# TODO: synchronise with main thread to stop race conditions.
 		self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,int(self.wwidth/4*3)))
 
 	def write_out_lines_to_fit_pane(self, pane, p_lines, title):
@@ -448,10 +457,6 @@ class PaneManager(object):
 			# If    this is on the top, and height + top_y value == i (ie this is the last line of the pane)
 			#    OR this is on the bottom (ie top_y is not 1), and height + top_y == i
 			# One or both of these help prevent glitches on the screen. Don't know why. Maybe replace with more standard list TODO
-			while line[-1] not in r'''1234567890qwertyuiopasdfghjklzxcvbnm,./;'#[]}{~@:?><-_=+!"$%^&*()''':
-				line = line[:-1]
-			while line[0] not in r'''1234567890qwertyuiopasdfghjklzxcvbnm,./;'#[]}{~@:?><-_=+!"$%^&*()''':
-				line = line[1:]
 			if (top_y == 1 and available_pane_height + top_y == i) or (top_y != 1 and available_pane_height + top_y == i):
 				self.screen_arr[i:i+1, pane.top_left_x:pane.top_left_x+len(line)] = [cyan(invert(line))]
 			else:
