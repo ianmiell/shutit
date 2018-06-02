@@ -25,7 +25,10 @@ def managing_thread_main():
 	shutit_module_paths = gather_module_paths()
 	while True:
 		# Acquire lock to write screen. Prevents nasty race conditions.
-		shutit_global.shutit_global_object.global_thread_lock.acquire()
+		if shutit_global.shutit_global_object.global_thread_lock.acquire(False):
+			# Go to sleep as spinning doesn't help anyone here.
+			time.sleep(1)
+			continue
 		shutit_global.shutit_global_object.stacktrace_lines_arr = []
 		shutit_global.shutit_global_object.stacktrace_lines_arr.append("*** Context for thread ***")
 		code = []
