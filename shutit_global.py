@@ -73,7 +73,6 @@ class ShutItGlobal(object):
 		self.secret_words_set     = set()
 		self.logfile              = None
 		self.logstream            = None
-		self.logstream_lock       = False
 		self.loglevel             = None
 		self.signal_id            = None
 		self.window_size_max      = 65535
@@ -218,8 +217,6 @@ class ShutItGlobal(object):
 		@param color_code         Color of log line (default based on loglevel).
 		                          if 0, then take defaults, else override
 		"""
-		while self.logstream_lock:
-			time.sleep(0.1)
 		if mask_password:
 			for password in shutit_global_object.secret_words_set:
 				if password in msg:
@@ -415,11 +412,10 @@ class PaneManager(object):
 		else:
 			assert False, 'Layout not handled: ' + draw_type
 		# TODO: synchronise with main thread to stop race conditions.
-		self.logstream_lock = True
 		self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,int(self.wwidth/4*3)))
-		self.logstream_lock = False
 
-
+	global drawcount
+	drawcount=0
 	def write_out_lines_to_fit_pane(self, pane, p_lines, title):
 		assert pane is not None
 		assert isinstance(pane, SessionPane)
@@ -453,6 +449,10 @@ class PaneManager(object):
 			# Status on bottom line
 			# If    this is on the top, and height + top_y value == i (ie this is the last line of the pane)
 			#    OR this is on the bottom (ie top_y is not 1), and height + top_y == i
+			#global drawcount
+			#drawcount+=1
+			#dclen=len(str(drawcount))
+			#line = line[:-dclen] + str(drawcount)
 			if (top_y == 1 and available_pane_height + top_y == i) or (top_y != 1 and available_pane_height + top_y == i):
 				self.screen_arr[i:i+1, pane.top_left_x:pane.top_left_x+len(line)] = [cyan(invert(line))]
 			else:
