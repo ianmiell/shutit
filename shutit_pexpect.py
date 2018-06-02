@@ -587,8 +587,12 @@ class ShutItPexpectSession(object):
 		if maxread != None:
 			self.pexpect_child.maxread = old_maxread
 		# Add to session lines
+		while shutit_global.shutit_global_object.logstream_lock:
+			time.sleep(0.1)
+		shutit_global.shutit_global_object.logstream_lock = True
 		self.session_output_lines.append(PexpectSessionLine(line_str=self.pexpect_child.before, time_seen=time.time(), line_type='log'))
 		self.session_output_lines.append(PexpectSessionLine(line_str=self.pexpect_child.after,  time_seen=time.time(), line_type='log'))
+		shutit_global.shutit_global_object.logstream_lock = False
 		return res
 
 
