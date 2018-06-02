@@ -295,7 +295,8 @@ class ShutItGlobal(object):
 		if isinstance(self.loglevel, int):
 			return
 		logformat='%(asctime)s %(levelname)s: %(message)s'
-		if self.managed_panes:
+		logobj = logging.getLogger(__name__)
+		if self.managed_panes and False:
 			# Set up logging for https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string
 			if self.loglevel == 'DEBUG':
 				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.DEBUG)
@@ -337,7 +338,7 @@ class ShutItGlobal(object):
 				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.INFO)
 			else:
 				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.DEBUG)
-		self.loglevel = logging.getLogger(__name__).getEffectiveLevel()
+		self.loglevel = logobj.getEffectiveLevel()
 
 
 	def handle_exit(self,exit_code=0,loglevel=logging.CRITICAL,msg=None):
