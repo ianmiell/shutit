@@ -414,8 +414,6 @@ class PaneManager(object):
 		# TODO: synchronise with main thread to stop race conditions.
 		self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,int(self.wwidth/4*3)))
 
-	global drawcount
-	drawcount=0
 	def write_out_lines_to_fit_pane(self, pane, p_lines, title):
 		assert pane is not None
 		assert isinstance(pane, SessionPane)
@@ -449,10 +447,11 @@ class PaneManager(object):
 			# Status on bottom line
 			# If    this is on the top, and height + top_y value == i (ie this is the last line of the pane)
 			#    OR this is on the bottom (ie top_y is not 1), and height + top_y == i
-			#global drawcount
-			#drawcount+=1
-			#dclen=len(str(drawcount))
-			#line = line[:-dclen] + str(drawcount)
+			# One or both of these help prevent glitches on the screen. Don't know why. Maybe replace with more standard list TODO
+			while line[-1] not in r'''1234567890qwertyuiopasdfghjklzxcvbnm,./;'#[]}{~@:?><-_=+!"$%^&*()''':
+				line = line[:-1]
+			while line[0] not in r'''1234567890qwertyuiopasdfghjklzxcvbnm,./;'#[]}{~@:?><-_=+!"$%^&*()''':
+				line = line[1:]
 			if (top_y == 1 and available_pane_height + top_y == i) or (top_y != 1 and available_pane_height + top_y == i):
 				self.screen_arr[i:i+1, pane.top_left_x:pane.top_left_x+len(line)] = [cyan(invert(line))]
 			else:
