@@ -384,9 +384,9 @@ class PaneManager(object):
 		self.wheight    = None
 		self.wwidth     = None
 		self.refresh_window()
-	# TODO: logs directed to one pane. https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string - log to stringio and then clear
-	# TODO: send/expect to another
-	# TODO: code context to another
+		# Whether to actually draw the screen - defaults to 'True'
+		self.do_render            = True
+	# TODO: send/expect to a screen
 
 
 	def refresh_window(self):
@@ -429,7 +429,8 @@ class PaneManager(object):
 				self.screen_arr[y:y+1,0:len(line)] = [line]
 		else:
 			assert False, 'Layout not handled: ' + draw_type
-		self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,int(self.wwidth/4*3)))
+		if self.do_render:
+			self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,int(self.wwidth/4*3)))
 
 
 	def write_out_lines_to_fit_pane(self, pane, p_lines, title):

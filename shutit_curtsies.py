@@ -32,8 +32,8 @@ def managing_thread_main():
 	while True:
 		# Acquire lock to write screen. Prevents nasty race conditions.
 		if shutit_global.shutit_global_object.global_thread_lock.acquire(False):
-			# Go to sleep as spinning doesn't help anyone here.
-			time.sleep(1)
+			# Go to sleep if we can't get the lock as spinning causes 100% CPU
+			time.sleep(0.1)
 			continue
 		code = []
 		for thread_id, stack in sys._current_frames().items():
