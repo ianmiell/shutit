@@ -593,11 +593,11 @@ class ShutItPexpectSession(object):
 			self.pexpect_child.maxread = old_maxread
 		# Add to session lines only if pane manager exists.
 		if shutit_global.shutit_global_object.pane_manager is not None:
-			for line_str in self.pexpect_child.before.split('\n'):
-				if isinstance(line_str, (str,unicode)):
+			if isinstance(self.pexpect_child.before, (str,unicode)):
+				for line_str in self.pexpect_child.before.split('\n'):
 					self.session_output_lines.append(SessionPaneLine(line_str=line_str.strip(), time_seen=time.time(), line_type='log'))
-			for line_str in self.pexpect_child.after.split('\n'):
-				if isinstance(line_str, (str,unicode)):
+			if isinstance(self.pexpect_child.after, (str,unicode)):
+				for line_str in self.pexpect_child.after.split('\n'):
 					self.session_output_lines.append(SessionPaneLine(line_str=line_str.strip(),  time_seen=time.time(), line_type='log'))
 		return res
 

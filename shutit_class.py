@@ -1727,6 +1727,7 @@ class ShutIt(object):
 			return True
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		if shutit_pexpect_child:
+			# TODO: comments and context added to pause point message
 			if shutit_global.shutit_global_object.pane_manager is not None:
 				shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
 				shutit_global.shutit_global_object.pane_manager.do_render = False
