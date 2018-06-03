@@ -67,6 +67,10 @@ from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
 from shutit_background import ShutItBackgroundCommand
 from shutit_global import SessionPaneLine
 
+PY3 = sys.version_info[0] >= 3
+if PY3:
+    unicode = str
+
 class ShutItPexpectSession(object):
 
 	def __init__(self,
@@ -587,9 +591,14 @@ class ShutItPexpectSession(object):
 			self.pexpect_child.searchwindowsize = old_searchwindowsize
 		if maxread != None:
 			self.pexpect_child.maxread = old_maxread
-		# Add to session lines
-		self.session_output_lines.append(SessionPaneLine(line_str=self.pexpect_child.before, time_seen=time.time(), line_type='log'))
-		self.session_output_lines.append(SessionPaneLine(line_str=self.pexpect_child.after,  time_seen=time.time(), line_type='log'))
+		# Add to session lines only if pane manager exists.
+		if shutit_global.shutit_global_object.pane_manager is not None:
+			for line_str in self.pexpect_child.before.split('\n'):
+				if isinstance(line_str, (str,unicode)):
+					self.session_output_lines.append(SessionPaneLine(line_str=line_str.strip(), time_seen=time.time(), line_type='log'))
+			for line_str in self.pexpect_child.after.split('\n'):
+				if isinstance(line_str, (str,unicode)):
+					self.session_output_lines.append(SessionPaneLine(line_str=line_str.strip(),  time_seen=time.time(), line_type='log'))
 		return res
 
 

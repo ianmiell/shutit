@@ -51,8 +51,8 @@ from curtsies.input import Input
 import shutit_curtsies
 
 
-PY3 = sys.version_info[0] >= 3                                                                                                                                                                
-if PY3:                                                                                                                                                                                       
+PY3 = sys.version_info[0] >= 3
+if PY3:
 	unicode = str
 
 
@@ -502,11 +502,8 @@ class PaneManager(object):
 		# top_left_pane is the logging pane by default
 		top_left_pane  = self.top_left_session_pane
 		top_right_pane = self.top_right_session_pane
-		for session in self.get_shutit_pexpect_sessions():
-			if session.pexpect_session_pane and session.pexpect_session_pane.name == 'bottom_left':
-				bottom_left_pane    = session.pexpect_session_pane
-			elif session.pexpect_session_pane and session.pexpect_session_pane.name == 'bottom_right':
-				bottom_right_pane   = session.pexpect_session_pane
+		bottom_left_pane = self.bottom_left_session_pane
+		bottom_right_pane = self.bottom_right_session_pane
 		# Keep it simple with 4 panes always for now
 		top_left_pane.set_position(top_left_x=0,                       top_left_y=1,                         bottom_right_x=self.wwidth_left_end, bottom_right_y=self.wheight_bottom_start)
 		top_right_pane.set_position       (top_left_x=self.wwidth_right_start, top_left_y=1,                         bottom_right_x=self.wwidth,          bottom_right_y=self.wheight_bottom_start)
