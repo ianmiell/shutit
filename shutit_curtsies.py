@@ -28,7 +28,7 @@ def managing_thread_main():
 		return shutit_module_paths
 	time.sleep(1)
 	shutit_module_paths = gather_module_paths()
-	shutit_global.shutit_global_object.stacktrace_lines_arr = ['CONTEXT',]
+	shutit_global.shutit_global_object.stacktrace_lines_arr = ['',]
 	while True:
 		# Acquire lock to write screen. Prevents nasty race conditions.
 		if shutit_global.shutit_global_object.global_thread_lock.acquire(False):

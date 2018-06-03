@@ -420,7 +420,7 @@ class PaneManager(object):
 			self.do_layout_default()
 			# TODO: get sessions - for each ShutIt object in shutit_global
 			self.write_out_lines_to_fit_pane(self.top_left_session_pane, self.shutit_global.logstream.getvalue().split('\n'), u'Logs')
-			self.write_out_lines_to_fit_pane(self.top_right_session_pane, self.shutit_global.stacktrace_lines_arr, u'Stack')
+			self.write_out_lines_to_fit_pane(self.top_right_session_pane, self.shutit_global.stacktrace_lines_arr, u'Code Context')
 			#for shutit_pexpect_session in self.get_shutit_pexpect_sessions():
 			#	shutit_pexpect_session.write_out_session_to_fit_pane()
 		elif draw_type == 'clearscreen':
