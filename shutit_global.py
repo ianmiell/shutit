@@ -386,7 +386,6 @@ class PaneManager(object):
 		self.refresh_window()
 		# Whether to actually draw the screen - defaults to 'True'
 		self.do_render            = True
-	# TODO: send/expect to a screen
 
 
 	def refresh_window(self):
@@ -418,11 +417,17 @@ class PaneManager(object):
 		if draw_type == 'default':
 			# Draw the sessions.
 			self.do_layout_default()
-			# TODO: get sessions - for each ShutIt object in shutit_global
-			self.write_out_lines_to_fit_pane(self.top_left_session_pane, self.shutit_global.logstream.getvalue().split('\n'), u'Logs')
+			logstream_lines = []
+			logstream_string_lines_list = self.shutit_global.logstream.getvalue().split('\n')
+			for line in logstream_string_lines_list:
+				logstream_lines.append(SessionPaneLine(line,time.time(),'log'))
+			self.write_out_lines_to_fit_pane(self.top_left_session_pane, logstream_lines, u'Logs')
 			self.write_out_lines_to_fit_pane(self.top_right_session_pane, self.shutit_global.stacktrace_lines_arr, u'Code Context')
+			# get sessions - for each ShutIt object in shutit_global
 			#for shutit_pexpect_session in self.get_shutit_pexpect_sessions():
-			#	shutit_pexpect_session.write_out_session_to_fit_pane()
+			#	self.write_out_lines_to_fit_pane(self.bottom_left_session_pane, shutit_pexpect_session.session_output_lines, u'Session Ouptut')
+			#	# TODO: handle multiple sessions - this breaks out after first
+			#	break
 		elif draw_type == 'clearscreen':
 			for y in range(0,self.wheight):
 				line = u' '*self.wwidth
@@ -442,6 +447,12 @@ class PaneManager(object):
 		# We reserve one row at the end as a pane status line
 		available_pane_height   = pane.get_height() - 1
 		lines_in_pane_str_arr   = []
+		p_lines_str = []
+		for session_pane_line in p_lines:
+			assert isinstance(session_pane_line, SessionPaneLine)
+			p_lines_str.append(session_pane_line.line_str)
+		p_lines = p_lines_str
+		p_lines_str = None
 		# Scrub any ansi escape sequences.
 		ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
 		if not PY3:
@@ -449,28 +460,29 @@ class PaneManager(object):
 		else:
 			lines = [ ansi_escape.sub('', line).strip() for line in p_lines ]
 		# If the last line is blank we can just skip it.
-		if lines[-1] == '':
-			lines = lines[:-1]
-		for line in lines:
-			# Take the next line in the stream. If it's greater than the pane_width,
-			# Then parcel over multiple lines
-			while len(line) > pane_width-1 and len(line) > 0:
-				lines_in_pane_str_arr.append(line[:pane_width-1])
-				line = line[pane_width-1:]
-			lines_in_pane_str_arr.append(line)
-		# Status line:
-		lines_in_pane_str_arr.append(title)
-		top_y                                      = pane.top_left_y
-		bottom_y                                   = pane.bottom_right_y
-		for i, line in zip(reversed(range(top_y,bottom_y)), reversed(lines_in_pane_str_arr)):
-			# Status on bottom line
-			# If    this is on the top, and height + top_y value == i (ie this is the last line of the pane)
-			#    OR this is on the bottom (ie top_y is not 1), and height + top_y == i
-			# One or both of these help prevent glitches on the screen. Don't know why. Maybe replace with more standard list TODO
-			if (top_y == 1 and available_pane_height + top_y == i) or (top_y != 1 and available_pane_height + top_y == i):
-				self.screen_arr[i:i+1, pane.top_left_x:pane.top_left_x+len(line)] = [cyan(invert(line))]
-			else:
-				self.screen_arr[i:i+1, pane.top_left_x:pane.top_left_x+len(line)] = [line]
+		if len(lines) > 0:
+			if lines[-1] == '':
+				lines = lines[:-1]
+			for line in lines:
+				# Take the next line in the stream. If it's greater than the pane_width,
+				# Then parcel over multiple lines
+				while len(line) > pane_width-1 and len(line) > 0:
+					lines_in_pane_str_arr.append(line[:pane_width-1])
+					line = line[pane_width-1:]
+				lines_in_pane_str_arr.append(line)
+			# Status line:
+			lines_in_pane_str_arr.append(title)
+			top_y                                      = pane.top_left_y
+			bottom_y                                   = pane.bottom_right_y
+			for i, line in zip(reversed(range(top_y,bottom_y)), reversed(lines_in_pane_str_arr)):
+				# Status on bottom line
+				# If    this is on the top, and height + top_y value == i (ie this is the last line of the pane)
+				#    OR this is on the bottom (ie top_y is not 1), and height + top_y == i
+				# One or both of these help prevent glitches on the screen. Don't know why. Maybe replace with more standard list TODO
+				if (top_y == 1 and available_pane_height + top_y == i) or (top_y != 1 and available_pane_height + top_y == i):
+					self.screen_arr[i:i+1, pane.top_left_x:pane.top_left_x+len(line)] = [cyan(invert(line))]
+				else:
+					self.screen_arr[i:i+1, pane.top_left_x:pane.top_left_x+len(line)] = [line]
 
 
 	def get_shutit_pexpect_sessions(self):
@@ -532,6 +544,14 @@ class SessionPane(object):
 		return self.bottom_right_x - self.top_left_x
 	def get_height(self):
 		return self.bottom_right_y - self.top_left_y
+
+# Represents a line in the array of output                                                                                                                                  
+class SessionPaneLine(object):
+	def __init__(self, line_str, time_seen, line_type):
+		assert line_type in ('log','before','after')
+		self.line_str        = line_str
+		self.time_seen       = time_seen
+		self.time_seen       = time_seen
 
 
 def setup_signals():

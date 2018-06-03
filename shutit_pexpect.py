@@ -65,6 +65,7 @@ from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
 from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
 from shutit_background import ShutItBackgroundCommand
+from shutit_global import SessionPaneLine
 
 class ShutItPexpectSession(object):
 
@@ -121,7 +122,7 @@ class ShutItPexpectSession(object):
 		                                             delaybeforesend=delaybeforesend)
 		# The pane to which this pexpect session is assigned.
 		self.pexpect_session_pane       = None
-		# Array of PexpectSessionLine objects
+		# Array of SessionPaneLine objects
 		self.session_output_lines      = []
 
 	def __str__(self):
@@ -587,8 +588,8 @@ class ShutItPexpectSession(object):
 		if maxread != None:
 			self.pexpect_child.maxread = old_maxread
 		# Add to session lines
-		self.session_output_lines.append(PexpectSessionLine(line_str=self.pexpect_child.before, time_seen=time.time(), line_type='log'))
-		self.session_output_lines.append(PexpectSessionLine(line_str=self.pexpect_child.after,  time_seen=time.time(), line_type='log'))
+		self.session_output_lines.append(SessionPaneLine(line_str=self.pexpect_child.before, time_seen=time.time(), line_type='log'))
+		self.session_output_lines.append(SessionPaneLine(line_str=self.pexpect_child.after,  time_seen=time.time(), line_type='log'))
 		return res
 
 
@@ -3606,19 +3607,7 @@ $'"""
 			return
 
 
-# Represents a line in the array of output
-class PexpectSessionLine(object):
-	def __init__(self, line_str, time_seen, line_type):
-		assert line_type in ('log','before','after')
-		self.line_str        = line_str
-		self.time_seen       = time_seen
-		self.time_seen       = time_seen
-
-
-
 def add_shutit_pexpect_session_environment(pexpect_session_environment):
 	"""Adds an environment object to a shutit_pexpect_session object.
 	"""
 	shutit_global.shutit_global_object.shutit_pexpect_session_environments.add(pexpect_session_environment)
-
-

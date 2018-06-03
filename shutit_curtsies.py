@@ -9,9 +9,12 @@ import sys
 # TODO: return screen on pause_point
 # TODO: keep a time counter after the line
 # TODO: show context of line (ie lines around)
+# TODO: put the lines into an array of objects and mark the lines as inverted/not
+# TODO: Split the pane into two and show line in top and context in bottom
 
 def managing_thread_main():
 	import shutit_global
+	from shutit_global import SessionPaneLine
 	def gather_module_paths():
 		shutit_global_object = shutit_global.shutit_global_object
 		owd = shutit_global_object.owd
@@ -26,9 +29,10 @@ def managing_thread_main():
 				shutit_module_paths.remove(path)
 				shutit_module_paths.add(owd + '/' + path)
 		return shutit_module_paths
+	# TODO: only do this when ready
 	time.sleep(1)
 	shutit_module_paths = gather_module_paths()
-	shutit_global.shutit_global_object.stacktrace_lines_arr = ['',]
+	shutit_global.shutit_global_object.stacktrace_lines_arr = [SessionPaneLine('',time.time(),'log'),]
 	while True:
 		# Acquire lock to write screen. Prevents nasty race conditions.
 		if shutit_global.shutit_global_object.global_thread_lock.acquire(False):
@@ -50,7 +54,7 @@ def managing_thread_main():
 							code.append('=> %s:%d:%s' % (filename, lineno, name))
 							code.append('%s' % (line,))
 		for line in code:
-			shutit_global.shutit_global_object.stacktrace_lines_arr.append(line)
+			shutit_global.shutit_global_object.stacktrace_lines_arr.append(SessionPaneLine(line,time.time(),'log'))
 		shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='default')
 		shutit_global.shutit_global_object.global_thread_lock.release()
 

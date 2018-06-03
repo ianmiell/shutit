@@ -1722,9 +1722,9 @@ class ShutIt(object):
 		@return:             True if pause point handled ok, else false
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
-		if shutit_global.shutit_global_object.pane_manager is not None:
-			shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
-			shutit_global.shutit_global_object.pane_manager.do_render = False
+		#if shutit_global.shutit_global_object.pane_manager is not None:
+		#	shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
+		#	shutit_global.shutit_global_object.pane_manager.do_render = False
 		if (not shutit_global.shutit_global_object.determine_interactive() or shutit_global.shutit_global_object.interactive < 1 or
 			shutit_global.shutit_global_object.interactive < level):
 			return True
@@ -1736,9 +1736,9 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.log(msg,level=logging.DEBUG)
 			shutit_global.shutit_global_object.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
 			shutit_global.shutit_global_object.handle_exit(exit_code=1)
-		if shutit_global.shutit_global_object.pane_manager is not None:
-			shutit_global.shutit_global_object.pane_manager.do_render = True
-			shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
+		#if shutit_global.shutit_global_object.pane_manager is not None:
+		#	shutit_global.shutit_global_object.pane_manager.do_render = True
+		#	shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
 		self.build['ctrlc_stop'] = False
 		return True
 
