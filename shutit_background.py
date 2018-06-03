@@ -105,7 +105,7 @@ class ShutItBackgroundCommand(object):
 			traceback.print_tb(tb) # Fixed format
 			tb_info = traceback.extract_tb(tb)
 			filename, line, func, text = tb_info[-1]
-			shutit_util.shutit_print('An error occurred on line {} in statement {}'.format(line, text))
+			shutit_global.shutit_global_object.shutit_print('An error occurred on line {} in statement {}'.format(line, text))
 		# Update the run state.
 		updated_run_state = self.sendspec.shutit_pexpect_child.send_and_get_output(""" command ps -o stat """ + self.pid + """ | command sed '1d' """, ignore_background=True)
 		# Ensure we get the first character only, if one exists.
@@ -130,8 +130,8 @@ class ShutItBackgroundCommand(object):
 				traceback.print_tb(tb) # Fixed format
 				tb_info = traceback.extract_tb(tb)
 				filename, line, func, text = tb_info[-1]
-				shutit_util.shutit_print('An error occurred on line {} in statement {}'.format(line, text))
-				shutit_util.shutit_print(self)
+				shutit_global.shutit_global_object.shutit_print('An error occurred on line {} in statement {}'.format(line, text))
+				shutit_global.shutit_global_object.shutit_print(self)
 			# honour sendspec.timeout
 			if self.sendspec.timeout is not None:
 				current_time = time.time()

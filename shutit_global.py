@@ -357,6 +357,10 @@ class ShutItGlobal(object):
 		shutit_util.sanitize_terminal()
 		sys.exit(exit_code)
 
+	def shutit_print(self, msg):
+		if self.pane_manager is not None:
+			print(msg)
+
 
 # shutit_global.shutit_objects have the pexpect sessions in their shutit_pexpect_sessions variable.
 class PaneManager(object):

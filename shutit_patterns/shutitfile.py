@@ -166,7 +166,7 @@ def parse_shutitfile(contents):
 				else:
 					full_line_split = ''.join((full_line[:10000].split()))
 					full_line_strings = re.findall("[^\x00-\x1F\x7F-\xFF]", full_line_split)
-					print('FAILED TO PARSE: ' + full_line_strings[:30] + '[...]')
+					shutit_global.shutit_global_object.shutit_print('FAILED TO PARSE: ' + full_line_strings[:30] + '[...]')
 					return [], False
 				full_line = ''
 	return ret, True
