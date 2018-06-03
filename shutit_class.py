@@ -1722,23 +1722,24 @@ class ShutIt(object):
 		@return:             True if pause point handled ok, else false
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
-		#if shutit_global.shutit_global_object.pane_manager is not None:
-		#	shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
-		#	shutit_global.shutit_global_object.pane_manager.do_render = False
 		if (not shutit_global.shutit_global_object.determine_interactive() or shutit_global.shutit_global_object.interactive < 1 or
 			shutit_global.shutit_global_object.interactive < level):
 			return True
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		if shutit_pexpect_child:
+			if shutit_global.shutit_global_object.pane_manager is not None:
+				shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
+				shutit_global.shutit_global_object.pane_manager.do_render = False
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 			shutit_pexpect_session.pause_point(msg=msg,print_input=print_input,resize=resize,color=color,default_msg=default_msg,wait=wait,interact=interact)
 		else:
 			shutit_global.shutit_global_object.log(msg,level=logging.DEBUG)
 			shutit_global.shutit_global_object.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
 			shutit_global.shutit_global_object.handle_exit(exit_code=1)
-		#if shutit_global.shutit_global_object.pane_manager is not None:
-		#	shutit_global.shutit_global_object.pane_manager.do_render = True
-		#	shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
+		if shutit_pexpect_child:
+			if shutit_global.shutit_global_object.pane_manager is not None:
+				shutit_global.shutit_global_object.pane_manager.do_render = True
+				shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
 		self.build['ctrlc_stop'] = False
 		return True
 

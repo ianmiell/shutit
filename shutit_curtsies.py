@@ -6,7 +6,6 @@ import sys
 
 
 # TODO: reject tmux sessions - it does not seem to play nice
-# TODO: return screen on pause_point
 # TODO: keep a time counter after the line
 # TODO: show context of line (ie lines around)
 # TODO: put the lines into an array of objects and mark the lines as inverted/not
