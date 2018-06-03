@@ -423,11 +423,11 @@ class PaneManager(object):
 				logstream_lines.append(SessionPaneLine(line,time.time(),'log'))
 			self.write_out_lines_to_fit_pane(self.top_left_session_pane, logstream_lines, u'Logs')
 			self.write_out_lines_to_fit_pane(self.top_right_session_pane, self.shutit_global.stacktrace_lines_arr, u'Code Context')
-			# get sessions - for each ShutIt object in shutit_global
-			#for shutit_pexpect_session in self.get_shutit_pexpect_sessions():
-			#	self.write_out_lines_to_fit_pane(self.bottom_left_session_pane, shutit_pexpect_session.session_output_lines, u'Session Output')
-			#	# TODO: handle multiple sessions - this breaks out after first
-			#	break
+			## get sessions - for each ShutIt object in shutit_global
+			for shutit_pexpect_session in self.get_shutit_pexpect_sessions():
+				self.write_out_lines_to_fit_pane(self.bottom_left_session_pane, shutit_pexpect_session.session_output_lines, u'Session Output')
+				# TODO: handle multiple sessions - this breaks out after first
+				break
 		elif draw_type == 'clearscreen':
 			for y in range(0,self.wheight):
 				line = u' '*self.wwidth
@@ -444,6 +444,8 @@ class PaneManager(object):
 		assert isinstance(title, unicode)
 		pane_width  = pane.get_width()
 		pane_height = pane.get_height()
+		assert pane_width > 39
+		assert pane_height > 19
 		# We reserve one row at the end as a pane status line
 		available_pane_height   = pane.get_height() - 1
 		lines_in_pane_str_arr   = []
@@ -549,6 +551,7 @@ class SessionPaneLine(object):
 	def __init__(self, line_str, time_seen, line_type):
 		assert line_type in ('log','before','after')
 		self.line_str        = line_str
+		assert isinstance(line_str, unicode)
 		self.time_seen       = time_seen
 		self.time_seen       = time_seen
 
