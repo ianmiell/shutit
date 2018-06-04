@@ -58,6 +58,7 @@ import textwrap
 import pexpect
 import shutit_util
 import shutit_global
+from shutit_global import SessionPaneLine
 import package_map
 import shutit_class
 from shutit_login_stack import ShutItLoginStack
@@ -65,11 +66,10 @@ from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
 from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
 from shutit_background import ShutItBackgroundCommand
-from shutit_global import SessionPaneLine
 
 PY3 = sys.version_info[0] >= 3
 if PY3:
-    unicode = str
+	unicode = str
 
 class ShutItPexpectSession(object):
 
@@ -1521,7 +1521,7 @@ class ShutItPexpectSession(object):
 		return True
 
 
-	def reset_terminal(self, expect=None):
+	def reset_terminal(self):
 		"""Resets the terminal to as good a state as we can try.
 		Tries to ensure that we have 'expect'ed the last prompt seen.
 		TODO: see how https://github.com/noahspurrier/pexpect/blob/master/pxssh.py handles this
@@ -1543,7 +1543,7 @@ class ShutItPexpectSession(object):
 		time.sleep(0.1)
 		self.pexpect_child.sendline()
 		time.sleep(0.5)
-		x = self.pexpect_child.read_nonblocking(size=1000,timeout=1)
+		self.pexpect_child.read_nonblocking(size=1000,timeout=1)
 		time.sleep(0.1)
 		self.pexpect_child.sendline()
 		time.sleep(0.5)
@@ -1559,7 +1559,6 @@ class ShutItPexpectSession(object):
 			return True
 		return False
 		########################################################################
-		shutit_global.shutit_global_object.log('Resetting terminal done.',level=logging.DEBUG)
 
 
 	def levenshtein_distance(self, a,b):
@@ -3337,7 +3336,7 @@ $'"""
 					shutit_global.shutit_global_object.signal_id = 0
 				else:
 					shutit_global.shutit_global_object.log('Signal not handled: ' + str(shutit_global.shutit_global_object.signal_id),level=logging.CRITICAL,transient=True)
-					
+
 				shutit_global.shutit_global_object.log('\r\nState submitted, checking your work...',level=logging.CRITICAL,transient=True)
 				check_command = follow_on_context.get('check_command')
 				output = self.send_and_get_output(check_command,
@@ -3610,10 +3609,6 @@ $'"""
 				# Return the escape from pexpect char
 				return '\x1d'
 		return input_string
-
-	def write_out_session_to_fit_pane(self):
-		if self.pane is None:
-			return
 
 
 def add_shutit_pexpect_session_environment(pexpect_session_environment):

@@ -3,6 +3,8 @@ off to internal objects such as shutit_pexpect.
 """
 
 from __future__ import print_function
+from distutils.dir_util import mkpath
+from distutils import spawn
 try:
 	from StringIO import StringIO
 except ImportError: # pragma: no cover
@@ -16,24 +18,16 @@ import hashlib
 import imp
 import json
 import logging
-try:
-	from cStringIO import StringIO      # Python 2
-except ImportError:
-	from io import StringIO 
 import operator
 import os
 import tarfile
 import re
 import readline
-import socket
 import string
 import sys
 import subprocess
-import textwrap
 import time
 import shutit
-from distutils.dir_util import mkpath
-from distutils import spawn
 import texttable
 import pexpect
 import shutit_util
@@ -2486,9 +2480,9 @@ class ShutIt(object):
 
 
 	def get_shutit_pexpect_session_id(self, shutit_pexpect_child):
-		shutit_global.shutit_global_object.yield_to_draw()
 		"""Given a pexpect child object, return the shutit_pexpect_session_id object.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		if not isinstance(shutit_pexpect_child, pexpect.pty_spawn.spawn):
 			self.fail('Wrong type in get_shutit_pexpect_session_id',throw_exception=True) # pragma: no cover
 		for key in self.shutit_pexpect_sessions:
@@ -2498,9 +2492,9 @@ class ShutIt(object):
 
 
 	def get_shutit_pexpect_session_from_id(self, shutit_pexpect_id):
-		shutit_global.shutit_global_object.yield_to_draw()
 		"""Get the pexpect session from the given identifier.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		for key in self.shutit_pexpect_sessions:
 			if self.shutit_pexpect_sessions[key].pexpect_session_id == shutit_pexpect_id:
 				return self.shutit_pexpect_sessions[key]
@@ -3234,13 +3228,14 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
 		# Set up global object
-		shutit_global.shutit_global_object.logfile  = args.logfile
-		shutit_global.shutit_global_object.loglevel = args.log
-		shutit_global.shutit_global_object.nocolor  = args.nocolor
-		# Logging
-		if shutit_global.shutit_global_object.loglevel in ('', None):
-			shutit_global.shutit_global_object.loglevel = 'INFO'
-		shutit_global.shutit_global_object.setup_logging()
+		if not shutit_global.shutit_global_object.logging_setup_done:
+			shutit_global.shutit_global_object.logfile  = args.logfile
+			shutit_global.shutit_global_object.loglevel = args.log
+			shutit_global.shutit_global_object.nocolor  = args.nocolor
+			# Logging
+			if shutit_global.shutit_global_object.loglevel in ('', None):
+				shutit_global.shutit_global_object.loglevel = 'INFO'
+			shutit_global.shutit_global_object.setup_logging()
 
 		# What are we asking shutit to do?
 		self.action['list_configs'] = args.action == 'list_configs'
@@ -3733,7 +3728,6 @@ class ShutIt(object):
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
-			                             log=args.log,
 			                             delivery=args.delivery,
 			                             shutitfiles=args.shutitfiles,
 			                             script=args.script,
@@ -3756,7 +3750,6 @@ class ShutIt(object):
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
-			                             log=args.log,
 			                             shutitfiles=args.shutitfiles,
 			                             echo=args.echo,
 			                             delivery = args.delivery))
@@ -3771,7 +3764,6 @@ class ShutIt(object):
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
-			                             log=args.log,
 			                             push=args.push,
 			                             export=args.export,
 			                             save=args.save,
@@ -3811,13 +3803,11 @@ class ShutIt(object):
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
-			                             log=args.log,
 			                             history=args.history))
 		elif args.action == 'list_modules':
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
-			                             log=args.log,
 			                             sort=args.sort,
 			                             long=args.long))
 
