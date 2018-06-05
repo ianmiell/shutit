@@ -144,7 +144,7 @@ class ShutItInit(object):
 	def __init__(self,
 	             action,
 	             logfile='',
-	             log='',
+	             loglevel='',
 	             nocolor=False,
 	             delivery='bash',
 	             accept=False,
@@ -191,12 +191,12 @@ class ShutItInit(object):
 	             exam=False):
 
 		assert isinstance(action,str), shutit_util.print_debug()
-		assert isinstance(log,str), shutit_util.print_debug()
+		assert isinstance(loglevel,str), shutit_util.print_debug()
 
-		self.action  = action
-		self.logfile = logfile
-		self.log     = log
-		self.nocolor = nocolor
+		self.action   = action
+		self.logfile  = logfile
+		self.loglevel = loglevel
+		self.nocolor  = nocolor
 
 		if self.action == 'version':
 			return
@@ -683,7 +683,6 @@ class ShutIt(object):
 	golf     = challenge
 
 
-
 	def send(self,
 	         send,
 	         expect=None,
@@ -806,7 +805,7 @@ class ShutIt(object):
 		                                                     retbool=True)
 
 
-	def handle_note(self, note, command='', training_input=''):
+	def handle_note(self, note, command='', training_input='', shutit_pexpect_child):
 		"""Handle notes and walkthrough option.
 
 		@param note:                 See send()
@@ -3230,7 +3229,7 @@ class ShutIt(object):
 		# Set up global object
 		if not shutit_global.shutit_global_object.logging_setup_done:
 			shutit_global.shutit_global_object.logfile  = args.logfile
-			shutit_global.shutit_global_object.loglevel = args.log
+			shutit_global.shutit_global_object.loglevel = args.loglevel
 			shutit_global.shutit_global_object.nocolor  = args.nocolor
 			# Logging
 			if shutit_global.shutit_global_object.loglevel in ('', None):
@@ -3454,7 +3453,7 @@ class ShutIt(object):
 		module_domain    = module_name + '.' + module_name
 		shutitfiles      = args.shutitfiles
 		echo             = args.echo
-		log              = args.log
+		loglevel         = args.loglevel
 		argv_new = [sys.argv[0],'skeleton','--shutitfile'] + shutitfiles + ['--name', module_dir,'--domain',module_domain,'--pattern','bash']
 		retdir = os.getcwd()
 		subprocess.call(argv_new)
@@ -3462,9 +3461,9 @@ class ShutIt(object):
 		run_cmd = ['./run.sh']
 		if echo:
 			run_cmd.append('--echo')
-		if log and isinstance(log,str):
+		if loglevel and isinstance(loglevel,str):
 			run_cmd.append('-l')
-			run_cmd.append(log)
+			run_cmd.append(loglevel)
 		subprocess.call(run_cmd)
 		os.chdir(retdir)
 
@@ -3727,6 +3726,7 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
+			                             loglevel=args.log,
 			                             nocolor=args.nocolor,
 			                             delivery=args.delivery,
 			                             shutitfiles=args.shutitfiles,
@@ -3749,6 +3749,7 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
+			                             loglevel=args.log,
 			                             nocolor=args.nocolor,
 			                             shutitfiles=args.shutitfiles,
 			                             echo=args.echo,
@@ -3763,6 +3764,7 @@ class ShutIt(object):
 				shutit_global.shutit_global_object.logstream   = StringIO()
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
+			                             loglevel=args.log,
 			                             nocolor=args.nocolor,
 			                             push=args.push,
 			                             export=args.export,

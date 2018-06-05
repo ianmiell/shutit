@@ -187,7 +187,7 @@ class ShutItGlobal(object):
 			                                   echo=echo,
 			                                   walkthrough=walkthrough,
 			                                   walkthrough_wait=walkthrough_wait,
-			                                   log=loglevel))
+			                                   loglevel=loglevel))
 			# TODO: can we get rid of/rationalise load_configs?
 			new_shutit.load_configs()
 			new_shutit.setup_host_child_environment()
@@ -199,7 +199,7 @@ class ShutItGlobal(object):
 			                                   echo=echo,
 			                                   walkthrough=walkthrough,
 			                                   walkthrough_wait=walkthrough_wait,
-			                                   log=loglevel))
+			                                   loglevel=loglevel))
 			new_shutit.target['rm'] = rm
 			# TODO: can we get rid of/rationalise load_configs?
 			new_shutit.load_configs()
