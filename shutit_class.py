@@ -2525,13 +2525,13 @@ class ShutIt(object):
 		# Should we echo the output?
 		if shutit_global.shutit_global_object.managed_panes:
 			# Never echo if in managed panes
-			echo = False
-		elif self.build['always_echo'] is True or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
+			return False
+		if self.build['always_echo'] is True or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
 			# Yes if it's set to always echo or is in debug
 			echo = True
-		if echo is None and self.build['walkthrough']:
-			# Yes if it's in walkthrough and was not explicitly passed in
-			echo = True
+		#if echo is None and self.build['walkthrough']:
+		#	# Yes if it's in walkthrough and was not explicitly passed in
+		#	echo = True
 		if echo is None:
 			# No if it was not explicitly passed in
 			echo = False
