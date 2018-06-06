@@ -11,7 +11,7 @@ setup(
 	# the version across setup.py and the project code, see
 	# https://packaging.python.org/en/latest/single_source_version.html
 
-	version='1.0.117',
+	version='1.0.118',
 	description='A programmable automation tool designed for complex builds',
 	long_description='A programmable shell-based (pexpect) automation tool designed for complex builds. See: http://ianmiell.github.io/shutit',
 
