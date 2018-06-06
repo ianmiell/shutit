@@ -775,6 +775,7 @@ class ShutItPexpectSession(object):
 				try:
 					assert not self.sendline(ShutItSendSpec(self,
 					                                        send='',
+					                                        echo=False,
 					                                        ignore_background=True)), shutit_util.print_debug()
 				except Exception:
 					pass
