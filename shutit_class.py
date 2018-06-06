@@ -805,7 +805,7 @@ class ShutIt(object):
 		                                                     retbool=True)
 
 
-	def handle_note(self, note, command='', training_input='', shutit_pexpect_child):
+	def handle_note(self, note, command='', training_input=''):
 		"""Handle notes and walkthrough option.
 
 		@param note:                 See send()
@@ -4632,12 +4632,14 @@ class ShutIt(object):
 	def create_session(self,
 	                   session_type='bash',
 	                   docker_image=None,
+	                   walkthrough=False,
 	                   rm=None,
 	                   loglevel='WARNING'):
 		shutit_global.shutit_global_object.yield_to_draw()
 		self = self # For linters: we want this to be available to shutit object users
 		return shutit_global.shutit_global_object.create_session(session_type=session_type,
 		                                                         docker_image=docker_image,
+		                                                         walkthrough=walkthrough,
 		                                                         rm=rm,
 		                                                         loglevel=loglevel)
 
