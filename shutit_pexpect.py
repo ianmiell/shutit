@@ -389,7 +389,7 @@ class ShutItPexpectSession(object):
 			self.setup_prompt(r_id,capture_exit_code=True)
 		self.login_stack.append(r_id)
 		shutit_global.shutit_global_object.log('Login stack after login: ' + str(self.login_stack),level=logging.DEBUG)
-		if self.send_and_get_output(''' echo $SHUTIT_EC && unset SHUTIT_EC''',loglevel=logging.DEBUG) != '0':
+		if self.send_and_get_output(''' echo $SHUTIT_EC && unset SHUTIT_EC''', loglevel=logging.DEBUG, echo=False) != '0':
 			# TODO: remove just-added login stack item (since we failed to log in successfully)?
 			if sendspec.fail_on_fail: # pragma: no cover
 				self.shutit.fail('Login failure! You may want to re-run shutit with --echo or -l debug and scroll up to see what the problem was.')
@@ -805,6 +805,7 @@ class ShutItPexpectSession(object):
 						# Give them a 'normal' shell.
 						assert not self.sendline(ShutItSendSpec(self,
 						                                        send=' bash',
+						                                        echo=False,
 						                                        ignore_background=True)), shutit_util.print_debug()
 						self.expect('.*')
 					else:
@@ -824,6 +825,7 @@ class ShutItPexpectSession(object):
 						assert not self.send(ShutItSendSpec(self,
 						                                    send=' exit',
 						                                    check_exit=False,
+						                                    echo=False,
 						                                    ignore_background=True)), shutit_util.print_debug()
 					else:
 						shutit_global.shutit_global_object.log('Cannot exit as not in shell',level=logging.DEBUG)
@@ -1411,6 +1413,7 @@ class ShutItPexpectSession(object):
 				self.send(ShutItSendSpec(self,
 				                         send='apt-get ' + opts + ' update',
 				                         loglevel=logging.INFO,
+				                         echo=False,
 				                         run_in_background=False,
 				                         ignore_background=False,
 				                         block_other_commands=True))
@@ -1493,6 +1496,7 @@ class ShutItPexpectSession(object):
 					                               timeout=timeout,
 					                               check_exit=False,
 					                               loglevel=loglevel,
+				                                   echo=False,
 					                               ignore_background=ignore_background,
 					                               run_in_background=run_in_background,
 				                                   block_other_commands=block_other_commands))
@@ -1684,6 +1688,7 @@ class ShutItPexpectSession(object):
 			                         send='%s %s %s' % (cmd, opts, package),
 			                         timeout=timeout,
 			                         exit_values=['0','100'],
+				                     echo=False,
 			                         ignore_background=False,
 			                         run_in_background=False,
 			                         block_other_commands=True))
@@ -3446,7 +3451,7 @@ $'"""
 			                         check_exit=False,
 			                         check_sudo=False,
 			                         ignore_background=True))
-			if self.send_and_get_output(' echo $?') == '0':
+			if self.send_and_get_output(' echo $?', echo=False) == '0':
 				shutit_global.shutit_global_object.log('check_sudo returning True',level=logging.DEBUG)
 				return True
 		shutit_global.shutit_global_object.log('check_sudo returning False',level=logging.DEBUG)

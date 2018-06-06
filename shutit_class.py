@@ -1725,7 +1725,7 @@ class ShutIt(object):
 				shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
 				shutit_global.shutit_global_object.pane_manager.do_render = False
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-			shutit_pexpect_session.pause_point(msg=msg,print_input=print_input,resize=resize,color=color,default_msg=default_msg,wait=wait,interact=interact)
+			shutit_pexpect_session.pause_point(msg=msg, print_input=print_input, resize=resize, color=color, default_msg=default_msg, wait=wait, interact=interact)
 		else:
 			shutit_global.shutit_global_object.log(msg,level=logging.DEBUG)
 			shutit_global.shutit_global_object.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
@@ -2529,9 +2529,9 @@ class ShutIt(object):
 		if self.build['always_echo'] is True or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
 			# Yes if it's set to always echo or is in debug
 			echo = True
-		#if echo is None and self.build['walkthrough']:
-		#	# Yes if it's in walkthrough and was not explicitly passed in
-		#	echo = True
+		if echo is None and self.build['walkthrough']:
+			# Yes if it's in walkthrough and was not explicitly passed in
+			echo = True
 		if echo is None:
 			# No if it was not explicitly passed in
 			echo = False
