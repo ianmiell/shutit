@@ -902,6 +902,7 @@ class ShutIt(object):
 	               script,
 	               shutit_pexpect_child=None,
 	               in_shell=True,
+	               echo=None,
 	               note=None,
 	               loglevel=logging.DEBUG):
 		"""Run the passed-in string as a script on the target's command line.
@@ -918,7 +919,11 @@ class ShutIt(object):
 		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.run_script(script,in_shell=in_shell,note=note,loglevel=loglevel)
+		return shutit_pexpect_session.run_script(script,
+		                                         in_shell=in_shell,	
+		                                         echo=echo,
+		                                         note=note,
+		                                         loglevel=loglevel)
 
 
 	def send_file(self,
@@ -928,6 +933,7 @@ class ShutIt(object):
 	              truncate=False,
 	              note=None,
 	              user=None,
+	              echo=False,
 	              group=None,
 	              loglevel=logging.INFO,
 	              encoding=None):
@@ -951,6 +957,7 @@ class ShutIt(object):
 		                                        contents,
 		                                        truncate=truncate,
 		                                        note=note,
+		                                        echo=echo,
 		                                        user=user,
 		                                        group=group,
 		                                        loglevel=loglevel,
@@ -1828,6 +1835,7 @@ class ShutIt(object):
 	            timeout=shutit_global.shutit_global_object.default_timeout,
 	            force=False,
 	            check_exit=True,
+	            echo=None,
 	            reinstall=False,
 	            background=False,
 	            wait=False,
@@ -1868,6 +1876,7 @@ class ShutIt(object):
 		                                      force=force,
 		                                      check_exit=check_exit,
 		                                      reinstall=reinstall,
+		                                      echo=echo,
 		                                      note=note,
 		                                      run_in_background=background,
 		                                      ignore_background=ignore_background,
@@ -1879,6 +1888,7 @@ class ShutIt(object):
 	           package,
 	           shutit_pexpect_child=None,
 	           options=None,
+	           echo=None,
 	           timeout=shutit_global.shutit_global_object.default_timeout,
 	           note=None):
 		"""Distro-independent remove function.
@@ -1903,6 +1913,7 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.remove(package,
+		                                     echo=echo,
 		                                     options=options,
 		                                     timeout=timeout,
 		                                     note=note)
@@ -4320,7 +4331,7 @@ class ShutIt(object):
 				else:
 					if self.build['delivery'] in ('docker','dockerfile'):
 						# Create a directory and files to indicate this has been removed.
-						self.send(' command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + ' && command rm -f ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/built && command touch ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
+						self.send(' command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + ' && command rm -f ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/built && command touch ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/removed', loglevel=loglevel, echo=False)
 						# Remove from "installed" cache
 						if module.module_id in self.get_current_shutit_pexpect_session_environment().modules_installed:
 							self.get_current_shutit_pexpect_session_environment().modules_installed.remove(module.module_id)
@@ -4342,7 +4353,7 @@ class ShutIt(object):
 		else:
 			if self.build['delivery'] in ('docker','dockerfile'):
 				# Create a directory and files to indicate this has been built.
-				self.send(' command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + ' && command touch ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/built && command rm -f ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/removed', loglevel=loglevel)
+				self.send(' command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + ' && command touch ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/built && command rm -f ' + shutit_global.shutit_global_object.shutit_state_dir_build_db_dir + '/module_record/' + module.module_id + '/removed', loglevel=loglevel, echo=False)
 			# Put it into "installed" cache
 			self.get_current_shutit_pexpect_session_environment().modules_installed.append(module.module_id)
 			# Remove from "not installed" cache

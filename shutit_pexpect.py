@@ -1229,6 +1229,7 @@ class ShutItPexpectSession(object):
 	def package_installed(self,
 	                      package,
 	                      note=None,
+	                      echo=False,
 	                      loglevel=logging.DEBUG):
 		"""Returns True if we can be sure the package is installed.
 
@@ -1242,11 +1243,12 @@ class ShutItPexpectSession(object):
 		# THIS DOES NOT WORK - WHY? TODO
 		if self.current_environment.install_type == 'apt':
 			#                                v the space is intentional, to avoid polluting bash history.
-			return self.send_and_get_output(' dpkg -s ' + package + """ | grep '^Status: install ok installed' | wc -l""",loglevel=loglevel) == '1'
+			return self.send_and_get_output(' dpkg -s ' + package + """ | grep '^Status: install ok installed' | wc -l""", loglevel=loglevel, echo=echo) == '1'
 		elif self.current_environment.install_type == 'yum':
 			# TODO: check whether it's already installed?. see yum notes  yum list installed "$@" >/dev/null 2>&1
 			self.send(ShutItSendSpec(self,
 			                         send=' yum list installed ' + package + ' >/dev/null 2>&1',
+			                         echo=echo,
 			                         check_exit=False,
 			                         loglevel=loglevel,
 			                         ignore_background=True))
@@ -1352,6 +1354,7 @@ class ShutItPexpectSession(object):
 	            timeout=shutit_global.shutit_global_object.default_timeout,
 	            force=False,
 	            check_exit=True,
+	            echo=None,
 	            reinstall=False,
 	            run_in_background=False,
 	            ignore_background=False,
@@ -1413,7 +1416,7 @@ class ShutItPexpectSession(object):
 				self.send(ShutItSendSpec(self,
 				                         send='apt-get ' + opts + ' update',
 				                         loglevel=logging.INFO,
-				                         echo=False,
+				                         echo=echo,
 				                         run_in_background=False,
 				                         ignore_background=False,
 				                         block_other_commands=True))
@@ -1482,7 +1485,7 @@ class ShutItPexpectSession(object):
 					                                    timeout=timeout,
 					                                    check_exit=False,
 					                                    loglevel=loglevel,
-					                                    echo=False,
+					                                    echo=echo,
 					                                    secret=True))
 					if res == -1:
 						## Should not happen
@@ -1496,7 +1499,7 @@ class ShutItPexpectSession(object):
 					                               timeout=timeout,
 					                               check_exit=False,
 					                               loglevel=loglevel,
-				                                   echo=False,
+				                                   echo=echo,
 					                               ignore_background=ignore_background,
 					                               run_in_background=run_in_background,
 				                                   block_other_commands=block_other_commands))
@@ -1609,6 +1612,7 @@ class ShutItPexpectSession(object):
 
 	def remove(self,
 	           package,
+	           echo=None,
 	           options=None,
 	           timeout=shutit_global.shutit_global_object.default_timeout,
 	           note=None):
@@ -1678,7 +1682,7 @@ class ShutItPexpectSession(object):
 			                                    send_dict={'assword:':[pw,True]},
 			                                    timeout=timeout,
 			                                    exit_values=['0','100'],
-			                                    echo=False,
+			                                    echo=echo,
 			                                    secret=True))
 			if res == -1:
 				# Should not happen
@@ -1688,7 +1692,7 @@ class ShutItPexpectSession(object):
 			                         send='%s %s %s' % (cmd, opts, package),
 			                         timeout=timeout,
 			                         exit_values=['0','100'],
-				                     echo=False,
+				                     echo=echo,
 			                         ignore_background=False,
 			                         run_in_background=False,
 			                         block_other_commands=True))
@@ -2892,13 +2896,14 @@ $'"""
 	send_and_expect = send
 
 
-	def quick_send(self, send, loglevel=logging.INFO):
+	def quick_send(self, send, echo=None, loglevel=logging.INFO):
 		"""Quick and dirty send that ignores background tasks. Intended for internal use.
 		"""
 		shutit_global.shutit_global_object.log('Quick send: ' + send, level=loglevel)
 		res = self.sendline(ShutItSendSpec(self,
 		                                    send=send,
 		                                    check_exit=False,
+		                                    echo=echo,
 		                                    fail_on_empty_before=False,
 		                                    record_command=False,
 		                                    ignore_background=True))
@@ -2973,7 +2978,7 @@ $'"""
 			if truncate and self.file_exists(path):
 				self.send(ShutItSendSpec(self,
 				                         send=' command rm -f ' + path,
-				                         echo=echo,
+				                         echo=False,
 				                         loglevel=loglevel,
 				                         ignore_background=True))
 			random_id = shutit_util.random_id()
@@ -3014,6 +3019,7 @@ $'"""
 			self.send(ShutItSendSpec(self,
 			                         send=' command rm -f ' + path + '.' + random_id,
 			                         loglevel=loglevel,
+			                         echo=False,
 			                         ignore_background=True))
 		else:
 			host_child = shutit.get_shutit_pexpect_session_from_id('host_child').pexpect_child
@@ -3075,6 +3081,7 @@ $'"""
 	def run_script(self,
 	               script,
 	               in_shell=True,
+	               echo=None,
 	               note=None,
 	               loglevel=logging.DEBUG):
 		"""Run the passed-in string as a script on the target's command line.
@@ -3103,11 +3110,12 @@ $'"""
 		# Send the script and run it in the manner specified
 		if shutit.build['delivery'] in ('docker','dockerfile') and in_shell:
 			script = ('set -o xtrace \n\n' + script + '\n\nset +o xtrace')
-		self.quick_send('command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts && chmod 777 ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts')
+		self.quick_send('command mkdir -p ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts && chmod 777 ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts', echo=False)
 		self.send_file(shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh',
 		               script,
+		               echo=False,
 		               loglevel=loglevel)
-		self.quick_send('command chmod +x ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh')
+		self.quick_send('command chmod +x ' + shutit_global.shutit_global_object.shutit_state_dir + '/scripts/shutit_script.sh', echo=False)
 		shutit.build['shutit_command_history'].append('    ' + script.replace('\n', '\n    '))
 		if in_shell:
 			ret = self.send(ShutItSendSpec(self,
@@ -3448,6 +3456,7 @@ $'"""
 		if self.command_available('sudo'):
 			self.send(ShutItSendSpec(self,
 			                         send=' sudo -n echo',
+			                         echo=False,
 			                         check_exit=False,
 			                         check_sudo=False,
 			                         ignore_background=True))
