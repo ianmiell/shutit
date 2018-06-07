@@ -815,7 +815,11 @@ class ShutItPexpectSession(object):
 					self.pexpect_child.interact()
 				try:
 					#shutit_global.shutit_global_object.shutit_print('pre interact')
-					self.pexpect_child.interact(input_filter=self._pause_input_filter)
+					if PY3:
+						# For some reason interact barfs when we use _pause_input_filter, so drop it for PY3: https://github.com/pexpect/pexpect/blob/master/pexpect/pty_spawn.py#L819
+						self.pexpect_child.interact()
+					else:
+						self.pexpect_child.interact(input_filter=self._pause_input_filter)
 					#shutit_global.shutit_global_object.shutit_print('post interact')
 					self.handle_pause_point_signals()
 					#shutit_global.shutit_global_object.shutit_print('post handle_pause_point_signals')
