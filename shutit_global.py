@@ -358,7 +358,7 @@ class ShutItGlobal(object):
 		sys.exit(exit_code)
 
 	def shutit_print(self, msg):
-		if self.pane_manager is not None:
+		if self.pane_manager is None:
 			print(msg)
 
 
