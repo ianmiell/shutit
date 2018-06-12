@@ -62,3 +62,13 @@ def track_main_thread():
 	t = threading.Thread(target=managing_thread_main)
 	t.daemon = True
 	t.start()
+
+
+def managing_thread_main_simple():
+	while True:
+		time.sleep(100)
+	
+
+def track_main_thread_simple():
+	t = threading.Thread(target=managing_thread_main_simple)
+	t.daemon = True

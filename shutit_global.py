@@ -81,6 +81,7 @@ class ShutItGlobal(object):
 		self.logstream            = None
 		self.loglevel             = None
 		self.logging_setup_done   = False
+		self.last_log_time        = time.now()
 		self.signal_id            = None
 		self.window_size_max      = 65535
 		self.username             = os.environ.get('LOGNAME', '')
@@ -228,6 +229,7 @@ class ShutItGlobal(object):
 		@param color_code         Color of log line (default based on loglevel).
 		                          if 0, then take defaults, else override
 		"""
+		self.last_log_time = time.now()
 		if mask_password:
 			for password in shutit_global_object.secret_words_set:
 				if password in msg:
@@ -295,6 +297,8 @@ class ShutItGlobal(object):
 			self.nocolor          = True
 			self.pane_manager     = PaneManager(self)
 			shutit_curtsies.track_main_thread()
+		else:
+			shutit_curtsies.track_main_thread_simple()
 		logformat='%(asctime)s %(levelname)s: %(message)s'
 		logobj = logging.getLogger(__name__)
 		if self.managed_panes:
