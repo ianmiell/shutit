@@ -50,6 +50,8 @@ import shutit
 
 if shutit_global.shutit_global_object.ispy3:
 	from builtins import input
+else:
+	input=raw_input
 
 
 def is_file_secure(file_name):
