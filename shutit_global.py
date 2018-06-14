@@ -48,7 +48,7 @@ import threading
 from curtsies.fmtfuncs import black, yellow, magenta, cyan, gray, blue, red, green, on_black, on_dark, on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_gray, bold, dark, underline, blink, invert, plain
 from curtsies.events import PasteEvent
 from curtsies.input import Input
-import shutit_curtsies
+import shutit_threads
 
 
 PY3 = sys.version_info[0] >= 3
@@ -81,7 +81,8 @@ class ShutItGlobal(object):
 		self.logstream            = None
 		self.loglevel             = None
 		self.logging_setup_done   = False
-		self.last_log_time        = time.now()
+		self.last_log_time        = time.time()
+		self.log_trace_when_idle  = False
 		self.signal_id            = None
 		self.window_size_max      = 65535
 		self.username             = os.environ.get('LOGNAME', '')
@@ -229,7 +230,6 @@ class ShutItGlobal(object):
 		@param color_code         Color of log line (default based on loglevel).
 		                          if 0, then take defaults, else override
 		"""
-		self.last_log_time = time.now()
 		if mask_password:
 			for password in shutit_global_object.secret_words_set:
 				if password in msg:
@@ -251,6 +251,7 @@ class ShutItGlobal(object):
 				msg = shutit_util.colorise(color_code,msg)
 		# Message now in color if configured to be.
 		if transient:
+			self.last_log_time = time.time()
 			if sys.stdout.isatty():
 				if newline:
 					msg += '\r\n'
@@ -258,6 +259,10 @@ class ShutItGlobal(object):
 			else:
 				return True
 		else:
+			logobj = logging.getLogger(__name__)
+			if logobj.getEffectiveLevel() <= level:
+				self.last_log_time = time.time()
+				logobj.log(level,msg)
 			logging.log(level,msg)
 			if add_final_message:
 				self.report_final_messages = self.report_final_messages + '\r\n' + msg + '\r\n'
@@ -296,9 +301,9 @@ class ShutItGlobal(object):
 		if self.managed_panes:
 			self.nocolor          = True
 			self.pane_manager     = PaneManager(self)
-			shutit_curtsies.track_main_thread()
+			shutit_threads.track_main_thread()
 		else:
-			shutit_curtsies.track_main_thread_simple()
+			shutit_threads.track_main_thread_simple()
 		logformat='%(asctime)s %(levelname)s: %(message)s'
 		logobj = logging.getLogger(__name__)
 		if self.managed_panes:

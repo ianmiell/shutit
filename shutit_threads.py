@@ -10,24 +10,25 @@ import sys
 # TODO: show context of line (ie lines around)
 # TODO: put the lines into an array of objects and mark the lines as inverted/not
 # TODO: Split the pane into two and show line in top and context in bottom
+def gather_module_paths():
+	import shutit_global
+	shutit_global_object = shutit_global.shutit_global_object
+	owd = shutit_global_object.owd
+	shutit_module_paths = set()
+	for shutit_object in shutit_global.shutit_global_object.shutit_objects:
+		shutit_module_paths = shutit_module_paths.union(set(shutit_object.host['shutit_module_path']))
+	if '.' in shutit_module_paths:
+		shutit_module_paths.remove('.')
+		shutit_module_paths.add(owd)
+	for path in shutit_module_paths:
+		if path[0] != '/':
+			shutit_module_paths.remove(path)
+			shutit_module_paths.add(owd + '/' + path)
+	return shutit_module_paths
 
 def managing_thread_main():
 	import shutit_global
 	from shutit_global import SessionPaneLine
-	def gather_module_paths():
-		shutit_global_object = shutit_global.shutit_global_object
-		owd = shutit_global_object.owd
-		shutit_module_paths = set()
-		for shutit_object in shutit_global.shutit_global_object.shutit_objects:
-			shutit_module_paths = shutit_module_paths.union(set(shutit_object.host['shutit_module_path']))
-		if '.' in shutit_module_paths:
-			shutit_module_paths.remove('.')
-			shutit_module_paths.add(owd)
-		for path in shutit_module_paths:
-			if path[0] != '/':
-				shutit_module_paths.remove(path)
-				shutit_module_paths.add(owd + '/' + path)
-		return shutit_module_paths
 	# TODO: only do this when ready
 	time.sleep(1)
 	shutit_module_paths = gather_module_paths()
@@ -65,10 +66,25 @@ def track_main_thread():
 
 
 def managing_thread_main_simple():
+	import shutit_global
+	# TODO: only do this when ready - see above also
+	#time.sleep(1)
 	while True:
-		time.sleep(100)
+		if shutit_global.shutit_global_object.log_trace_when_idle and time.time() - shutit_global.shutit_global_object.last_log_time > 5:
+			for thread_id, stack in sys._current_frames().items():
+				# ignore own thread:
+				if thread_id == threading.current_thread().ident:
+					continue
+				for filename, lineno, name, line in traceback.extract_stack(stack):
+					# if the file is in the same folder or subfolder as a folder in: self.host['shutit_module_path']
+					# then show that context
+					line = '===> ' + str(line.strip())
+					print('=> %s:%d:%s' % (filename, lineno, name))
+					print('%s' % (line,))
+		time.sleep(5)
 	
 
 def track_main_thread_simple():
 	t = threading.Thread(target=managing_thread_main_simple)
 	t.daemon = True
+	t.start()
