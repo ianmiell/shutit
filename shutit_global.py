@@ -82,7 +82,7 @@ class ShutItGlobal(object):
 		self.loglevel             = None
 		self.logging_setup_done   = False
 		self.last_log_time        = time.time()
-		self.log_trace_when_idle  = False
+		self.log_trace_when_idle  = True
 		self.signal_id            = None
 		self.window_size_max      = 65535
 		self.username             = os.environ.get('LOGNAME', '')
@@ -262,8 +262,7 @@ class ShutItGlobal(object):
 			logobj = logging.getLogger(__name__)
 			if logobj.getEffectiveLevel() <= level:
 				self.last_log_time = time.time()
-				logobj.log(level,msg)
-			logging.log(level,msg)
+			logobj.log(level,msg)
 			if add_final_message:
 				self.report_final_messages = self.report_final_messages + '\r\n' + msg + '\r\n'
 		return True

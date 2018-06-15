@@ -67,11 +67,11 @@ def track_main_thread():
 
 def managing_thread_main_simple():
 	import shutit_global
+	last_msg = ''
 	while True:
 		printed_anything = False
-		msg = ''
-		last_msg = ''
 		if shutit_global.shutit_global_object.log_trace_when_idle and time.time() - shutit_global.shutit_global_object.last_log_time > 5:
+			this_msg = ''
 			for thread_id, stack in sys._current_frames().items():
 				# ignore own thread:
 				if thread_id == threading.current_thread().ident:
@@ -80,18 +80,22 @@ def managing_thread_main_simple():
 				for filename, lineno, name, line in traceback.extract_stack(stack):
 					if not printed_anything:
 						printed_anything = True
-						msg += 'STACK TRACES PRINTED ON IDLE\n'
+						this_msg += '='*80 + '\n'
+						this_msg += 'STACK TRACES PRINTED ON IDLE: THREAD_ID: ' + str(thread_id) + '\n'
+						this_msg += '='*80 + '\n'
 					if not printed_thread_started:
 						printed_thread_started = True
-						msg += '='*80 + '\n'
-					msg += '%s:%d:%s' % (filename, lineno, name) + '\n'
+					this_msg += '%s:%d:%s' % (filename, lineno, name) + '\n'
 					if line:
-						msg += '  %s' % (line,) + '\n'
+						this_msg += '  %s' % (line,) + '\n'
 			if printed_anything:
-				msg += 'STACK TRACES DONE\n'
-			if msg != last_msg:
-				print(msg)
-			last_msg = msg
+				this_msg += '='*80 + '\n'
+				this_msg += 'STACK TRACES DONE\n'
+				this_msg += '='*80 + '\n'
+			if this_msg != last_msg:
+				print(this_msg)
+				last_msg = this_msg
+			else:
 		time.sleep(5)
 	
 
