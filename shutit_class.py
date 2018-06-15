@@ -1726,6 +1726,9 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.interactive < level):
 			return True
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
+		# Don't log log traces while in interactive
+		log_trace_when_idle_original_value = shutit_global.shutit_global_object.log_trace_when_idle
+		shutit_global.shutit_global_object.log_trace_when_idle = False
 		if shutit_pexpect_child:
 			# TODO: comments and context added to pause point message
 			if shutit_global.shutit_global_object.pane_manager is not None:
@@ -1742,6 +1745,8 @@ class ShutIt(object):
 				shutit_global.shutit_global_object.pane_manager.do_render = True
 				shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
 		self.build['ctrlc_stop'] = False
+		# Revert value of log_trace_when_idle
+		shutit_global.shutit_global_object.log_trace_when_idle = log_trace_when_idle_original_value
 		return True
 
 

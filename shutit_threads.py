@@ -67,20 +67,31 @@ def track_main_thread():
 
 def managing_thread_main_simple():
 	import shutit_global
-	# TODO: only do this when ready - see above also
-	#time.sleep(1)
 	while True:
+		printed_anything = False
+		msg = ''
+		last_msg = ''
 		if shutit_global.shutit_global_object.log_trace_when_idle and time.time() - shutit_global.shutit_global_object.last_log_time > 5:
 			for thread_id, stack in sys._current_frames().items():
 				# ignore own thread:
 				if thread_id == threading.current_thread().ident:
 					continue
+				printed_thread_started = False
 				for filename, lineno, name, line in traceback.extract_stack(stack):
-					# if the file is in the same folder or subfolder as a folder in: self.host['shutit_module_path']
-					# then show that context
-					line = '===> ' + str(line.strip())
-					print('=> %s:%d:%s' % (filename, lineno, name))
-					print('%s' % (line,))
+					if not printed_anything:
+						printed_anything = True
+						msg += 'STACK TRACES PRINTED ON IDLE\n'
+					if not printed_thread_started:
+						printed_thread_started = True
+						msg += '='*80 + '\n'
+					msg += '%s:%d:%s' % (filename, lineno, name) + '\n'
+					if line:
+						msg += '  %s' % (line,) + '\n'
+			if printed_anything:
+				msg += 'STACK TRACES DONE\n'
+			if msg != last_msg:
+				print(msg)
+			last_msg = msg
 		time.sleep(5)
 	
 
