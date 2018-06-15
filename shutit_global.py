@@ -82,7 +82,7 @@ class ShutItGlobal(object):
 		self.loglevel             = None
 		self.logging_setup_done   = False
 		self.last_log_time        = time.time()
-		self.log_trace_when_idle  = True
+		self.log_trace_when_idle  = False
 		self.signal_id            = None
 		self.window_size_max      = 65535
 		self.username             = os.environ.get('LOGNAME', '')
@@ -349,6 +349,10 @@ class ShutItGlobal(object):
 			else:
 				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.DEBUG)
 		self.loglevel = logobj.getEffectiveLevel()
+		if self.loglevel <= logging.INFO:
+			self.log_trace_when_idle = True
+		else:
+			self.log_trace_when_idle = False
 		self.logging_setup_done = True
 
 

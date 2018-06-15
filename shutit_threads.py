@@ -70,7 +70,7 @@ def managing_thread_main_simple():
 	last_msg = ''
 	while True:
 		printed_anything = False
-		if shutit_global.shutit_global_object.log_trace_when_idle and time.time() - shutit_global.shutit_global_object.last_log_time > 5:
+		if shutit_global.shutit_global_object.log_trace_when_idle and time.time() - shutit_global.shutit_global_object.last_log_time > 10:
 			this_msg = ''
 			for thread_id, stack in sys._current_frames().items():
 				# ignore own thread:
@@ -95,7 +95,6 @@ def managing_thread_main_simple():
 			if this_msg != last_msg:
 				print(this_msg)
 				last_msg = this_msg
-			else:
 		time.sleep(5)
 	
 
