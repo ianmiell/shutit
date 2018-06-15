@@ -560,7 +560,7 @@ class SessionPaneLine(object):
 	def __init__(self, line_str, time_seen, line_type):
 		assert line_type in ('log','before','after')
 		self.line_str        = line_str
-		if isinstance(line_str, str):
+		if isinstance(line_str, bytes):
 			line_str = line_str.decode('utf-8')
 		assert isinstance(line_str, unicode), 'line_str type: ' + str(type(line_str))
 		self.time_seen       = time_seen
