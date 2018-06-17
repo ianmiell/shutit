@@ -18,27 +18,7 @@ Automation framework for programmers.
 - [Automation of login with a .json configuration](https://github.com/ianmiell/shutit-scripts/tree/master/logmein)
 - [Set up a pre-built Vagrant machine](https://github.com/ianmiell/shutit-scripts/tree/master/vagrant-box-create)
 
-## Features
-
- - [Pattern-based](https://github.com/ianmiell/shutit-templates) extensible framework
- - Available patterns include:
-   - bash builds
-   - Docker builds
-   - Vagrant builds
-   - Vagrant multinode builds
- - Modular
-   - [Build an OS from scratch step by step](https://zwischenzugs.wordpress.com/2015/01/12/make-your-own-bespoke-docker-image/)
- - 'Training mode', forces users to type in commands
-   - [Git Trainer](https://asciinema.org/a/32807?t=70)
-   - [Understanding Docker Namespaces](https://zwischenzugs.wordpress.com/2015/11/21/understanding-docker-network-namespaces/)
- - 'Video mode', ideal for demos
-   - [Automating Docker Security Checks](https://asciinema.org/a/32001?t=120)
- - 'Challenge mode' - set command challenges for users
-   - [grep scales](https://github.com/ianmiell/grep-scales)
- - 'Golf mode' - set task challenges for users
-   - [Git rebase challenge](ianmiell.github.io/git-rebase-tutorial)
- - Utility functions for common tasks (that work across distros)
-
+## What Next?
 
 ### Step 1: Get ShutIt
 
