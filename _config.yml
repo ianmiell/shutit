@@ -3,7 +3,7 @@ name: shutit.tk
 url: http://shutit.tk
 
 markdown: kramdown
-pygments: true
+highligher: rouge
 
 # Some useful details
 # https://help.github.com/articles/repository-metadata-on-github-pages
