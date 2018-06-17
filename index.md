@@ -2,11 +2,25 @@
 layout: default
 markdown: 1
 ---
-# ShutIt #
+# ShutIt
 
 Automation framework for programmers.
 
-## Features ##
+## Learn it in X minutes ##
+
+[Quick start guide here](https://learnxinyminutes.com/docs/shutit/)
+
+## Examples
+
+- [Examples are here](https://github.com/ianmiell/shutit-scripts)
+
+- [Gnuplot automation](https://github.com/ianmiell/shutit-scripts/tree/master/gnuplot)
+
+- [Automation of login with a .json configuration](https://github.com/ianmiell/shutit-scripts/tree/master/logmein)
+
+- [Set up a pre-built Vagrant machine](https://github.com/ianmiell/shutit-scripts/tree/master/vagrant-box-create)
+
+## Features
 
  - Shell-based (minimal learning curve)
  - [Pattern-based](https://github.com/ianmiell/shutit-templates) extensible framework
@@ -31,10 +45,8 @@ Automation framework for programmers.
  - Outputs include a series of shell commands you can port to other CM tools
  - Utility functions for common tasks (that work across distros)
 
-Many more examples explained [here](https://zwischenzugs.wordpress.com):
 
-
-### Step 1: Get ShutIt ###
+### Step 1: Get ShutIt
 
 ```sh
 [sudo] pip install shutit
@@ -43,7 +55,7 @@ Many more examples explained [here](https://zwischenzugs.wordpress.com):
 Run the above as root, and ensuring python-pip and docker are already installed.
 
 
-### Step 2: Create a Skeleton bash ShutIt Module ###
+### Step 2: Create a Skeleton bash ShutIt Module
 
 As your preferred user:
 
@@ -89,46 +101,6 @@ if branch != 'gh-pages':
 	shutit.send('git checkout gh-pages')
 ```
 
-# Step 4: Use a template
-
-You can use bash to do all sorts of things. ShutIt was original written to manage complex Docker builds, so 
-you could write that in bash using the above template. However, there exist other templates for other purposes
-such as:
-
-- Docker containers
-- Vagrant machines
-- Vagrant multinode setup
-
-To use these, follow the shutit skeleton steps above and pick the options you want.
-
-Videos are available going through these steps (links above).
-
-## Troubleshooting Docker Patterns ##
-
-### 'Permission denied' ###
-
-If at this point you get an error to do with 'permission denied', then you may
-need to configure ShutIt to call 'sudo docker' instead of docker. Open the
-~/.shutit/config file, and change this line
-
-```
-docker_executable:docker
-```
-
-For example if you run with sudo, and the executable is 'docker.io':
-
-```
-docker_executable:sudo docker.io
-```
-
-
-### 'Use sudo docker/docker.io to run docker?' ###
-
-If you use "sudo docker", or "docker.io" or some other command to run docker,
-then you might need to alter run.sh accordingly.
-
-
-
-### Something else? ###
+### Anything else?
 
 Didn't work for you? It's probably my fault, not yours. Mail me: ian.miell@gmail.com
