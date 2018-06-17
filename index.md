@@ -12,12 +12,10 @@ Automation framework for programmers.
 
 ## Examples
 
-- [Examples are here](https://github.com/ianmiell/shutit-scripts)
+[Examples are here](https://github.com/ianmiell/shutit-scripts), including:
 
 - [Gnuplot automation](https://github.com/ianmiell/shutit-scripts/tree/master/gnuplot)
-
 - [Automation of login with a .json configuration](https://github.com/ianmiell/shutit-scripts/tree/master/logmein)
-
 - [Set up a pre-built Vagrant machine](https://github.com/ianmiell/shutit-scripts/tree/master/vagrant-box-create)
 
 ## Features
