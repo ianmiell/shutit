@@ -20,7 +20,6 @@ Automation framework for programmers.
 
 ## Features
 
- - Shell-based (minimal learning curve)
  - [Pattern-based](https://github.com/ianmiell/shutit-templates) extensible framework
  - Available patterns include:
    - bash builds
@@ -38,9 +37,6 @@ Automation framework for programmers.
    - [grep scales](https://github.com/ianmiell/grep-scales)
  - 'Golf mode' - set task challenges for users
    - [Git rebase challenge](ianmiell.github.io/git-rebase-tutorial)
- - ShutIt [Lifecycle](https://github.com/ianmiell/shutit/blob/master/README.md) allows for configuration, testing, modularity, and finalization
- - Use your python skills to make it work the way you want
- - Outputs include a series of shell commands you can port to other CM tools
  - Utility functions for common tasks (that work across distros)
 
 
@@ -53,7 +49,7 @@ Automation framework for programmers.
 Run the above as root, and ensuring python-pip and docker are already installed.
 
 
-### Step 2: Create a Skeleton bash ShutIt Module
+### Step 2: Create a Skeleton hutIt Module
 
 As your preferred user:
 
@@ -63,41 +59,17 @@ shutit skeleton
 
 Hit return through and follow the instructions.
 
-### Step 3: Automate
+Choose which template you want to use:
 
-Go to the newly-created directory, and open up the .py file.
+- bash
 
-In there is a function called 'build' with a cheat sheet of functions.
+- Vagrant
 
-For this example we are going to add commands to ensure that we have a the documentation branch of ShutIt checked out.
+- Docker
 
-```
-# Ensure git is installed. This handles different distros gracefully.
-shutit.install('git')
+- Shutitfile
 
-# If the directory does not exist, we create it
-if not shutit.file_exists('/opt/shutit',directory=True):
-	shutit.send('mkdir /opt/shutit')
-
-# Move to the directory
-shutit.send('cd /opt/shutit')
-
-# If this is not ShutIt, quit with a message.
-if shutit.file_exists('.git',directory=True):
-	if shutit.send_and_get_output('git remote -v | grep origin | grep push | grep ianmiell.shutit | wc -l') != '1':
-		shutit.fail('Git repo detected that is not ShutIt - terminating')
-else:
-	# If this is not a git repo, and there are any files in here, we have a problem
-	if shutit.send_and_get_output('ls') != '':
-		shutit.fail('Not a git repo, and there are other files already in here - terminating')
-
-# Get the branch information
-branch = shutit.send_and_get_output("git status -s -b | grep '##' | awk '{print $2}' | awk -F. '{print $1}'")
-
-# If the branch is not correct, check out the correct branch
-if branch != 'gh-pages':
-	shutit.send('git checkout gh-pages')
-```
+and you'll be guided through the process.
 
 ### Anything else?
 
