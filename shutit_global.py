@@ -438,6 +438,7 @@ class PaneManager(object):
 			self.write_out_lines_to_fit_pane(self.top_right_session_pane, self.shutit_global.stacktrace_lines_arr, u'Code Context')
 			# get sessions - for each ShutIt object in shutit_global
 			sessions = list(self.get_shutit_pexpect_sessions())
+			# reverse sessions as we're more likely to be interested in later ones.
 			sessions.reverse()
 			count = 0
 			for shutit_pexpect_session in sessions:
