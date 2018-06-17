@@ -391,13 +391,14 @@ class PaneManager(object):
 		self.top_right_session_pane    = SessionPane('top_right')
 		self.bottom_left_session_pane  = SessionPane('bottom_left')
 		self.bottom_right_session_pane = SessionPane('bottom_right')
-		self.window     = None
-		self.screen_arr = None
-		self.wheight    = None
-		self.wwidth     = None
-		self.refresh_window()
+		self.window                    = None
+		self.screen_arr                = None
+		self.wheight                   = None
+		self.wwidth                    = None
 		# Whether to actually draw the screen - defaults to 'True'
-		self.do_render            = True
+		self.do_render                 = True
+		# Refresh the window
+		self.refresh_window()
 
 
 	def refresh_window(self):
@@ -435,11 +436,18 @@ class PaneManager(object):
 				logstream_lines.append(SessionPaneLine(line,time.time(),'log'))
 			self.write_out_lines_to_fit_pane(self.top_left_session_pane, logstream_lines, u'Logs')
 			self.write_out_lines_to_fit_pane(self.top_right_session_pane, self.shutit_global.stacktrace_lines_arr, u'Code Context')
-			## get sessions - for each ShutIt object in shutit_global
+			# get sessions - for each ShutIt object in shutit_global
+			count = 0
 			for shutit_pexpect_session in self.get_shutit_pexpect_sessions():
-				self.write_out_lines_to_fit_pane(self.bottom_left_session_pane, shutit_pexpect_session.session_output_lines, u'Session Output')
-				# TODO: handle multiple sessions - this breaks out after first
-				break
+				count += 1
+				if count == 1:
+					self.write_out_lines_to_fit_pane(self.bottom_left_session_pane,
+					                                 shutit_pexpect_session.session_output_lines,
+					                                 u'Session Output')
+				elif count == 2:
+					self.write_out_lines_to_fit_pane(self.bottom_right_session_pane,
+					                                 shutit_pexpect_session.session_output_lines,
+					                                 u'Session Output')
 		elif draw_type == 'clearscreen':
 			for y in range(0,self.wheight):
 				line = u' '*self.wwidth
@@ -507,22 +515,22 @@ class PaneManager(object):
 
 
 	def do_layout_default(self):
-		top_left_pane         = None
-		bottom_left_pane      = None
-		bottom_right_pane     = None
-		top_right_pane        = None
-		# top_left_pane is the logging pane by default
-		top_left_pane  = self.top_left_session_pane
-		top_right_pane = self.top_right_session_pane
-		bottom_left_pane = self.bottom_left_session_pane
-		bottom_right_pane = self.bottom_right_session_pane
-		# Keep it simple with 4 panes always for now
-		top_left_pane.set_position(top_left_x=0,                       top_left_y=1,                         bottom_right_x=self.wwidth_left_end, bottom_right_y=self.wheight_bottom_start)
-		top_right_pane.set_position       (top_left_x=self.wwidth_right_start, top_left_y=1,                         bottom_right_x=self.wwidth,          bottom_right_y=self.wheight_bottom_start)
-		if bottom_right_pane is not None:
-			bottom_right_pane.set_position    (top_left_x=self.wwidth_right_start, top_left_y=self.wheight_bottom_start, bottom_right_x=self.wwidth,          bottom_right_y=self.wheight-1)
-		if bottom_left_pane is not None:
-			bottom_left_pane.set_position     (top_left_x=0,                       top_left_y=self.wheight_bottom_start, bottom_right_x=self.wwidth_left_end, bottom_right_y=self.wheight-1)
+		self.top_left_session_pane.set_position    (top_left_x=0,
+		                                            top_left_y=1,
+		                                            bottom_right_x=self.wwidth_left_end,
+		                                            bottom_right_y=self.wheight_bottom_start)
+		self.top_right_session_pane.set_position   (top_left_x=self.wwidth_right_start,
+		                                            top_left_y=1,
+		                                            bottom_right_x=self.wwidth,
+		                                            bottom_right_y=self.wheight_bottom_start)
+		self.bottom_right_session_pane.set_position(top_left_x=self.wwidth_right_start,
+		                                            top_left_y=self.wheight_bottom_start,
+		                                            bottom_right_x=self.wwidth,
+		                                            bottom_right_y=self.wheight-1)
+		self.bottom_left_session_pane.set_position (top_left_x=0,
+		                                            top_left_y=self.wheight_bottom_start,
+		                                            bottom_right_x=self.wwidth_left_end,
+		                                            bottom_right_y=self.wheight-1)
 
 
 # Represents a window pane with no concept of context or content.
