@@ -437,8 +437,10 @@ class PaneManager(object):
 			self.write_out_lines_to_fit_pane(self.top_left_session_pane, logstream_lines, u'Logs')
 			self.write_out_lines_to_fit_pane(self.top_right_session_pane, self.shutit_global.stacktrace_lines_arr, u'Code Context')
 			# get sessions - for each ShutIt object in shutit_global
+			sessions = list(self.get_shutit_pexpect_sessions())
+			sessions.reverse()
 			count = 0
-			for shutit_pexpect_session in self.get_shutit_pexpect_sessions():
+			for shutit_pexpect_session in sessions:
 				count += 1
 				if count == 1:
 					self.write_out_lines_to_fit_pane(self.bottom_left_session_pane,
