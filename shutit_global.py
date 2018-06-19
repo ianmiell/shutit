@@ -68,30 +68,30 @@ class ShutItGlobal(object):
 		self.shutit_objects = []
 		# Primitive singleton enforcer.
 		assert self.only_one is None, shutit_util.print_debug()
-		self.only_one             = True
+		self.only_one                = True
 		# Capture the original working directory
-		self.owd                  = os.getcwd()
-		self.global_thread_lock   = threading.Lock()
+		self.owd                     = os.getcwd()
+		self.global_thread_lock      = threading.Lock()
 		# Acquire the lock by default.
 		self.global_thread_lock.acquire()
-		self.ispy3                = (sys.version_info[0] >= 3)
-
-		self.secret_words_set     = set()
-		self.logfile              = None
-		self.logstream            = None
-		self.loglevel             = None
-		self.logging_setup_done   = False
-		self.last_log_time        = time.time()
-		self.log_trace_when_idle  = False
-		self.signal_id            = None
-		self.window_size_max      = 65535
-		self.username             = os.environ.get('LOGNAME', '')
-		self.default_timeout      = 3600
-		self.delaybeforesend      = 0
-		self.default_encoding     = 'utf-8'
-		self.managed_panes        = False
-		self.pane_manager         = None
-		self.stacktrace_lines_arr = []
+		self.ispy3                   = (sys.version_info[0] >= 3)
+		self.secret_words_set        = set()
+		self.logfile                 = None
+		self.logstream               = None
+		self.loglevel                = None
+		self.logging_setup_done      = False
+		self.last_log_time           = time.time()
+		self.log_trace_when_idle     = False
+		self.signal_id               = None
+		self.window_size_max         = 65535
+		self.username                = os.environ.get('LOGNAME', '')
+		self.default_timeout         = 3600
+		self.delaybeforesend         = 0
+		self.default_encoding        = 'utf-8'
+		self.managed_panes           = False
+		self.pane_manager            = None
+		self.lower_pane_rotate_count = 0
+		self.stacktrace_lines_arr    = []
 		# Quotes here are intentional. Some versions of sleep don't support fractional seconds.
 		# True is called to take up the time require
 		self.prompt_command          = "'sleep .05||sleep 1'"
@@ -440,8 +440,17 @@ class PaneManager(object):
 			sessions = list(self.get_shutit_pexpect_sessions())
 			# reverse sessions as we're more likely to be interested in later ones.
 			sessions.reverse()
+			# Update the lower_pane_rotate_count so that it doesn't exceed the length of sessions.
+			self.shutit_global.lower_pane_rotate_count = self.shutit_global.lower_pane_rotate_count % len(sessions)
+			sessions = sessions[-self.shutit_global.lower_pane_rotate_count:] + sessions[:-self.shutit_global.lower_pane_rotate_count]
+			# Count two sessions
 			count = 0
 			for shutit_pexpect_session in sessions:
+				f=open('debug','+a')
+				f.write('========================================================\n')
+				for l in shutit_pexpect_session.session_output_lines:
+					f.write(l.line_str + '\n')
+				f.close()
 				count += 1
 				if count == 1:
 					self.write_out_lines_to_fit_pane(self.bottom_left_session_pane,
@@ -451,6 +460,8 @@ class PaneManager(object):
 					self.write_out_lines_to_fit_pane(self.bottom_right_session_pane,
 					                                 shutit_pexpect_session.session_output_lines,
 					                                 u'Session Output')
+				else:
+					break
 		elif draw_type == 'clearscreen':
 			for y in range(0,self.wheight):
 				line = u' '*self.wwidth

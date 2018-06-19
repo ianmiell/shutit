@@ -865,8 +865,10 @@ class ShutIt(object):
 		if iteration_s < 1:
 			iteration_s = 1
 		timed_out = True
+		iteration_n = 0
 		while accum_timeout < timeout:
-			res = shutit_pexpect_session.expect(expect, timeout=iteration_s)
+			iteration_n+=1 
+			res = shutit_pexpect_session.expect(expect, timeout=iteration_s, iteration_n=iteration_n)
 			if res == len(expect):
 				if self.build['ctrlc_stop']:
 					timed_out = False

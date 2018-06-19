@@ -575,8 +575,13 @@ class ShutItPexpectSession(object):
 	           expect,
 	           searchwindowsize=None,
 	           maxread=None,
-	           timeout=None):
+	           timeout=None,
+	           iteration_n=1):
 		"""Handle child expects, with EOF and TIMEOUT handled
+
+		iteration_n - Number of times this expect has been called for the send.
+		              If 1, (the default) then it gets added to the pane of output
+		              (if applicable to this run)
 		"""
 		if isinstance(expect, str):
 			expect = [expect]
@@ -592,7 +597,7 @@ class ShutItPexpectSession(object):
 		if maxread != None:
 			self.pexpect_child.maxread = old_maxread
 		# Add to session lines only if pane manager exists.
-		if shutit_global.shutit_global_object.pane_manager is not None:
+		if shutit_global.shutit_global_object.pane_manager and iteration_n == 1:
 			if isinstance(self.pexpect_child.before, (str,unicode)):
 				for line_str in self.pexpect_child.before.split('\n'):
 					self.session_output_lines.append(SessionPaneLine(line_str=line_str.strip(), time_seen=time.time(), line_type='log'))

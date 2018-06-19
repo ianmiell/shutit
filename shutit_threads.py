@@ -1,4 +1,6 @@
 import curtsies
+from curtsies.events import PasteEvent
+from curtsies.input import Input
 import time
 import threading
 import traceback
@@ -36,6 +38,11 @@ def managing_thread_main():
 	while True:
 		# Acquire lock to write screen. Prevents nasty race conditions.
 		if shutit_global.shutit_global_object.global_thread_lock.acquire(False):
+			with Input() as input_generator:
+				input_char = input_generator.send(0.001)
+				if input_char == 'r':
+					# Rotate sessions at the bottom
+					shutit_global.shutit_global_object.lower_pane_rotate_count += 1
 			# Go to sleep if we can't get the lock as spinning causes 100% CPU
 			time.sleep(0.1)
 			continue
@@ -66,6 +73,9 @@ def track_main_thread():
 
 
 def managing_thread_main_simple():
+	"""Simpler thread to track whether main thread has been quiet for long enough
+	that a thread dump should be printed.
+	"""
 	import shutit_global
 	last_msg = ''
 	while True:
