@@ -35,6 +35,7 @@ def managing_thread_main():
 	time.sleep(1)
 	shutit_module_paths = gather_module_paths()
 	shutit_global.shutit_global_object.stacktrace_lines_arr = [SessionPaneLine('',time.time(),'log'),]
+	last_code = []
 	while True:
 		# Acquire lock to write screen. Prevents nasty race conditions.
 		if shutit_global.shutit_global_object.global_thread_lock.acquire(False):
@@ -46,7 +47,7 @@ def managing_thread_main():
 			# Go to sleep if we can't get the lock as spinning causes 100% CPU
 			time.sleep(0.1)
 			continue
-		code = []
+		code      = []
 		for thread_id, stack in sys._current_frames().items():
 			# ignore own thread:
 			if thread_id == threading.current_thread().ident:
@@ -60,8 +61,10 @@ def managing_thread_main():
 						if shutit_global.shutit_global_object.stacktrace_lines_arr[-1] != line:
 							code.append('=> %s:%d:%s' % (filename, lineno, name))
 							code.append('%s' % (line,))
-		for line in code:
-			shutit_global.shutit_global_object.stacktrace_lines_arr.append(SessionPaneLine(line,time.time(),'log'))
+		if code != last_code:
+			for line in code:
+				shutit_global.shutit_global_object.stacktrace_lines_arr.append(SessionPaneLine(line,time.time(),'log'))
+			last_code = code
 		shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='default')
 		shutit_global.shutit_global_object.global_thread_lock.release()
 
