@@ -78,7 +78,6 @@ def managing_thread_main():
 				elif input_char == 'q':
 					draw_type = 'clearscreen'
 					shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type=draw_type)
-					print(chr(27) + "[2J")
 					os.system('reset')
 					os._exit(1)
 			# Go to sleep if we can't get the lock as spinning causes 100% CPU
