@@ -50,11 +50,9 @@ from curtsies.events import PasteEvent
 from curtsies.input import Input
 import shutit_threads
 
-
 PY3 = sys.version_info[0] >= 3
 if PY3:
 	unicode = str
-
 
 class ShutItGlobal(object):
 	"""Single object to store all the separate ShutIt sessions.
@@ -415,8 +413,10 @@ class PaneManager(object):
 		assert self.wwidth >= 80, 'Terminal not wide enough: ' + str(self.wwidth) + ' < 80'
 
 
-	def draw_screen(self, draw_type='default', quick_help='HELP TODO'):
-		assert draw_type in ('default','clearscreen')
+	def draw_screen(self, draw_type='default', quick_help=None):
+		if quick_help is None:
+			quick_help = 'Help: (r)otate shutit sessions. (1,2,3,4) zoom pane in/out. (q)uit'
+		assert draw_type in ('default','clearscreen','zoomed1','zoomed2','zoomed3','zoomed4')
 		# Header
 		header_text = u'Shutit'
 		self.screen_arr           = curtsies.FSArray(self.wheight, self.wwidth)
@@ -427,6 +427,14 @@ class PaneManager(object):
 		if not PY3:
 			footer_text = footer_text.decode('utf-8')
 		self.screen_arr[self.wheight-1:self.wheight,0:len(footer_text)] = [invert(blue(footer_text))]
+		if draw_type in ('default','zoomed3','zoomed4'):
+			# get sessions - for each ShutIt object in shutit_global
+			sessions = list(get_shutit_pexpect_sessions())
+			# reverse sessions as we're more likely to be interested in later ones.
+			sessions.reverse()
+			# Update the lower_pane_rotate_count so that it doesn't exceed the length of sessions.
+			self.shutit_global.lower_pane_rotate_count = self.shutit_global.lower_pane_rotate_count % len(sessions)
+			sessions = sessions[-self.shutit_global.lower_pane_rotate_count:] + sessions[:-self.shutit_global.lower_pane_rotate_count]
 		if draw_type == 'default':
 			# Draw the sessions.
 			self.do_layout_default()
@@ -436,31 +444,53 @@ class PaneManager(object):
 				logstream_lines.append(SessionPaneLine(line,time.time(),'log'))
 			self.write_out_lines_to_fit_pane(self.top_left_session_pane, logstream_lines, u'Logs')
 			self.write_out_lines_to_fit_pane(self.top_right_session_pane, self.shutit_global.stacktrace_lines_arr, u'Code Context')
-			# get sessions - for each ShutIt object in shutit_global
-			sessions = list(self.get_shutit_pexpect_sessions())
-			# reverse sessions as we're more likely to be interested in later ones.
-			sessions.reverse()
-			# Update the lower_pane_rotate_count so that it doesn't exceed the length of sessions.
-			self.shutit_global.lower_pane_rotate_count = self.shutit_global.lower_pane_rotate_count % len(sessions)
-			sessions = sessions[-self.shutit_global.lower_pane_rotate_count:] + sessions[:-self.shutit_global.lower_pane_rotate_count]
 			# Count two sessions
 			count = 0
 			for shutit_pexpect_session in sessions:
-				f=open('debug','+a')
-				f.write('========================================================\n')
-				for l in shutit_pexpect_session.session_output_lines:
-					f.write(l.line_str + '\n')
-				f.close()
 				count += 1
 				if count == 1:
 					self.write_out_lines_to_fit_pane(self.bottom_left_session_pane,
 					                                 shutit_pexpect_session.session_output_lines,
-					                                 u'Session Output')
+					                                 u'Shutit Session: ' + str(shutit_pexpect_session.pexpect_session_number) + '/' + str(len(sessions)))
 				elif count == 2:
 					self.write_out_lines_to_fit_pane(self.bottom_right_session_pane,
 					                                 shutit_pexpect_session.session_output_lines,
-					                                 u'Session Output')
+					                                 u'ShutIt Session: ' + str(shutit_pexpect_session.pexpect_session_number) + '/' + str(len(sessions)))
 				else:
+					break
+		elif draw_type == 'zoomed1':
+			self.do_layout_zoomed(zoom_number=1)
+			logstream_lines = []
+			logstream_string_lines_list = self.shutit_global.logstream.getvalue().split('\n')
+			for line in logstream_string_lines_list:
+				logstream_lines.append(SessionPaneLine(line,time.time(),'log'))
+			self.write_out_lines_to_fit_pane(self.top_left_session_pane, logstream_lines, u'Logs')
+		elif draw_type == 'zoomed2':
+			self.do_layout_zoomed(zoom_number=2)
+			self.write_out_lines_to_fit_pane(self.top_left_session_pane, self.shutit_global.stacktrace_lines_arr, u'Code Context')
+		elif draw_type == 'zoomed3':
+			self.do_layout_zoomed(zoom_number=3)
+			# Get first session
+			count = 0
+			for shutit_pexpect_session in sessions:
+				count += 1
+				if count == 1:
+					self.write_out_lines_to_fit_pane(self.top_left_session_pane,
+					                                 shutit_pexpect_session.session_output_lines,
+					                                 u'Shutit Session: ' + str(shutit_pexpect_session.pexpect_session_number) + '/' + str(len(sessions)))
+				else:
+					break
+		elif draw_type == 'zoomed4':
+			self.do_layout_zoomed(zoom_number=4)
+			# Get second session
+			count = 0
+			for shutit_pexpect_session in sessions:
+				count += 1
+				if count == 2:
+					self.write_out_lines_to_fit_pane(self.top_left_session_pane,
+					                                 shutit_pexpect_session.session_output_lines,
+					                                 u'ShutIt Session: ' + str(shutit_pexpect_session.pexpect_session_number) + '/' + str(len(sessions)))
+				elif count > 2:
 					break
 		elif draw_type == 'clearscreen':
 			for y in range(0,self.wheight):
@@ -520,12 +550,13 @@ class PaneManager(object):
 				self.screen_arr[i:i+1, pane.top_left_x:pane.top_left_x+len(line)] = [line]
 
 
-	def get_shutit_pexpect_sessions(self):
-		sessions = []
-		for shutit_object in self.shutit_global.shutit_objects:
-			for key in shutit_object.shutit_pexpect_sessions:
-				sessions.append(shutit_object.shutit_pexpect_sessions[key])
-		return sessions
+
+	def do_layout_zoomed(self, zoom_number):
+		# Only one window - the top left.
+		self.top_left_session_pane.set_position    (top_left_x=0,
+		                                            top_left_y=1,
+		                                            bottom_right_x=self.wwidth,
+		                                            bottom_right_y=self.wheight-1)
 
 
 	def do_layout_default(self):
@@ -549,6 +580,8 @@ class PaneManager(object):
 
 # Represents a window pane with no concept of context or content.
 class SessionPane(object):
+
+
 	def __init__(self, name):
 		self.name                 = name
 		self.top_left_x           = -1
@@ -556,6 +589,8 @@ class SessionPane(object):
 		self.bottom_right_x       = -1
 		self.bottom_right_y       = -1
 		assert self.name in ('top_left','bottom_left','top_right','bottom_right')
+
+
 	def __str__(self):
 		string =  '\n============= SESSION PANE OBJECT BEGIN ==================='
 		string += '\nname: '           + str(self.name)
@@ -567,17 +602,24 @@ class SessionPane(object):
 		string += '\nheight: '         + str(self.get_width())
 		string += '\n============= SESSION PANE OBJECT END   ==================='
 		return string
+
+
 	def set_position(self, top_left_x, top_left_y, bottom_right_x, bottom_right_y):
 		self.top_left_x     = top_left_x
 		self.top_left_y     = top_left_y
 		self.bottom_right_x = bottom_right_x
 		self.bottom_right_y = bottom_right_y
+
+
 	def get_width(self):
 		return self.bottom_right_x - self.top_left_x
+
+
 	def get_height(self):
 		return self.bottom_right_y - self.top_left_y
 
-# Represents a line in the array of output                                                                                                                                  
+
+# Represents a line in the array of output
 class SessionPaneLine(object):
 	def __init__(self, line_str, time_seen, line_type):
 		assert line_type in ('log','before','after')
@@ -592,6 +634,14 @@ class SessionPaneLine(object):
 def setup_signals():
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
+
+
+def get_shutit_pexpect_sessions():
+	sessions = []
+	for shutit_object in shutit_global_object.shutit_objects:
+		for key in shutit_object.shutit_pexpect_sessions:
+			sessions.append(shutit_object.shutit_pexpect_sessions[key])
+	return sessions
 
 shutit_global_object = ShutItGlobal()
 

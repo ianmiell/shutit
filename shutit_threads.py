@@ -5,6 +5,7 @@ import time
 import threading
 import traceback
 import sys
+import os
 
 
 # TODO: reject tmux sessions - it does not seem to play nice
@@ -36,6 +37,8 @@ def managing_thread_main():
 	shutit_module_paths = gather_module_paths()
 	shutit_global.shutit_global_object.stacktrace_lines_arr = [SessionPaneLine('',time.time(),'log'),]
 	last_code = []
+	draw_type = 'default'
+	zoom_state = None
 	while True:
 		# Acquire lock to write screen. Prevents nasty race conditions.
 		if shutit_global.shutit_global_object.global_thread_lock.acquire(False):
@@ -44,6 +47,40 @@ def managing_thread_main():
 				if input_char == 'r':
 					# Rotate sessions at the bottom
 					shutit_global.shutit_global_object.lower_pane_rotate_count += 1
+				elif input_char == '1':
+					if zoom_state == 1:
+						draw_type = 'default'
+						zoom_state = None
+					else:
+						draw_type = 'zoomed1'
+						zoom_state = 1
+				elif input_char == '2':
+					if zoom_state == 2:
+						draw_type = 'default'
+						zoom_state = None
+					else:
+						draw_type = 'zoomed2'
+						zoom_state = 2
+				elif input_char == '3':
+					if zoom_state == 3:
+						draw_type = 'default'
+						zoom_state = None
+					else:
+						draw_type = 'zoomed3'
+						zoom_state = 3
+				elif input_char == '4':
+					if zoom_state == 4:
+						draw_type = 'default'
+						zoom_state = None
+					else:
+						draw_type = 'zoomed4'
+						zoom_state = 4
+				elif input_char == 'q':
+					draw_type = 'clearscreen'
+					shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type=draw_type)
+					print(chr(27) + "[2J")
+					os.system('reset')
+					os._exit(1)
 			# Go to sleep if we can't get the lock as spinning causes 100% CPU
 			time.sleep(0.1)
 			continue
@@ -65,7 +102,7 @@ def managing_thread_main():
 			for line in code:
 				shutit_global.shutit_global_object.stacktrace_lines_arr.append(SessionPaneLine(line,time.time(),'log'))
 			last_code = code
-		shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='default')
+		shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type=draw_type)
 		shutit_global.shutit_global_object.global_thread_lock.release()
 
 
