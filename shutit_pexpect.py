@@ -601,10 +601,10 @@ class ShutItPexpectSession(object):
 		if shutit_global.shutit_global_object.pane_manager and iteration_n == 1:
 			if isinstance(self.pexpect_child.before, (str,unicode)):
 				for line_str in self.pexpect_child.before.split('\n'):
-					self.session_output_lines.append(SessionPaneLine(line_str=line_str.strip(), time_seen=time.time(), line_type='log'))
+					self.session_output_lines.append(SessionPaneLine(line_str=line_str.strip(), time_seen=time.time(), line_type='before'))
 			if isinstance(self.pexpect_child.after, (str,unicode)):
 				for line_str in self.pexpect_child.after.split('\n'):
-					self.session_output_lines.append(SessionPaneLine(line_str=line_str.strip(),  time_seen=time.time(), line_type='log'))
+					self.session_output_lines.append(SessionPaneLine(line_str=line_str.strip(),  time_seen=time.time(), line_type='after'))
 		return res
 
 

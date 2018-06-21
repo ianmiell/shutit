@@ -367,6 +367,7 @@ class ShutItGlobal(object):
 		shutit_util.sanitize_terminal()
 		sys.exit(exit_code)
 
+
 	def shutit_print(self, msg):
 		if self.pane_manager is None:
 			print(msg)
@@ -621,6 +622,8 @@ class SessionPane(object):
 
 # Represents a line in the array of output
 class SessionPaneLine(object):
+
+
 	def __init__(self, line_str, time_seen, line_type):
 		assert line_type in ('log','before','after')
 		self.line_str        = line_str
@@ -629,6 +632,10 @@ class SessionPaneLine(object):
 		assert isinstance(line_str, unicode), 'line_str type: ' + str(type(line_str))
 		self.time_seen       = time_seen
 		self.time_seen       = time_seen
+
+
+	def __str__(self):
+		return self.line_str
 
 
 def setup_signals():
