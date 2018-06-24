@@ -603,16 +603,15 @@ class ShutItPexpectSession(object):
 			lines_to_add = []
 			if isinstance(self.pexpect_child.before, (str,unicode)):
 				for line_str in self.pexpect_child.before.split('\n'):
-					lines_to_add.append(line_str.strip())
+					lines_to_add.append(line_str)
 			if isinstance(self.pexpect_child.after, (str,unicode)):
 				for line_str in self.pexpect_child.after.split('\n'):
-					if len(lines_to_add) > 0:
-						lines_to_add[-1] += line_str
-					else:
-						lines_to_add.append(line_str.strip())
-			# If last line is empty, remove it.
-			if len(lines_to_add) > 0 and lines_to_add[-1] == '':
-				lines_to_add = lines_to_add[:-1]
+					lines_to_add.append(line_str)
+			# If first or last line is empty, remove it.
+			#if len(lines_to_add) > 0 and lines_to_add[1] == '':
+			#	lines_to_add = lines_to_add[1:]
+			#if len(lines_to_add) > 0 and lines_to_add[-1] == '':
+			#	lines_to_add = lines_to_add[:-1]
 			for line in lines_to_add:
 				self.session_output_lines.append(SessionPaneLine(line_str=line, time_seen=time_seen, line_type='output'))
 		return res
