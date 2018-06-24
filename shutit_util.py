@@ -224,9 +224,11 @@ def sendline(child, line):
 def sanitize_terminal():
 	os.system('stty sane')
 	time.sleep(1)
+	#sys.stdout.write('\n' + '_'*80 + '\nResetting terminal in 2...' + ' '*54 + '\n' + '_'*80 + '\n')
 	sys.stdout.write('Resetting terminal in 2...')
 	sys.stdout.flush()
 	time.sleep(1)
+	#sys.stdout.write('\n' + '_'*80 + '\nResetting terminal in 1...' + ' '*54 + '\n' + '_'*80 + '\n')
 	sys.stdout.write('\rResetting terminal in 1...')
 	sys.stdout.flush()
 	time.sleep(1)

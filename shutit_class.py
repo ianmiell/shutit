@@ -3780,6 +3780,9 @@ class ShutIt(object):
 			# If we are in panes mode, set up logIO.
 			if shutit_global.shutit_global_object.managed_panes:
 				shutit_global.shutit_global_object.logstream   = StringIO()
+				if not shutit_global.shutit_global_object.determine_interactive():
+					shutit_global.shutit_global_object.log('You cannot have panes if you are not in an interactive shell',level=logging.WARNING)
+					shutit_global.shutit_global_object.managed_panes = False
 			self.process_args(ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             loglevel=args.log,
@@ -4669,7 +4672,6 @@ class ShutIt(object):
 
 	# Returns true if the global session is interactive.
 	def is_interactive(self):
-		shutit_global.shutit_global_object.yield_to_draw()
 		return shutit_global.shutit_global_object.determine_interactive()
 
 

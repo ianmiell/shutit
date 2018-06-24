@@ -419,7 +419,7 @@ class PaneManager(object):
 			quick_help = 'Help: (r)otate shutit sessions. (1,2,3,4) zoom pane in/out. (q)uit'
 		assert draw_type in ('default','clearscreen','zoomed1','zoomed2','zoomed3','zoomed4')
 		# Header
-		header_text = u'Shutit'
+		header_text = u' <= Shutit'
 		self.screen_arr           = curtsies.FSArray(self.wheight, self.wwidth)
 		self.screen_arr[0:1,0:len(header_text)] = [blue(header_text)]
 		# Footer
@@ -496,7 +496,7 @@ class PaneManager(object):
 		else:
 			assert False, 'Layout not handled: ' + draw_type
 		if self.do_render:
-			self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,int(self.wwidth/4*3)))
+			self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,0))
 
 
 	def write_out_lines_to_fit_pane(self, pane, p_lines, title):
@@ -621,7 +621,7 @@ class SessionPaneLine(object):
 
 
 	def __init__(self, line_str, time_seen, line_type):
-		assert line_type in ('log','before','after')
+		assert line_type in ('log','output')
 		self.line_str        = line_str
 		if isinstance(line_str, bytes):
 			line_str = line_str.decode('utf-8')

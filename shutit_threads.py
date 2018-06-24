@@ -1,6 +1,7 @@
 import curtsies
 from curtsies.events import PasteEvent
 from curtsies.input import Input
+import itertools
 import time
 import threading
 import traceback
@@ -95,8 +96,24 @@ def managing_thread_main():
 					if filename.find(shutit_module_path) == 0:
 						line = '===> ' + str(line.strip())
 						if shutit_global.shutit_global_object.stacktrace_lines_arr[-1] != line:
+							code.append('_' * 80)
 							code.append('=> %s:%d:%s' % (filename, lineno, name))
 							code.append('%s' % (line,))
+							from_lineno = lineno - 5
+							if from_lineno < 0:
+								from_lineno = 0
+								to_lineno   = 10
+							else:
+								to_lineno = lineno + 5
+							lineno_count = from_lineno
+							with open(filename, "r") as f:
+								for line in itertools.islice(f, from_lineno, to_lineno):
+									lineno_count += 1
+									if lineno_count == lineno:
+										code.append('***' + str(lineno_count) + '> ' + line.rstrip())
+									else:
+										code.append('===' + str(lineno_count) + '> ' + line.rstrip())
+							code.append('_' * 80)
 		if code != last_code:
 			for line in code:
 				shutit_global.shutit_global_object.stacktrace_lines_arr.append(SessionPaneLine(line,time.time(),'log'))
