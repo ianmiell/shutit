@@ -449,11 +449,11 @@ class PaneManager(object):
 			count = 0
 			for shutit_pexpect_session in sessions:
 				count += 1
-				if count == 1:
+				if count == 2:
 					self.write_out_lines_to_fit_pane(self.bottom_left_session_pane,
 					                                 shutit_pexpect_session.session_output_lines,
 					                                 u'Shutit Session: ' + str(shutit_pexpect_session.pexpect_session_number) + '/' + str(len(sessions)))
-				elif count == 2:
+				elif count == 1:
 					self.write_out_lines_to_fit_pane(self.bottom_right_session_pane,
 					                                 shutit_pexpect_session.session_output_lines,
 					                                 u'ShutIt Session: ' + str(shutit_pexpect_session.pexpect_session_number) + '/' + str(len(sessions)))
@@ -475,24 +475,20 @@ class PaneManager(object):
 			count = 0
 			for shutit_pexpect_session in sessions:
 				count += 1
-				if count == 1:
+				if count == 2:
 					self.write_out_lines_to_fit_pane(self.top_left_session_pane,
 					                                 shutit_pexpect_session.session_output_lines,
 					                                 u'Shutit Session: ' + str(shutit_pexpect_session.pexpect_session_number) + '/' + str(len(sessions)))
-				else:
+				elif count > 2:
 					break
 		elif draw_type == 'zoomed4':
 			self.do_layout_zoomed(zoom_number=4)
 			# Get second session
-			count = 0
 			for shutit_pexpect_session in sessions:
-				count += 1
-				if count == 2:
-					self.write_out_lines_to_fit_pane(self.top_left_session_pane,
+				self.write_out_lines_to_fit_pane(self.top_left_session_pane,
 					                                 shutit_pexpect_session.session_output_lines,
 					                                 u'ShutIt Session: ' + str(shutit_pexpect_session.pexpect_session_number) + '/' + str(len(sessions)))
-				elif count > 2:
-					break
+				break
 		elif draw_type == 'clearscreen':
 			for y in range(0,self.wheight):
 				line = u' '*self.wwidth
