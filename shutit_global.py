@@ -168,8 +168,8 @@ class ShutItGlobal(object):
 		# Only ever yield if there are any sessions to draw.
 		if len(get_shutit_pexpect_sessions()) > 0:
 			self.global_thread_lock.release()
-			# Allow a little time for others to get a look in
-			time.sleep(0.01)
+			# Allow a _little_ time for others to get a look in
+			time.sleep(0.005)
 			self.global_thread_lock.acquire(blocking=True)
 
 	def create_session(self,
