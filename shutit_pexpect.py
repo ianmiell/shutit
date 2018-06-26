@@ -112,6 +112,10 @@ class ShutItPexpectSession(object):
 		args = args or []
 		if not delaybeforesend:
 			delaybeforesend=shutit_global.shutit_global_object.delaybeforesend
+		# The pane to which this pexpect session is assigned.
+		self.pexpect_session_pane       = None
+		# Array of SessionPaneLine objects
+		self.session_output_lines      = []
 		self.pexpect_child       = self._spawn_child(command=command,
 		                                             args=args,
 		                                             timeout=timeout,
@@ -125,10 +129,6 @@ class ShutItPexpectSession(object):
 		                                             codec_errors=codec_errors,
 		                                             dimensions=dimensions,
 		                                             delaybeforesend=delaybeforesend)
-		# The pane to which this pexpect session is assigned.
-		self.pexpect_session_pane       = None
-		# Array of SessionPaneLine objects
-		self.session_output_lines      = []
 
 	def __str__(self):
 		str_repr = '\n======= SHUTIT_PEXPECT_SESSION BEGIN ======='
