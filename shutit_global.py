@@ -165,8 +165,12 @@ class ShutItGlobal(object):
 
 	def yield_to_draw(self):
 		# Release the lock to allow the screen to be drawn, then acquire again.
-		self.global_thread_lock.release()
-		self.global_thread_lock.acquire()
+		# Only ever yield if there are any sessions to draw.
+		if len(get_shutit_pexpect_sessions()) > 0:
+			self.global_thread_lock.release()
+			# Allow a little time for others to get a look in
+			time.sleep(0.0001)
+			self.global_thread_lock.acquire(blocking=True)
 
 	def create_session(self,
 	                   session_type='bash',
@@ -247,6 +251,8 @@ class ShutItGlobal(object):
 					msg = shutit_util.colorise(35,msg)
 			else:
 				msg = shutit_util.colorise(color_code,msg)
+		# yield to draw here
+		self.yield_to_draw()
 		# Message now in color if configured to be.
 		if transient:
 			self.last_log_time = time.time()

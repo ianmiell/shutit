@@ -30,60 +30,59 @@ def gather_module_paths():
 			shutit_module_paths.add(owd + '/' + path)
 	return shutit_module_paths
 
+
 def managing_thread_main():
 	import shutit_global
 	from shutit_global import SessionPaneLine
-	# TODO: only do this when ready
-	time.sleep(1)
+	shutit_global.shutit_global_object.global_thread_lock.acquire()
 	shutit_module_paths = gather_module_paths()
+	shutit_global.shutit_global_object.global_thread_lock.release()
 	shutit_global.shutit_global_object.stacktrace_lines_arr = [SessionPaneLine('',time.time(),'log'),]
 	last_code = []
 	draw_type = 'default'
 	zoom_state = None
 	while True:
+		# We have acquired the lock, so read in input
+		with Input() as input_generator:
+			input_char = input_generator.send(0.001)
+			if input_char == 'r':
+				# Rotate sessions at the bottom
+				shutit_global.shutit_global_object.lower_pane_rotate_count += 1
+			elif input_char == '1':
+				if zoom_state == 1:
+					draw_type = 'default'
+					zoom_state = None
+				else:
+					draw_type = 'zoomed1'
+					zoom_state = 1
+			elif input_char == '2':
+				if zoom_state == 2:
+					draw_type = 'default'
+					zoom_state = None
+				else:
+					draw_type = 'zoomed2'
+					zoom_state = 2
+			elif input_char == '3':
+				if zoom_state == 3:
+					draw_type = 'default'
+					zoom_state = None
+				else:
+					draw_type = 'zoomed3'
+					zoom_state = 3
+			elif input_char == '4':
+				if zoom_state == 4:
+					draw_type = 'default'
+					zoom_state = None
+				else:
+					draw_type = 'zoomed4'
+					zoom_state = 4
+			elif input_char == 'q':
+				draw_type = 'clearscreen'
+				shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type=draw_type)
+				os.system('reset')
+				os._exit(1)
 		# Acquire lock to write screen. Prevents nasty race conditions.
-		if shutit_global.shutit_global_object.global_thread_lock.acquire(False):
-			with Input() as input_generator:
-				input_char = input_generator.send(0.001)
-				if input_char == 'r':
-					# Rotate sessions at the bottom
-					shutit_global.shutit_global_object.lower_pane_rotate_count += 1
-				elif input_char == '1':
-					if zoom_state == 1:
-						draw_type = 'default'
-						zoom_state = None
-					else:
-						draw_type = 'zoomed1'
-						zoom_state = 1
-				elif input_char == '2':
-					if zoom_state == 2:
-						draw_type = 'default'
-						zoom_state = None
-					else:
-						draw_type = 'zoomed2'
-						zoom_state = 2
-				elif input_char == '3':
-					if zoom_state == 3:
-						draw_type = 'default'
-						zoom_state = None
-					else:
-						draw_type = 'zoomed3'
-						zoom_state = 3
-				elif input_char == '4':
-					if zoom_state == 4:
-						draw_type = 'default'
-						zoom_state = None
-					else:
-						draw_type = 'zoomed4'
-						zoom_state = 4
-				elif input_char == 'q':
-					draw_type = 'clearscreen'
-					shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type=draw_type)
-					os.system('reset')
-					os._exit(1)
-			# Go to sleep if we can't get the lock as spinning causes 100% CPU
-			time.sleep(0.1)
-			continue
+		shutit_global.shutit_global_object.global_thread_lock.acquire()
 		code      = []
 		for thread_id, stack in sys._current_frames().items():
 			# ignore own thread:
