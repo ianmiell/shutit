@@ -422,10 +422,10 @@ class PaneManager(object):
 
 	def draw_screen(self, draw_type='default', quick_help=None):
 		if quick_help is None:
-			quick_help = 'Help: (r)otate shutit sessions. (1,2,3,4) zoom pane in/out. (q)uit'
+			quick_help = 'Help: (r)otate shutit sessions | re(d)raw screen | (1,2,3,4) zoom pane in/out | (q)uit'
 		assert draw_type in ('default','clearscreen','zoomed1','zoomed2','zoomed3','zoomed4')
 		# Header
-		header_text = u' <= Shutit'
+		header_text = u'  <= Shutit'
 		self.screen_arr           = curtsies.FSArray(self.wheight, self.wwidth)
 		self.screen_arr[0:1,0:len(header_text)] = [blue(header_text)]
 		# Footer
