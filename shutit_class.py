@@ -360,6 +360,7 @@ class ShutIt(object):
 		# These are new members we dont have to provide compatibility for
 		self.conn_modules                    = set()
 		self.shutit_main_dir                 = os.path.abspath(os.path.dirname(__file__))
+		self.shutit_global_object            = shutit_global.shutit_global_object
 
 		# Needed for patterns
 		self.cfg                             = {} # used to store module information
