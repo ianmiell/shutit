@@ -93,8 +93,8 @@ def managing_thread_main():
 				# then show that context
 				for shutit_module_path in shutit_module_paths:
 					if filename.find(shutit_module_path) == 0:
-						linearrow = '===> ' + str(line)
-						if shutit_global.shutit_global_object.stacktrace_lines_arr[-1] != line:
+						if len(shutit_global.shutit_global_object.stacktrace_lines_arr) == 0 or shutit_global.shutit_global_object.stacktrace_lines_arr[-1] != line:
+							linearrow = '===> ' + str(line)
 							code.append('_' * 80)
 							code.append('=> %s:%d:%s' % (filename, lineno, name))
 							code.append('%s' % (linearrow,))
@@ -107,6 +107,7 @@ def managing_thread_main():
 							lineno_count = from_lineno
 							with open(filename, "r") as f:
 								for line in itertools.islice(f, from_lineno, to_lineno):
+									line = line.replace('\t','  ')
 									lineno_count += 1
 									if lineno_count == lineno:
 										code.append('***' + str(lineno_count) + '> ' + line.rstrip())
