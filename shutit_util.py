@@ -288,6 +288,9 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color=No
 	@param ispass:    True if this is a password (ie whether to not echo input)
 	@param color:     Color code to colorize with (eg 32 = green)
 	"""
+	# switch off log tracing when in get_input
+	log_trace_when_idle_original_value = shutit_global.shutit_global_object.log_trace_when_idle
+	shutit_global.shutit_global_object.log_trace_when_idle = False
 	if boolean and valid is None:
 		valid = ('yes','y','Y','1','true','no','n','N','0','false')
 	if color:
@@ -295,6 +298,8 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color=No
 	else:
 		answer = util_raw_input(msg,ispass=ispass)
 	if boolean and answer in ('', None) and default != '':
+		# Revert log trace value to original
+		shutit_global.shutit_global_object.log_trace_when_idle = log_trace_when_idle_original_value
 		return default
 	if valid is not None:
 		while answer not in valid:
@@ -305,9 +310,15 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color=No
 				answer = util_raw_input(msg,ispass=ispass)
 	if boolean:
 		if answer.lower() in ('yes','y','1','true','t'):
+			# Revert log trace value to original
+			shutit_global.shutit_global_object.log_trace_when_idle = log_trace_when_idle_original_value
 			return True
 		elif answer.lower() in ('no','n','0','false','f'):
+			# Revert log trace value to original
+			shutit_global.shutit_global_object.log_trace_when_idle = log_trace_when_idle_original_value
 			return False
+	# Revert log trace value to original
+	shutit_global.shutit_global_object.log_trace_when_idle = log_trace_when_idle_original_value
 	return answer or default
 
 
