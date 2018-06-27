@@ -4632,7 +4632,6 @@ class ShutIt(object):
 			return 'depender module id:\n\n[' + depender.module_id + ']\n\nis configured: "build:yes" or is already built but dependee module_id:\n\n[' + dependee_id + ']\n\n is not configured: "build:yes"'
 		return ''
 
-shutit_global.shutit_global_object.log_trace_when_idle
 	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, color=None):
 		# Don't log log traces while getting input
 		log_trace_when_idle_original_value = shutit_global.shutit_global_object.log_trace_when_idle
