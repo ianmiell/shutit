@@ -154,8 +154,6 @@ class ShutItGlobal(object):
 		str_repr += '\tself.default_encoding='   + str(self.default_encoding)
 		for shutit_object in self.shutit_objects:
 			str_repr += str(shutit_object)
-		# TODO
-		#self.shutit_pexpect_session_environments = set()
 		str_repr += '\n====== SHUTIT_GLOBAL_OBJECT DONE ====='
 		return str_repr
 
@@ -389,7 +387,6 @@ class PaneManager(object):
 		"""
 		assert self.only_one is None
 		self.only_one is True
-		# TODO: screen width and height
 		# Keep it simple for now by creating four panes
 		self.shutit_global             = shutit_global_object
 		self.top_left_session_pane     = SessionPane('top_left')

@@ -229,7 +229,6 @@ class ShutItInit(object):
 			assert isinstance(self.output_dir,bool), shutit_util.print_debug()
 			assert isinstance(self.vagrant_ssh_access,bool), shutit_util.print_debug()
 			#assert isinstance(self.delivery,str), shutit_util.print_debug()
-			# TODO: other asserts in other things.
 		elif self.action == 'run':
 			self.shutitfiles = shutitfiles
 			self.delivery    = delivery
@@ -1738,7 +1737,13 @@ class ShutIt(object):
 				shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
 				shutit_global.shutit_global_object.pane_manager.do_render = False
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-			shutit_pexpect_session.pause_point(msg=msg, print_input=print_input, resize=resize, color=color, default_msg=default_msg, wait=wait, interact=interact)
+			shutit_pexpect_session.pause_point(msg=msg,
+			                                   print_input=print_input,
+			                                   resize=resize,
+			                                   color=color,
+			                                   default_msg=default_msg,
+			                                   wait=wait,
+			                                   interact=interact)
 		else:
 			shutit_global.shutit_global_object.log(msg,level=logging.DEBUG)
 			shutit_global.shutit_global_object.log('Nothing to interact with, so quitting to presumably the original shell',level=logging.DEBUG)
@@ -4627,15 +4632,22 @@ class ShutIt(object):
 			return 'depender module id:\n\n[' + depender.module_id + ']\n\nis configured: "build:yes" or is already built but dependee module_id:\n\n[' + dependee_id + ']\n\n is not configured: "build:yes"'
 		return ''
 
+shutit_global.shutit_global_object.log_trace_when_idle
 	def get_input(self, msg, default='', valid=None, boolean=False, ispass=False, color=None):
+		# Don't log log traces while getting input
+		log_trace_when_idle_original_value = shutit_global.shutit_global_object.log_trace_when_idle
+		shutit_global.shutit_global_object.log_trace_when_idle = False
 		shutit_global.shutit_global_object.yield_to_draw()
 		self = self
-		return shutit_util.get_input(msg,
-		                      default=default,
-		                      valid=valid,
-		                      boolean=boolean,
-		                      ispass=ispass,
-		                      color=color)
+		res = shutit_util.get_input(msg,
+		                            default=default,
+		                            valid=valid,
+		                            boolean=boolean,
+		                            ispass=ispass,
+		                            color=color)
+		# Revert value of log_trace_when_idle
+		shutit_global.shutit_global_object.log_trace_when_idle = log_trace_when_idle_original_value
+		return res
 
 
 	# Pass through log to global function.
