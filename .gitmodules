@@ -1,6 +1,8 @@
 [submodule "shutit-test"]
 	path = shutit-test
 	url = https://github.com/ianmiell/shutit-test
+	branch = master
 [submodule "shutit-docs"]
 	path = shutit-docs
 	url = https://github.com/ianmiell/shutit-docs
+	branch = master

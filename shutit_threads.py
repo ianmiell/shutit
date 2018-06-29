@@ -8,12 +8,15 @@ import traceback
 import sys
 import os
 
+# There are two threads running in ShutIt. The 'main' one, which drives the
+# automation, and the 'watcher' one, which manages either the different view
+# panes, or outputs a stack trace of the main thread if 'nothing happens' on it.
+
 
 # TODO: reject tmux sessions - it does not seem to play nice
 # TODO: keep a time counter after the line
 # TODO: show context of line (ie lines around)
 # TODO: put the lines into an array of objects and mark the lines as inverted/not
-# TODO: Split the pane into two and show line in top and context in bottom
 def gather_module_paths():
 	import shutit_global
 	shutit_global_object = shutit_global.shutit_global_object
@@ -111,10 +114,8 @@ def managing_thread_main():
 									lineno_count += 1
 									if lineno_count == lineno:
 										code.append('***' + str(lineno_count) + '> ' + line.rstrip())
-										#code.append(line)
 									else:
 										code.append('===' + str(lineno_count) + '> ' + line.rstrip())
-										#code.append(line)
 							code.append('_' * 80)
 		if code != last_code:
 			for line in code:
