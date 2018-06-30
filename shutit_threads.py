@@ -85,7 +85,9 @@ def managing_thread_main():
 				os.system('reset')
 				os._exit(1)
 		# Acquire lock to write screen. Prevents nasty race conditions.
-		shutit_global.shutit_global_object.global_thread_lock.acquire()
+		if not shutit_global.shutit_global_object.global_thread_lock.acquire(blocking=False):
+			time.sleep(0.01)
+			continue
 		code      = []
 		for thread_id, stack in sys._current_frames().items():
 			# ignore own thread:
