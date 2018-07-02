@@ -310,45 +310,63 @@ class ShutItGlobal(object):
 			# Set up logging for https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string
 			self.loglevel = self.loglevel.upper()
 			if self.loglevel == 'DEBUG':
-				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.DEBUG)
+				logging.basicConfig(format=logformat, stream=self.logstream)
+				logobj.level = logging.DEBUG
 			elif self.loglevel == 'ERROR':
-				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.ERROR)
+				logging.basicConfig(format=logformat, stream=self.logstream)
+				logobj.level = logging.ERROR
 			elif self.loglevel in ('WARN','WARNING'):
-				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.WARNING)
+				logging.basicConfig(format=logformat, stream=self.logstream)
+				logobj.level = logging.WARNING
 			elif self.loglevel == 'CRITICAL':
-				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.CRITICAL)
+				logging.basicConfig(format=logformat, stream=self.logstream)
+				logobj.level = logging.CRITICAL
 			elif self.loglevel == 'INFO':
-				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.INFO)
+				logging.basicConfig(format=logformat, stream=self.logstream)
+				logobj.level = logging.INFO
 			else:
-				logging.basicConfig(format=logformat, stream=self.logstream, level=logging.DEBUG)
+				logging.basicConfig(format=logformat, stream=self.logstream)
+				logobj.level = logging.DEBUG
 		elif self.logfile == '':
 			self.loglevel = self.loglevel.upper()
 			if self.loglevel == 'DEBUG':
-				logging.basicConfig(format=logformat,level=logging.DEBUG)
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.DEBUG
 			elif self.loglevel == 'ERROR':
-				logging.basicConfig(format=logformat,level=logging.ERROR)
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.ERROR
 			elif self.loglevel in ('WARN','WARNING'):
-				logging.basicConfig(format=logformat,level=logging.WARNING)
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.WARNING
 			elif self.loglevel == 'CRITICAL':
-				logging.basicConfig(format=logformat,level=logging.CRITICAL)
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.CRITICAL
 			elif self.loglevel == 'INFO':
-				logging.basicConfig(format=logformat,level=logging.INFO)
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.INFO
 			else:
-				logging.basicConfig(format=logformat,level=logging.DEBUG)
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.DEBUG
 		else:
 			self.loglevel = self.loglevel.upper()
 			if self.loglevel == 'DEBUG':
-				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.DEBUG)
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.DEBUG
 			elif self.loglevel == 'ERROR':
-				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.ERROR)
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.ERROR
 			elif self.loglevel in ('WARN','WARNING'):
-				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.WARNING)
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.WARNING
 			elif self.loglevel == 'CRITICAL':
-				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.CRITICAL)
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.CRITICAL
 			elif self.loglevel == 'INFO':
-				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.INFO)
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.INFO
 			else:
-				logging.basicConfig(format=logformat,filename=self.logfile,level=logging.DEBUG)
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.DEBUG
 		self.loglevel = logobj.getEffectiveLevel()
 		if self.loglevel <= logging.INFO:
 			self.log_trace_when_idle = True
