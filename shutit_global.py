@@ -78,6 +78,7 @@ class ShutItGlobal(object):
 		self.logstream               = None
 		self.loglevel                = None
 		self.logging_setup_done      = False
+		self.logger_name             = 'shutit_main_thread_logger'
 		self.last_log_time           = time.time()
 		self.log_trace_when_idle     = False
 		self.signal_id               = None
@@ -261,7 +262,7 @@ class ShutItGlobal(object):
 			else:
 				return True
 		else:
-			logobj = logging.getLogger(__name__)
+			logobj = logging.getLogger(self.logger_name)
 			if logobj.getEffectiveLevel() <= level:
 				self.last_log_time = time.time()
 			logobj.log(level,msg)
@@ -293,8 +294,6 @@ class ShutItGlobal(object):
 
 
 	def setup_logging(self):
-		if self.logging_setup_done:
-			return
 		assert not self.managed_panes or (self.managed_panes and self.logstream)
 		assert self.logfile is not None
 		assert self.pane_manager is None
@@ -306,7 +305,7 @@ class ShutItGlobal(object):
 		else:
 			shutit_threads.track_main_thread_simple()
 		logformat='%(asctime)s %(levelname)s: %(message)s'
-		logobj = logging.getLogger(__name__)
+		logobj = logging.getLogger(self.logger_name)
 		if self.managed_panes:
 			# Set up logging for https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string
 			self.loglevel = self.loglevel.upper()
@@ -355,7 +354,6 @@ class ShutItGlobal(object):
 			self.log_trace_when_idle = True
 		else:
 			self.log_trace_when_idle = False
-		self.logging_setup_done = True
 
 
 	def handle_exit(self,exit_code=0,loglevel=logging.CRITICAL,msg=None):
