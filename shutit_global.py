@@ -296,7 +296,9 @@ class ShutItGlobal(object):
 	def setup_logging(self):
 		assert not self.managed_panes or (self.managed_panes and self.logstream)
 		assert self.logfile is not None
-		assert self.pane_manager is None
+		if self.pane_manager is not None:
+			# TODO: remove this?
+			return
 		# TODO: managed_panes and echo are incompatible
 		if self.managed_panes:
 			self.nocolor          = True
