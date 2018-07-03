@@ -384,7 +384,7 @@ class ShutItGlobal(object):
 			self.log('\r\nExiting with error code: ' + str(exit_code),level=loglevel)
 			self.log(msg,level=loglevel)
 			self.log('\r\nResetting terminal',level=loglevel)
-		shutit_util.sanitize_terminal()
+			shutit_util.sanitize_terminal()
 		sys.exit(exit_code)
 
 

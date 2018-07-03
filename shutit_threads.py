@@ -152,7 +152,7 @@ def managing_thread_main_simple():
 					if not printed_anything:
 						printed_anything = True
 						this_msg += '='*80 + '\n'
-						this_msg += 'STACK TRACES PRINTED ON IDLE: THREAD_ID: ' + str(thread_id) + '\n'
+						this_msg += 'STACK TRACES PRINTED ON IDLE: THREAD_ID: ' + str(thread_id) + ' at ' + time.strftime('%c') + '\n'
 						this_msg += '='*80 + '\n'
 					if not printed_thread_started:
 						printed_thread_started = True
