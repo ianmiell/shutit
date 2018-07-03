@@ -168,7 +168,7 @@ class ShutItGlobal(object):
 		if len(get_shutit_pexpect_sessions()) > 0:
 			self.global_thread_lock.release()
 			# Allow a _little_ time for others to get a look in
-			time.sleep(0.0001)
+			time.sleep(0.001)
 			self.global_thread_lock.acquire()
 
 	def create_session(self,
