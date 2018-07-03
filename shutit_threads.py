@@ -12,6 +12,8 @@ import os
 # automation, and the 'watcher' one, which manages either the different view
 # panes, or outputs a stack trace of the main thread if 'nothing happens' on it.
 
+PY3 = sys.version_info[0] >= 3
+
 
 # TODO: reject tmux sessions - it does not seem to play nice
 # TODO: keep a time counter after the line
@@ -85,9 +87,15 @@ def managing_thread_main():
 				os.system('reset')
 				os._exit(1)
 		# Acquire lock to write screen. Prevents nasty race conditions.
-		if not shutit_global.shutit_global_object.global_thread_lock.acquire(blocking=False):
-			time.sleep(0.01)
-			continue
+		# Different depending PY2/3
+		if PY3:
+			if not shutit_global.shutit_global_object.global_thread_lock.acquire(blocking=False):
+				time.sleep(0.01)
+				continue
+		else:
+			if not shutit_global.shutit_global_object.global_thread_lock.acquire(False):
+				time.sleep(0.01)
+				continue
 		code      = []
 		for thread_id, stack in sys._current_frames().items():
 			# ignore own thread:
