@@ -76,8 +76,8 @@ class ShutItGlobal(object):
 		self.secret_words_set        = set()
 		self.logfile                 = None
 		self.logstream               = None
+		self.logstream_size          = 1000000
 		self.loglevel                = None
-		self.logging_setup_done      = False
 		self.logger_name             = 'shutit_main_thread_logger'
 		self.last_log_time           = time.time()
 		self.log_trace_when_idle     = False
@@ -457,6 +457,9 @@ class PaneManager(object):
 			# Update the lower_pane_rotate_count so that it doesn't exceed the length of sessions.
 			self.shutit_global.lower_pane_rotate_count = self.shutit_global.lower_pane_rotate_count % len(sessions)
 			sessions = sessions[-self.shutit_global.lower_pane_rotate_count:] + sessions[:-self.shutit_global.lower_pane_rotate_count]
+		# Truncate logstream if it gets too big.
+		if self.shutit_global.logstream.getvalue() > self.shutit_global.logstream_size:
+			self.shutit_global.logstream.truncate(self.shutit_global.logstream_size)
 		if draw_type == 'default':
 			# Draw the sessions.
 			self.do_layout_default()
@@ -606,6 +609,7 @@ class SessionPane(object):
 		self.top_left_y           = -1
 		self.bottom_right_x       = -1
 		self.bottom_right_y       = -1
+		self.line_buffer_size     = 1000
 		assert self.name in ('top_left','bottom_left','top_right','bottom_right')
 
 

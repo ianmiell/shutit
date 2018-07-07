@@ -3241,7 +3241,7 @@ class ShutIt(object):
 
 
 	def process_args(self, args):
-		"""Process the args we have.
+		"""Process the args we have. 'args' is always a ShutItInit object.
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
 		assert isinstance(args,ShutItInit), shutit_util.print_debug()
@@ -3251,14 +3251,13 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
 		# Set up global object
-		if not shutit_global.shutit_global_object.logging_setup_done:
-			shutit_global.shutit_global_object.logfile  = args.logfile
-			shutit_global.shutit_global_object.loglevel = args.loglevel
-			shutit_global.shutit_global_object.nocolor  = args.nocolor
-			# Logging
-			if shutit_global.shutit_global_object.loglevel in ('', None):
-				shutit_global.shutit_global_object.loglevel = 'INFO'
-			shutit_global.shutit_global_object.setup_logging()
+		shutit_global.shutit_global_object.logfile  = args.logfile
+		shutit_global.shutit_global_object.loglevel = args.loglevel
+		shutit_global.shutit_global_object.nocolor  = args.nocolor
+		# Logging
+		if shutit_global.shutit_global_object.loglevel is None or shutit_global.shutit_global_object.loglevel == '':
+			shutit_global.shutit_global_object.loglevel = 'INFO'
+		shutit_global.shutit_global_object.setup_logging()
 
 		# What are we asking shutit to do?
 		self.action['list_configs'] = args.action == 'list_configs'
