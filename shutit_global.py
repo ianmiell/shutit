@@ -74,11 +74,13 @@ class ShutItGlobal(object):
 		self.global_thread_lock.acquire()
 		self.ispy3                   = (sys.version_info[0] >= 3)
 		self.secret_words_set        = set()
+		# Logging
 		self.logfile                 = None
 		self.logstream               = None
 		self.logstream_size          = 1000000
 		self.loglevel                = None
 		self.logger_name             = 'shutit_main_thread_logger'
+		self.logging_setup_done      = False
 		self.last_log_time           = time.time()
 		self.log_trace_when_idle     = False
 		self.signal_id               = None
@@ -293,9 +295,12 @@ class ShutItGlobal(object):
 		return True
 
 
-	def setup_logging(self):
+	def setup_logging(self, force=False):
 		assert not self.managed_panes or (self.managed_panes and self.logstream)
 		assert self.logfile is not None
+		# TODO: sort out logging setup on a per-shutit object basis.
+		if not force and self.logging_setup_done:
+			return
 		if self.pane_manager is not None:
 			# TODO: remove this?
 			return
@@ -374,6 +379,7 @@ class ShutItGlobal(object):
 			self.log_trace_when_idle = True
 		else:
 			self.log_trace_when_idle = False
+		self.logging_setup_done = True
 
 
 	def handle_exit(self,exit_code=0,loglevel=logging.CRITICAL,msg=None):
