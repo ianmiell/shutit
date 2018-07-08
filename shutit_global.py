@@ -298,7 +298,7 @@ class ShutItGlobal(object):
 	def setup_logging(self, force=False):
 		assert not self.managed_panes or (self.managed_panes and self.logstream)
 		assert self.logfile is not None
-		# TODO: sort out logging setup on a per-shutit object basis.
+		# TODO: sort out logging setup on a per-shutit object basis.
 		if not force and self.logging_setup_done:
 			return
 		if self.pane_manager is not None:
