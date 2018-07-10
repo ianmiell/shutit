@@ -67,8 +67,7 @@ from shutit_module import ShutItFailException
 from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
 from shutit_background import ShutItBackgroundCommand
 
-PY3 = sys.version_info[0] >= 3
-if PY3:
+if sys.version_info[0] >= 3:
 	unicode = str
 
 class ShutItPexpectSession(object):
@@ -830,7 +829,7 @@ class ShutItPexpectSession(object):
 					self.pexpect_child.interact()
 				try:
 					#shutit_global.shutit_global_object.shutit_print('pre interact')
-					if PY3:
+					if shutit_global.shutit_global_object.ispy3:
 						# For some reason interact barfs when we use _pause_input_filter, so drop it for PY3: https://github.com/pexpect/pexpect/blob/master/pexpect/pty_spawn.py#L819
 						self.pexpect_child.interact()
 					else:

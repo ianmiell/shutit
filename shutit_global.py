@@ -50,8 +50,7 @@ from curtsies.events import PasteEvent
 from curtsies.input import Input
 import shutit_threads
 
-PY3 = sys.version_info[0] >= 3
-if PY3:
+if sys.version_info[0] >= 3:
 	unicode = str
 
 class ShutItGlobal(object):
@@ -121,7 +120,7 @@ class ShutItGlobal(object):
 			mkpath(shutit_state_dir_base,mode=0o777)
 		self.shutit_state_dir       = shutit_state_dir_base + '/' + self.build_id
 		os.chmod(shutit_state_dir_base,0o777)
-		if not os.access(self.shutit_state_dir,os.F_OK):
+		3if not os.access(self.shutit_state_dir,os.F_OK):
 			mkpath(self.shutit_state_dir,mode=0o777)
 		os.chmod(self.shutit_state_dir,0o777)
 		self.shutit_state_dir_build_db_dir = self.shutit_state_dir + '/build_db'
@@ -452,7 +451,7 @@ class PaneManager(object):
 		# Footer
 		space = (self.wwidth - len(quick_help))*' '
 		footer_text = space + quick_help
-		if not PY3:
+		if not self.shutit_global.ispy3:
 			footer_text = footer_text.decode('utf-8')
 		self.screen_arr[self.wheight-1:self.wheight,0:len(footer_text)] = [invert(blue(footer_text))]
 		if draw_type in ('default','zoomed3','zoomed4'):
@@ -548,7 +547,7 @@ class PaneManager(object):
 		p_lines_str = None
 		# Scrub any ansi escape sequences.
 		ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
-		if not PY3:
+		if not self.shutit_global.ispy3:
 			lines = [ ansi_escape.sub('', line).strip().decode('utf-8') for line in p_lines ]
 		else:
 			lines = [ ansi_escape.sub('', line).strip() for line in p_lines ]
