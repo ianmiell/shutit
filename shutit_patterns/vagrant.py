@@ -67,7 +67,7 @@ def setup_vagrant_pattern(shutit,
 			table.set_cols_dtype(['i','a','a'])
 			table.set_cols_align(['r', "l", "r"])
 			table.add_rows(rows)
-			shutit_global.shutit_global_object.shutit_print(table.draw() + '\n')
+			shutit.shutit_global_object.shutit_print(table.draw() + '\n')
 			readline.set_startup_hook(lambda: readline.insert_text(''))
 			for choice_li in ('5','4','3','2','1'):
 				readline.add_history(choice_li)
@@ -84,19 +84,19 @@ If you want to change a config, choose the number: ''')
 				try:
 					choice = int(choice)
 				except ValueError:
-					shutit_global.shutit_global_object.shutit_print('Bad value, ignoring')
+					shutit.shutit_global_object.shutit_print('Bad value, ignoring')
 					continue
 			else:
-				shutit_global.shutit_global_object.shutit_print('Bad value, ignoring')
+				shutit.shutit_global_object.shutit_print('Bad value, ignoring')
 				continue
 			# Print out the actual choice....
-			shutit_global.shutit_global_object.shutit_print(rows[choice][1])
+			shutit.shutit_global_object.shutit_print(rows[choice][1])
 			# off by one
 			choice -= 1
 			item = options[choice]
 			value = shutit_util.get_input(msg='Input the value: ',color=None)
 			if item['ok_values'] and value not in item['ok_values']:
-				shutit_global.shutit_global_object.shutit_print('Bad value, ignoring')
+				shutit.shutit_global_object.shutit_print('Bad value, ignoring')
 				continue
 			item['value'] = value
 		for opt in options:
