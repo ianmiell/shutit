@@ -295,9 +295,10 @@ class ShutItGlobal(object):
 		return True
 
 
-	def setup_logging(self, force=False):
+	def setup_logging(self, force=False, action=None):
 		assert not self.managed_panes or (self.managed_panes and self.logstream)
 		assert self.logfile is not None
+		assert action is not None
 		# TODO: sort out logging setup on a per-shutit object basis.
 		if not force and self.logging_setup_done:
 			return
@@ -310,7 +311,8 @@ class ShutItGlobal(object):
 			self.pane_manager     = PaneManager(self)
 			shutit_threads.track_main_thread()
 		else:
-			shutit_threads.track_main_thread_simple()
+			if action == 'build':
+				shutit_threads.track_main_thread_simple()
 		logformat='%(asctime)s %(levelname)s: %(message)s'
 		logobj = logging.getLogger(self.logger_name)
 		if self.managed_panes:
@@ -393,6 +395,7 @@ class ShutItGlobal(object):
 			self.log(msg,level=loglevel)
 			self.log('\r\nResetting terminal',level=loglevel)
 			shutit_util.sanitize_terminal()
+			shutit_util.exit_cleanup()
 		sys.exit(exit_code)
 
 

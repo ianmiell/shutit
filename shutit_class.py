@@ -3252,13 +3252,6 @@ class ShutIt(object):
 
 		# Set up global object
 		shutit_global.shutit_global_object.nocolor  = args.nocolor
-		# Logging
-		if not shutit_global.shutit_global_object.logging_setup_done:
-			shutit_global.shutit_global_object.logfile  = args.logfile
-			shutit_global.shutit_global_object.loglevel = args.loglevel
-			if shutit_global.shutit_global_object.loglevel is None or shutit_global.shutit_global_object.loglevel == '':
-				shutit_global.shutit_global_object.loglevel = 'INFO'
-			shutit_global.shutit_global_object.setup_logging()
 
 		# What are we asking shutit to do?
 		self.action['list_configs'] = args.action == 'list_configs'
@@ -3267,6 +3260,14 @@ class ShutIt(object):
 		self.action['skeleton']     = args.action == 'skeleton'
 		self.action['build']        = args.action == 'build'
 		self.action['run']          = args.action == 'run'
+
+		# Logging
+		if not shutit_global.shutit_global_object.logging_setup_done:
+			shutit_global.shutit_global_object.logfile  = args.logfile
+			shutit_global.shutit_global_object.loglevel = args.loglevel
+			if shutit_global.shutit_global_object.loglevel is None or shutit_global.shutit_global_object.loglevel == '':
+				shutit_global.shutit_global_object.loglevel = 'INFO'
+			shutit_global.shutit_global_object.setup_logging(action=args.action)
 
 		# This mode is a bit special - it's the only one with different arguments
 		if self.action['skeleton']:
