@@ -223,6 +223,8 @@ def sendline(child, line):
 
 def sanitize_terminal():
 	os.system('stty sane')
+
+def exit_cleanup():
 	time.sleep(1)
 	sys.stdout.write('ShutIt has exited, resetting terminal in 2...')
 	sys.stdout.flush()

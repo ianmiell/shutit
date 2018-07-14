@@ -27,7 +27,6 @@
 """
 import logging
 import sys
-import shutit_threads
 import shutit_global
 import shutit_util
 
