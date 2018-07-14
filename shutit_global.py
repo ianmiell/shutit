@@ -378,9 +378,6 @@ class ShutItGlobal(object):
 		else:
 			self.log_trace_when_idle = False
 		self.logging_setup_done = True
-=======
-			shutit_threads.track_main_thread_simple()
->>>>>>> initial attempt to break out logging per session
 
 
 	def handle_exit(self,exit_code=0,loglevel=logging.CRITICAL,msg=None):
