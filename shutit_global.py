@@ -120,7 +120,7 @@ class ShutItGlobal(object):
 			mkpath(shutit_state_dir_base,mode=0o777)
 		self.shutit_state_dir       = shutit_state_dir_base + '/' + self.build_id
 		os.chmod(shutit_state_dir_base,0o777)
-		3if not os.access(self.shutit_state_dir,os.F_OK):
+		if not os.access(self.shutit_state_dir,os.F_OK):
 			mkpath(self.shutit_state_dir,mode=0o777)
 		os.chmod(self.shutit_state_dir,0o777)
 		self.shutit_state_dir_build_db_dir = self.shutit_state_dir + '/build_db'
