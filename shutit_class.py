@@ -27,6 +27,7 @@ import string
 import sys
 import subprocess
 import time
+import uuid
 import shutit
 import texttable
 import pexpect
@@ -367,6 +368,12 @@ class ShutIt(object):
 		self.cfg['shutitfile']               = self.shutitfile   # required for patterns
 		self.cfg['skeleton']                 = {}                # required for patterns
 
+		# Unique id
+		self.uuid_str                        = str(uuid.uuid4())
+		# Logging
+		self.loglevel                        = None
+		self.logfile                         = None
+
 
 	def __str__(self):
 		string = '\n======= SHUTIT OBJECT BEGIN ========'
@@ -393,6 +400,73 @@ class ShutIt(object):
 			string += '\tlogin_stack='                    + str(self.current_shutit_pexpect_session.login_stack)
 		string += '\n======= SHUTIT OBJECT DONE ========'
 		return string
+
+
+	def setup_logging(self):
+		logformat='%(asctime)s %(levelname)s: %(message)s'
+		logobj = logging.getLogger(self.uuid_str)
+		if self.shutit_global_object.managed_panes:
+			# Set up logging for https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string
+			self.loglevel = self.loglevel.upper()
+			if self.loglevel == 'DEBUG':
+				logging.basicConfig(format=logformat, stream=self.shutit_global_object.logstream)
+				logobj.level = logging.DEBUG
+			elif self.loglevel == 'ERROR':
+				logging.basicConfig(format=logformat, stream=self.shutit_global_object.logstream)
+				logobj.level = logging.ERROR
+			elif self.loglevel in ('WARN','WARNING'):
+				logging.basicConfig(format=logformat, stream=self.shutit_global_object.logstream)
+				logobj.level = logging.WARNING
+			elif self.loglevel == 'CRITICAL':
+				logging.basicConfig(format=logformat, stream=self.shutit_global_object.logstream)
+				logobj.level = logging.CRITICAL
+			elif self.loglevel == 'INFO':
+				logging.basicConfig(format=logformat, stream=self.shutit_global_object.logstream)
+				logobj.level = logging.INFO
+			else:
+				logging.basicConfig(format=logformat, stream=self.shutit_global_object.logstream)
+				logobj.level = logging.DEBUG
+		elif self.logfile == '':
+			self.loglevel = self.loglevel.upper()
+			if self.loglevel == 'DEBUG':
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.DEBUG
+			elif self.loglevel == 'ERROR':
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.ERROR
+			elif self.loglevel in ('WARN','WARNING'):
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.WARNING
+			elif self.loglevel == 'CRITICAL':
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.CRITICAL
+			elif self.loglevel == 'INFO':
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.INFO
+			else:
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.DEBUG
+		else:
+			self.loglevel = self.loglevel.upper()
+			if self.loglevel == 'DEBUG':
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.DEBUG
+			elif self.loglevel == 'ERROR':
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.ERROR
+			elif self.loglevel in ('WARN','WARNING'):
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.WARNING
+			elif self.loglevel == 'CRITICAL':
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.CRITICAL
+			elif self.loglevel == 'INFO':
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.INFO
+			else:
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.DEBUG
+		self.loglevel = logobj.getEffectiveLevel()
 
 
 	def get_shutit_pexpect_session_environment(self, environment_id):
@@ -2550,7 +2624,7 @@ class ShutIt(object):
 		if shutit_global.shutit_global_object.managed_panes:
 			# Never echo if in managed panes
 			return False
-		if self.build['always_echo'] is True or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
+		if self.build['always_echo'] is True or self.loglevel <= logging.DEBUG:
 			# Yes if it's set to always echo or is in debug
 			echo = True
 		if echo is None and self.build['walkthrough']:
@@ -2559,7 +2633,7 @@ class ShutIt(object):
 		if echo is None:
 			# No if it was not explicitly passed in
 			echo = False
-		if self.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
+		if self.build['exam'] and self.loglevel not in ('DEBUG',):
 			# No if we are in exam mode
 			echo = False
 		return echo
@@ -2758,7 +2832,7 @@ class ShutIt(object):
 		paths.
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
-		if shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
+		if self.loglevel <= logging.DEBUG:
 			shutit_global.shutit_global_object.log('ShutIt module paths now: ',level=logging.DEBUG)
 			shutit_global.shutit_global_object.log(self.host['shutit_module_path'],level=logging.DEBUG)
 		for shutit_module_path in self.host['shutit_module_path']:
@@ -2808,7 +2882,7 @@ class ShutIt(object):
 			configs.append(run_config_file)
 		# Image to use to start off. The script should be idempotent, so running it
 		# on an already built image should be ok, and is advised to reduce diff space required.
-		if self.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
+		if self.action['list_configs'] or self.loglevel <= logging.DEBUG:
 			msg = ''
 			for c in configs:
 				if isinstance(c, tuple):
@@ -2866,7 +2940,7 @@ class ShutIt(object):
 		self.host['password']                    = cp.get('host', 'password')
 		if isinstance(self.host['password'],str):
 			shutit_global.shutit_global_object.secret_words_set.add(self.host['password'])
-		shutit_global.shutit_global_object.logfile = cp.get('host', 'logfile')
+		self.logfile = cp.get('host', 'logfile')
 		shutit_global.shutit_global_object.nocolor = cp.getboolean('host', 'nocolor')
 		self.host['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
 
@@ -3263,11 +3337,12 @@ class ShutIt(object):
 
 		# Logging
 		if not shutit_global.shutit_global_object.logging_setup_done:
-			shutit_global.shutit_global_object.logfile  = args.logfile
-			shutit_global.shutit_global_object.loglevel = args.loglevel
-			if shutit_global.shutit_global_object.loglevel is None or shutit_global.shutit_global_object.loglevel == '':
-				shutit_global.shutit_global_object.loglevel = 'INFO'
+			self.logfile  = args.logfile
+			self.loglevel = args.loglevel
+			if self.loglevel is None or self.loglevel == '':
+				self.loglevel = 'INFO'
 			shutit_global.shutit_global_object.setup_logging(action=args.action)
+			self.setup_logging()
 
 		# This mode is a bit special - it's the only one with different arguments
 		if self.action['skeleton']:
@@ -3565,7 +3640,7 @@ class ShutIt(object):
 
 		# Finished parsing args.
 		# Sort out config path
-		if self.action['list_configs'] or self.action['list_modules'] or self.action['list_deps'] or shutit_global.shutit_global_object.loglevel == logging.DEBUG:
+		if self.action['list_configs'] or self.action['list_modules'] or self.action['list_deps'] or self.loglevel == logging.DEBUG:
 			self.build['log_config_path'] = shutit_global.shutit_global_object.shutit_state_dir + '/config'
 			if not os.path.exists(self.build['log_config_path']):
 				os.makedirs(self.build['log_config_path'])
@@ -4033,7 +4108,7 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.handle_exit()
 		# Dependency validation done, now collect configs of those marked for build.
 		self.config_collection_for_built()
-		if self.action['list_configs'] or shutit_global.shutit_global_object.loglevel <= logging.DEBUG:
+		if self.action['list_configs'] or self.loglevel <= logging.DEBUG:
 			shutit_global.shutit_global_object.log(self.print_config(self.cfg, history=self.list_configs['cfghistory']),level=logging.INFO)
 			# Set build completed
 			self.build['completed'] = True

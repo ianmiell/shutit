@@ -763,7 +763,7 @@ class ShutItPexpectSession(object):
 		"""
 		shutit = self.shutit
 		# Try and stop user being 'clever' if we are in an exam and not in debug
-		if shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
+		if shutit.build['exam'] and shutit.loglevel not in ('DEBUG',):
 			self.send(ShutItSendSpec(self,
 			                         send=' command alias exit=/bin/true && command alias logout=/bin/true && command alias kill=/bin/true && command alias alias=/bin/true',
 			                         echo=False,
@@ -794,7 +794,7 @@ class ShutItPexpectSession(object):
 				except Exception:
 					pass
 			if default_msg is None:
-				if not shutit.build['video'] and not shutit.build['training'] and not shutit.build['exam'] and not shutit.build['walkthrough'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
+				if not shutit.build['video'] and not shutit.build['training'] and not shutit.build['exam'] and not shutit.build['walkthrough'] and self.shutit.loglevel not in ('DEBUG',):
 					pp_msg = '\r\nYou now have a standard shell.'
 					if not interact:
 						pp_msg += '\r\nHit CTRL and then ] at the same time to continue ShutIt run, CTRL-q to quit.'
@@ -815,7 +815,7 @@ class ShutItPexpectSession(object):
 				self.pexpect_child.setwinsize(shutit_global.shutit_global_object.root_window_size[0],shutit_global.shutit_global_object.root_window_size[1])
 				# TODO: handle exams better?
 				self.expect('.*')
-				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
+				if not shutit.build['exam'] and self.shutit.loglevel not in ('DEBUG',):
 					if self.in_shell:
 						# Give them a 'normal' shell.
 						assert not self.sendline(ShutItSendSpec(self,
@@ -839,7 +839,7 @@ class ShutItPexpectSession(object):
 					#shutit_global.shutit_global_object.shutit_print('post handle_pause_point_signals')
 				except Exception as e:
 					shutit.fail('Terminating ShutIt within pause point.\r\n' + str(e)) # pragma: no cover
-				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
+				if not shutit.build['exam'] and self.shutit.loglevel not in ('DEBUG',):
 					if self.in_shell:
 						assert not self.send(ShutItSendSpec(self,
 						                                    send=' exit',
@@ -865,7 +865,7 @@ class ShutItPexpectSession(object):
 		elif shutit_global.shutit_global_object.signal_id == 0:
 			shutit_global.shutit_global_object.log('\r\nLeaving interact without CTRL-], assuming exit.',level=logging.CRITICAL,transient=True)
 			shutit_global.shutit_global_object.handle_exit(exit_code=1)
-		if shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
+		if shutit.build['exam'] and self.shutit.loglevel not in ('DEBUG',):
 			self.send(ShutItSendSpec(self,
 			                         send=' unalias exit && unalias logout && unalias kill && unalias alias',
 			                         echo=False,
@@ -1430,7 +1430,7 @@ class ShutItPexpectSession(object):
 		if install_type == 'apt':
 			if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 				opts = '-y'
-				if shutit_global.shutit_global_object.loglevel > logging.DEBUG:
+				if self.shutit.loglevel > logging.DEBUG:
 					opts += ' -qq'
 				self.send(ShutItSendSpec(self,
 				                         send='apt-get ' + opts + ' update',
@@ -1445,7 +1445,7 @@ class ShutItPexpectSession(object):
 				opts = options['apt']
 			else:
 				opts = '-y'
-				if shutit_global.shutit_global_object.loglevel > logging.DEBUG:
+				if self.shutit.loglevel > logging.DEBUG:
 					opts += ' -qq'
 				if force:
 					opts += ' --force-yes'
@@ -1457,7 +1457,7 @@ class ShutItPexpectSession(object):
 			if 'yum' in options:
 				opts = options['yum']
 			else:
-				if shutit_global.shutit_global_object.loglevel > logging.DEBUG:
+				if self.shutit.loglevel > logging.DEBUG:
 					opts += ' -q'
 				opts += ' -y'
 			if reinstall:
@@ -3621,13 +3621,13 @@ $'"""
 			# CTRL-p - used as part of CTRL-p - CTRL-q
 			elif ord(input_string) == 16:
 				shutit_global.shutit_global_object.signal_id = 16
-				if shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG','INFO'):
+				if shutit.build['exam'] and self.shutit.loglevel not in ('DEBUG','INFO'):
 					return ''
 				return '\x10'
 			# CTRL-q
 			elif ord(input_string) == 17:
 				shutit_global.shutit_global_object.signal_id = 17
-				if not shutit.build['exam'] and shutit_global.shutit_global_object.loglevel not in ('DEBUG',):
+				if not shutit.build['exam'] and self.shutit.loglevel not in ('DEBUG',):
 					shutit_global.shutit_global_object.log('CTRL-q hit, quitting ShutIt',transient=True,level=logging.CRITICAL)
 					shutit_global.shutit_global_object.handle_exit(exit_code=1)
 			# CTRL-s

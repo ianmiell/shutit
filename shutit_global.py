@@ -74,10 +74,8 @@ class ShutItGlobal(object):
 		self.ispy3                   = (sys.version_info[0] >= 3)
 		self.secret_words_set        = set()
 		# Logging
-		self.logfile                 = None
 		self.logstream               = None
 		self.logstream_size          = 1000000
-		self.loglevel                = None
 		self.logger_name             = 'shutit_main_thread_logger'
 		self.logging_setup_done      = False
 		self.last_log_time           = time.time()
@@ -143,7 +141,6 @@ class ShutItGlobal(object):
 
 	def __str__(self):
 		str_repr = '\n====== SHUTIT_GLOBAL_OBJECT BEGIN ====='
-		str_repr += '\nself.logfile='            + str(self.logfile)
 		str_repr += '\tself.signal_id='          + str(self.signal_id)
 		str_repr += '\tself.window_size_max='    + str(self.window_size_max)
 		str_repr += '\tself.username='           + str(self.username)
@@ -381,6 +378,9 @@ class ShutItGlobal(object):
 		else:
 			self.log_trace_when_idle = False
 		self.logging_setup_done = True
+=======
+			shutit_threads.track_main_thread_simple()
+>>>>>>> initial attempt to break out logging per session
 
 
 	def handle_exit(self,exit_code=0,loglevel=logging.CRITICAL,msg=None):
