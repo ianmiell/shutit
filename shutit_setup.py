@@ -34,6 +34,7 @@ Nomenclature:
 
 from __future__ import print_function
 import shutit_global
+import shutit_util
 from shutit_module import ShutItModule
 from shutit_sendspec import ShutItSendSpec
 from shutit_pexpect import ShutItPexpectSession

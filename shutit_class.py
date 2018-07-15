@@ -842,7 +842,6 @@ class ShutIt(object):
 	                           expect=None,
 	                           shutit_pexpect_child=None,
 	                           timeout=None,
-	                           check_exit=None,
 	                           fail_on_empty_before=True,
 	                           record_command=True,
 	                           exit_values=None,
@@ -942,7 +941,7 @@ class ShutIt(object):
 		timed_out = True
 		iteration_n = 0
 		while accum_timeout < timeout:
-			iteration_n+=1 
+			iteration_n+=1
 			res = shutit_pexpect_session.expect(expect, timeout=iteration_s, iteration_n=iteration_n)
 			if res == len(expect):
 				if self.build['ctrlc_stop']:
@@ -997,7 +996,7 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		return shutit_pexpect_session.run_script(script,
-		                                         in_shell=in_shell,	
+		                                         in_shell=in_shell,
 		                                         echo=echo,
 		                                         note=note,
 		                                         loglevel=loglevel)
@@ -4732,14 +4731,13 @@ class ShutIt(object):
 	        add_final_message=False,
 	        level=logging.INFO,
 	        newline=True,
-	        color_code=0,
 	        mask_password=True,
 	        transient=False):
 		if mask_password:
 			for password in shutit_global.shutit_global_object.secret_words_set:
 				if password in msg:
 					msg.replace(password,'REDACTED')
-		# TODO nocolor as per shutit_global
+		# TODO nocolor as per shutit_global
 		shutit_global.shutit_global_object.yield_to_draw()
 		if transient:
 			self.last_log_time = time.time()
