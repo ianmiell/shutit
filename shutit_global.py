@@ -31,23 +31,17 @@ import time
 import getpass
 import datetime
 import logging
-try:
-    from cStringIO import StringIO      # Python 2
-except ImportError:
-    from io import StringIO
 import fcntl
 import pwd
 import re
 import termios
 import signal
 import struct
-from distutils.dir_util import mkpath
-import pexpect
-import curtsies
 import threading
-from curtsies.fmtfuncs import black, yellow, magenta, cyan, gray, blue, red, green, on_black, on_dark, on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_gray, bold, dark, underline, blink, invert, plain
-from curtsies.events import PasteEvent
-from curtsies.input import Input
+from distutils.dir_util import mkpath
+import curtsies
+#from curtsies.fmtfuncs import black, yellow, magenta, cyan, gray, blue, red, green, on_black, on_dark, on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_gray, bold, dark, underline, blink, invert, plain
+from curtsies.fmtfuncs import blue, cyan, invert
 import shutit_threads
 
 if sys.version_info[0] >= 3:
@@ -405,7 +399,7 @@ class PaneManager(object):
 	only_one = None
 	def __init__(self, shutit_global_object):
 		"""
-		
+
 		only_one             - singleton insurance
 		"""
 		assert self.only_one is None
@@ -430,7 +424,7 @@ class PaneManager(object):
 		self.window               = curtsies.FullscreenWindow(hide_cursor=True)
 		self.wheight              = self.window.height
 		self.wwidth               = self.window.width
-		self.screen_arr           = None 
+		self.screen_arr           = None
 		# Divide the screen up into two, to keep it simple for now
 		self.wheight_top_end      = int(self.wheight / 2)
 		self.wheight_bottom_start = int(self.wheight / 2)
