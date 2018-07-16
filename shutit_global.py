@@ -213,7 +213,7 @@ class ShutItGlobal(object):
 	def do_final_messages(self):
 		# Show final report messages (ie messages to show after standard report).
 		if self.report_final_messages != '':
-			self.shutit_objects[0].log('\r\n\r\n' + self.report_final_messages + '\r\n\r\n', level=logging.INFO, transient=True, color_code=31)
+			self.shutit_objects[0].log('\r\n\r\n' + self.report_final_messages + '\r\n\r\n', level=logging.INFO, transient=True)
 
 
 	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True, mask_password=True, color_code=0):
