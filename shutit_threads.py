@@ -158,7 +158,7 @@ def managing_thread_main_simple():
 				for filename, lineno, name, line in traceback.extract_stack(stack):
 					if not printed_anything:
 						printed_anything = True
-						this_header += '='*80 + '\n'
+						this_header += '\n='*80 + '\n'
 						this_header += 'STACK TRACES PRINTED ON IDLE: THREAD_ID: ' + str(thread_id) + ' at ' + time.strftime('%c') + '\n'
 						this_header += '='*80 + '\n'
 					if not printed_thread_started:

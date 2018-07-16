@@ -4754,7 +4754,7 @@ class ShutIt(object):
 				self.last_log_time = time.time()
 			logobj.log(level,msg)
 			if add_final_message:
-				shutit_global.shutit_global_object.report_final_messages = self.report_final_messages + '\r\n' + msg + '\r\n'
+				shutit_global.shutit_global_object.report_final_messages = shutit_global.shutit_global_object.report_final_messages + '\r\n' + msg + '\r\n'
 		return True
 
 
