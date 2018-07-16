@@ -374,6 +374,7 @@ class ShutIt(object):
 		self.loglevel                        = None
 		self.logfile                         = None
 		self.last_log_time                   = time.time()
+		self.logging_setup_done              = False
 
 
 	def __str__(self):
@@ -468,6 +469,7 @@ class ShutIt(object):
 				logging.basicConfig(format=logformat,filename=self.logfile)
 				logobj.level = logging.DEBUG
 		self.loglevel = logobj.getEffectiveLevel()
+		self.logging_setup_done = True
 
 
 	def get_shutit_pexpect_session_environment(self, environment_id):
@@ -3342,6 +3344,7 @@ class ShutIt(object):
 			if self.loglevel is None or self.loglevel == '':
 				self.loglevel = 'INFO'
 			shutit_global.shutit_global_object.setup_logging(action=args.action)
+		if not self.logging_setup_done:
 			self.setup_logging()
 
 		# This mode is a bit special - it's the only one with different arguments
@@ -4217,8 +4220,8 @@ class ShutIt(object):
 		# Parse command-line arguments
 		self.parse_args()
 		# TODO: set loglevel and logfile
-		self.loglevel = 'INFO'
-		self.setup_logging()
+		#self.loglevel = 'INFO'
+		#self.setup_logging()
 		# Load configuration from files. Should this go before parse_args?
 		self.load_configs()
 		# Try and ensure shutit is on the path - makes onboarding easier

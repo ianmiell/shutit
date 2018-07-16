@@ -760,7 +760,7 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 			statement = """shutit.get_current_shutit_pexpect_session_environment(note='''""" + current_note + """''').install_type == '''""" + subcommand_args + """'''"""
 			current_note = ''
 		elif subcommand == 'RUN':
-			statement = """shutit.send_and_return_status('''""" + subcommand_args + """''',check_exit=False,note='''""" + current_note + """''')"""
+			statement = """shutit.send_and_return_status('''""" + subcommand_args + """''',note='''""" + current_note + """''')"""
 			current_note = ''
 		else:
 			shutit.fail('subcommand: ' + subcommand + ' not handled')
@@ -782,7 +782,7 @@ def handle_shutitfile_script_line(shutit, line, numpushes, wgetgot, numlogins, i
 			statement = """shutit.get_current_shutit_pexpect_session_environment(note='''""" + current_note + """''').install_type == '""" + subcommand_args + """'"""
 			current_note = ''
 		elif subcommand == 'RUN':
-			statement = """shutit.send_and_return_status('''""" + subcommand_args + """''',check_exit=False,note='''""" + current_note + """''')"""
+			statement = """shutit.send_and_return_status('''""" + subcommand_args + """''',note='''""" + current_note + """''')"""
 			current_note = ''
 		else:
 			shutit.fail('subcommand: ' + subcommand + ' not handled')

@@ -184,7 +184,7 @@ class ShutItGlobal(object):
 			                                   walkthrough_wait=walkthrough_wait,
 			                                   loglevel=loglevel))
 			# TODO: can we get rid of/rationalise load_configs?
-			new_shutit.loglevel = 'INFO'
+			new_shutit.loglevel = loglevel
 			new_shutit.setup_logging()
 			new_shutit.load_configs()
 			new_shutit.setup_host_child_environment()
@@ -199,7 +199,7 @@ class ShutItGlobal(object):
 			                                   loglevel=loglevel))
 			new_shutit.target['rm'] = rm
 			# TODO: can we get rid of/rationalise load_configs?
-			new_shutit.loglevel = 'INFO'
+			new_shutit.loglevel = loglevel
 			new_shutit.setup_logging()
 			new_shutit.load_configs()
 			target_child = new_shutit.conn_docker_start_container('target_child')
