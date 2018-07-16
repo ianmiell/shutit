@@ -3345,6 +3345,10 @@ class ShutIt(object):
 				self.loglevel = 'INFO'
 			shutit_global.shutit_global_object.setup_logging(action=args.action)
 		if not self.logging_setup_done:
+			self.logfile  = args.logfile
+			self.loglevel = args.loglevel
+			if self.loglevel is None or self.loglevel == '':
+				self.loglevel = 'INFO'
 			self.setup_logging()
 
 		# This mode is a bit special - it's the only one with different arguments
