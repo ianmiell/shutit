@@ -10,6 +10,9 @@ from curtsies.input import Input
 # automation, and the 'watcher' one, which manages either the different view
 # panes, or outputs a stack trace of the main thread if 'nothing happens' on it.
 
+# Boolean indicating whether we've already set up a tracker.
+tracker_setup = False
+
 
 # TODO: reject tmux sessions - it does not seem to play nice
 # TODO: keep a time counter after the line
@@ -131,11 +134,6 @@ def managing_thread_main():
 		shutit_global.shutit_global_object.global_thread_lock.release()
 
 
-def track_main_thread():
-	t = threading.Thread(target=managing_thread_main)
-	t.daemon = True
-	t.start()
-
 
 def managing_thread_main_simple():
 	"""Simpler thread to track whether main thread has been quiet for long enough
@@ -174,7 +172,19 @@ def managing_thread_main_simple():
 		time.sleep(5)
 
 
+def track_main_thread():
+	global tracker_setup
+	if not tracker_setup:
+		tracker_setup = True
+		t = threading.Thread(target=managing_thread_main)
+		t.daemon = True
+		t.start()
+
+
 def track_main_thread_simple():
-	t = threading.Thread(target=managing_thread_main_simple)
-	t.daemon = True
-	t.start()
+	global tracker_setup
+	if not tracker_setup:
+		tracker_setup = True
+		t = threading.Thread(target=managing_thread_main_simple)
+		t.daemon = True
+		t.start()

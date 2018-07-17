@@ -225,7 +225,7 @@ class ShutItGlobal(object):
 		return True
 
 
-	def setup_logging(self, action=None):
+	def setup_panes(self, action=None):
 		assert not self.managed_panes or (self.managed_panes and self.logstream)
 		assert action is not None
 		# TODO: managed_panes and echo are incompatible

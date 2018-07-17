@@ -3344,6 +3344,7 @@ class ShutIt(object):
 			if self.loglevel is None or self.loglevel == '':
 				self.loglevel = 'INFO'
 			self.setup_logging()
+		shutit_global.shutit_global_object.setup_panes(action=args.action)
 
 		# This mode is a bit special - it's the only one with different arguments
 		if self.action['skeleton']:
