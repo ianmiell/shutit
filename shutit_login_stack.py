@@ -24,7 +24,7 @@ class ShutItLoginStack(object):
 
 
 	def append(self, login_id):
-		self.stack.append(ShutItLoginStackItem(login_id, shutit_obj))
+		self.stack.append(ShutItLoginStackItem(login_id, self.shutit_obj))
 		return True
 
 
