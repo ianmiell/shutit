@@ -33,25 +33,68 @@ import shutit_util
 
 def create_session(session_type='bash',
                    docker_image=None,
+                   vagrant_image='ubuntu/xenial64',
+                   vagrant_provider='virtualbox',
+                   gui=False,
+                   memory='1024',
+                   swapsize='2G',
                    rm=None,
                    echo=False,
                    walkthrough=False,
                    nocolor=False,
                    video=-1,
                    loglevel='WARNING'):
-	assert session_type in ('bash','docker'), shutit_util.print_debug()
+	assert session_type in ('bash','docker','vagrant'), shutit_util.print_debug()
 	shutit_global_object = shutit_global.shutit_global_object
 	if video != -1 and video > 0:
 		walkthrough = True
-	return shutit_global_object.create_session(session_type,
-	                                           docker_image=docker_image,
-	                                           rm=rm,
-	                                           echo=echo,
-	                                           walkthrough=walkthrough,
-	                                           walkthrough_wait=video,
-	                                           nocolor=nocolor,
-	                                           loglevel=loglevel)
+	if session_type in ('bash','docker')
+		return shutit_global_object.create_session(session_type,
+		                                           docker_image=docker_image,
+		                                           rm=rm,
+		                                           echo=echo,
+		                                           walkthrough=walkthrough,
+		                                           walkthrough_wait=video,
+		                                           nocolor=nocolor,
+		                                           loglevel=loglevel)
+	elif session_type == 'vagrant':
+		return create_session_vagrant(vagrant_image=vagrant_image,
+		                              vagrant_provider=vagrant_provider,
+		                              gui=gui,
+		                              memory=memory,
+		                              swapsize=swapsize,
+		                              echo=echo,
+		                              walkthrough=walkthrough,
+		                              nocolor=nocolor,
+		                              video=video,
+		                              loglevel=loglevel)
 
+                                                                                                                            
+
+def create_session_vagrant(vagrant_image,
+                           vagrant_provider,
+                           gui,
+                           memory,
+                           swapsize,
+                           echo,
+                           walkthrough,
+                           nocolor,
+                           video,
+                           loglevel):
+	if video != -1 and video > 0:
+		walkthrough = True
+	assert isinstance(memory, str)
+	assert isinstance(swapsize, str)
+	return shutit_global.shutit_global_object.create_session_vagrant(vagrant_image=vagrant_image,
+	                                                                 vagrant_provider=vagrant_provider,
+	                                                                 gui=gui,
+	                                                                 memory=memory,
+	                                                                 swapsize=swapsize,
+	                                                                 echo=echo,
+	                                                                 walkthrough=walkthrough,
+	                                                                 walkthrough_wait=video,
+	                                                                 nocolor=nocolor,
+	                                                                 loglevel=loglevel)
 
 def main():
 	"""Main ShutIt function.

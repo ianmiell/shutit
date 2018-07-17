@@ -1,4 +1,4 @@
-def build(shutit, virt_method='virtualbox'):
+def pre_build(shutit, virt_method='virtualbox'):
 	if virt_method == 'virtualbox':
 		if not shutit.command_available('VBoxManage'):
 			if shutit.get_current_shutit_pexpect_session_environment().install_type == 'apt':

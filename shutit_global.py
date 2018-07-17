@@ -211,6 +211,31 @@ class ShutItGlobal(object):
 		return new_shutit
 
 
+	def create_session_vagrant(vagrant_image,
+	                           vagrant_provider,
+	                           gui,
+	                           memory,
+	                           swapsize
+	                           echo,
+	                           walkthrough,
+	                           walkthrough_wait,
+	                           nocolor,
+	                           loglevel):
+		new_shutit = ShutIt(standalone=True)
+		self.shutit_objects.append(new_shutit)
+		# Vagrant is: delivery over bash, but running the vagrant scripts first.
+		new_shutit.process_args(ShutItInit('build',
+		                                   delivery='bash',
+		                                   echo=echo,
+		                                   walkthrough=walkthrough,
+		                                   walkthrough_wait=walkthrough_wait,
+		                                   loglevel=loglevel))
+		new_shutit.load_configs()
+		new_shutit.setup_host_child_environment()
+		TODO: run the vagrant script with the appropriate args
+		pass
+
+
 
 	def determine_interactive(self):
 		"""Determine whether we're in an interactive shell.
