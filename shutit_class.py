@@ -375,6 +375,7 @@ class ShutIt(object):
 		self.logfile                         = None
 		self.last_log_time                   = time.time()
 		self.logging_setup_done              = False
+		self.nocolor                         = False
 
 
 	def __str__(self):
@@ -2943,7 +2944,7 @@ class ShutIt(object):
 		if isinstance(self.host['password'],str):
 			shutit_global.shutit_global_object.secret_words_set.add(self.host['password'])
 		self.logfile = cp.get('host', 'logfile')
-		shutit_global.shutit_global_object.nocolor = cp.getboolean('host', 'nocolor')
+		self.nocolor = cp.getboolean('host', 'nocolor')
 		self.host['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
 
 		# repository - information relating to docker repository/registry
@@ -3325,9 +3326,6 @@ class ShutIt(object):
 		if args.action == 'version':
 			shutit_global.shutit_global_object.shutit_print('ShutIt version: ' + shutit.shutit_version)
 			shutit_global.shutit_global_object.handle_exit(exit_code=0)
-
-		# Set up global object
-		shutit_global.shutit_global_object.nocolor  = args.nocolor
 
 		# What are we asking shutit to do?
 		self.action['list_configs'] = args.action == 'list_configs'
