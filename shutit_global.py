@@ -67,12 +67,9 @@ class ShutItGlobal(object):
 		self.global_thread_lock.acquire()
 		self.ispy3                   = (sys.version_info[0] >= 3)
 		self.secret_words_set        = set()
-		# Logging
+		# Logging - global logstream is written to by logger in each shutit_class.py object.
 		self.logstream               = None
 		self.logstream_size          = 1000000
-		self.logger_name             = 'shutit_main_thread_logger'
-		self.logging_setup_done      = False
-		self.last_log_time           = time.time()
 		self.log_trace_when_idle     = False
 		self.signal_id               = None
 		self.window_size_max         = 65535
@@ -131,7 +128,6 @@ class ShutItGlobal(object):
 		self.line_limit          = 3000
 		self.interactive         = 1 # Default to true until we know otherwise
 		self.allowed_delivery_methods = ['ssh','dockerfile','bash','docker','vagrant']
-		self.nocolor             = False
 
 	def __str__(self):
 		str_repr = '\n====== SHUTIT_GLOBAL_OBJECT BEGIN ====='
@@ -175,7 +171,6 @@ class ShutItGlobal(object):
 		assert isinstance(session_type, str), shutit_util.print_debug()
 		new_shutit = ShutIt(standalone=True)
 		self.add_shutit_session(new_shutit)
-		self.nocolor=nocolor
 		if session_type == 'bash':
 			new_shutit.process_args(ShutItInit('build',
 			                                   delivery='bash',
@@ -230,24 +225,16 @@ class ShutItGlobal(object):
 		return True
 
 
-	def setup_logging(self, force=False, action=None):
+	def setup_logging(self, action=None):
 		assert not self.managed_panes or (self.managed_panes and self.logstream)
 		assert action is not None
-		# TODO: sort out logging setup on a per-shutit object basis.
-		if not force and self.logging_setup_done:
-			return
-		if self.pane_manager is not None:
-			# TODO: remove this?
-			return
 		# TODO: managed_panes and echo are incompatible
 		if self.managed_panes:
-			self.nocolor          = True
 			self.pane_manager     = PaneManager(self)
 			shutit_threads.track_main_thread()
 		else:
 			if action == 'build':
 				shutit_threads.track_main_thread_simple()
-		self.logging_setup_done = True
 
 
 	def handle_exit(self,exit_code=0,loglevel=logging.CRITICAL,msg=None):

@@ -2980,9 +2980,9 @@ class ShutIt(object):
 
 
 	def load_all_from_path(self, path):
-		shutit_global.shutit_global_object.yield_to_draw()
 		"""Dynamically imports files within the same directory (in the end, the path).
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		#111: handle expanded paths
 		path = os.path.abspath(path)
 		#http://stackoverflow.com/questions/301134/dynamic-module-import-in-python
@@ -3338,12 +3338,6 @@ class ShutIt(object):
 		self.action['run']          = args.action == 'run'
 
 		# Logging
-		if not shutit_global.shutit_global_object.logging_setup_done:
-			self.logfile  = args.logfile
-			self.loglevel = args.loglevel
-			if self.loglevel is None or self.loglevel == '':
-				self.loglevel = 'INFO'
-			shutit_global.shutit_global_object.setup_logging(action=args.action)
 		if not self.logging_setup_done:
 			self.logfile  = args.logfile
 			self.loglevel = args.loglevel
