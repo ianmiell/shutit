@@ -48,7 +48,8 @@ if sys.version_info[0] >= 3:
 	unicode = str
 
 class ShutItGlobal(object):
-	"""Single object to store all the separate ShutIt sessions.
+	"""Single object to store all the separate ShutIt sessions, and information
+	that is global to all sessions.
 	"""
 
 	only_one = None
@@ -60,14 +61,23 @@ class ShutItGlobal(object):
 		# Primitive singleton enforcer.
 		assert self.only_one is None, shutit_util.print_debug()
 		self.only_one                = True
-		# Capture the original working directory
+
+		# Capture the original working directory.
 		self.owd                     = os.getcwd()
+
+		# Python version.
+		self.ispy3                   = (sys.version_info[0] >= 3)
+
+		# Threading.
 		self.global_thread_lock      = threading.Lock()
 		# Acquire the lock by default.
 		self.global_thread_lock.acquire()
-		self.ispy3                   = (sys.version_info[0] >= 3)
+
+		# Secret words.
 		self.secret_words_set        = set()
-		# Logging - global logstream is written to by logger in each shutit_class.py object.
+
+		# Logging.
+		# global logstream is written to by logger in each shutit_class.py object.
 		self.logstream               = None
 		self.logstream_size          = 1000000
 		self.log_trace_when_idle     = False
@@ -77,43 +87,29 @@ class ShutItGlobal(object):
 		self.default_timeout         = 3600
 		self.delaybeforesend         = 0
 		self.default_encoding        = 'utf-8'
+
+		# Panes.
 		self.managed_panes           = False
 		self.pane_manager            = None
 		self.lower_pane_rotate_count = 0
+
+		# Errors.
 		self.stacktrace_lines_arr    = []
+
+		# Prompts and shell.
+		self.bash_startup_command    = "bash --noprofile --rcfile <(sleep .05||sleep 1)"
 		# Quotes here are intentional. Some versions of sleep don't support fractional seconds.
 		# True is called to take up the time require
 		self.prompt_command          = "'sleep .05||sleep 1'"
-		self.bash_startup_command    = "bash --noprofile --rcfile <(sleep .05||sleep 1)"
 		# It's important that this has '.*' at the start, so the matched data is reliably 'after' in the
 		# child object. Use these where possible to make things more consistent.
 		# Attempt to capture any starting prompt (when starting) with this regexp.
 		# The '>' is for AIX and explains why we use '2>/dev/null' in some other parts
 		# of the code (ie to avoid matching initialiser commands).
 		self.base_prompt      = '\n.*[@#$] '
-		# Environments are kept globally, as different sessions may re-connect to them.
-		self.shutit_pexpect_session_environments = set()
-		if self.username == '':
-			try:
-				if os.getlogin() != '':
-					self.username = os.getlogin()
-			except Exception:
-				self.username = getpass.getuser()
-			if self.username == '':
-				self.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
-		self.real_user        = os.environ.get('SUDO_USER', self.username)
-		self.real_user_id     = pwd.getpwnam(self.real_user).pw_uid
-		self.build_id         = (socket.gethostname() + '_' + self.real_user + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
-		shutit_state_dir_base  = '/tmp/shutit_' + self.username
-		if not os.access(shutit_state_dir_base,os.F_OK):
-			mkpath(shutit_state_dir_base,mode=0o777)
-		self.shutit_state_dir       = shutit_state_dir_base + '/' + self.build_id
-		os.chmod(shutit_state_dir_base,0o777)
-		if not os.access(self.shutit_state_dir,os.F_OK):
-			mkpath(self.shutit_state_dir,mode=0o777)
-		os.chmod(self.shutit_state_dir,0o777)
-		self.shutit_state_dir_build_db_dir = self.shutit_state_dir + '/build_db'
-		self.shutit_state_pickle_file  = self.shutit_state_dir + '/shutit_pickle'
+		# There is a problem with lines roughly around this length + the length of the prompt (?3k?)
+		self.line_limit          = 3000
+		# Terminal size
 		def terminal_size():
 			h, w, _, _ = struct.unpack('HHHH', fcntl.ioctl(0, termios.TIOCGWINSZ, struct.pack('HHHH', 0, 0, 0, 0)))
 			return int(h), int(w)
@@ -124,9 +120,38 @@ class ShutItGlobal(object):
 			self.root_window_size = (24,80)
 		# Just override to the max possible
 		self.pexpect_window_size = (self.window_size_max,self.window_size_max)
-		# There is a problem with lines roughly around this length + the length of the prompt (?3k?)
-		self.line_limit          = 3000
 		self.interactive         = 1 # Default to true until we know otherwise
+
+		# Session environments.
+		# Environments are kept globally, as different sessions may re-connect to them.
+		self.shutit_pexpect_session_environments = set()
+
+		# Real username.
+		if self.username == '':
+			try:
+				if os.getlogin() != '':
+					self.username = os.getlogin()
+			except Exception:
+				self.username = getpass.getuser()
+			if self.username == '':
+				self.handle_exit(msg='LOGNAME not set in the environment, ' + 'and login unavailable in python; ' + 'please set to your username.', exit_code=1)
+		self.real_user        = os.environ.get('SUDO_USER', self.username)
+		self.real_user_id     = pwd.getpwnam(self.real_user).pw_uid
+
+		# ShutIt build ID.
+		self.build_id         = (socket.gethostname() + '_' + self.real_user + '_' + str(time.time()) + '.' + str(datetime.datetime.now().microsecond))
+		# ShutIt state directory.
+		shutit_state_dir_base  = '/tmp/shutit_' + self.username
+		if not os.access(shutit_state_dir_base,os.F_OK):
+			mkpath(shutit_state_dir_base,mode=0o777)
+		self.shutit_state_dir       = shutit_state_dir_base + '/' + self.build_id
+		os.chmod(shutit_state_dir_base,0o777)
+		if not os.access(self.shutit_state_dir,os.F_OK):
+			mkpath(self.shutit_state_dir,mode=0o777)
+		os.chmod(self.shutit_state_dir,0o777)
+		self.shutit_state_dir_build_db_dir = self.shutit_state_dir + '/build_db'
+
+		# Allowed delivery methods.
 		self.allowed_delivery_methods = ['ssh','dockerfile','bash','docker','vagrant']
 
 	def __str__(self):
@@ -149,6 +174,7 @@ class ShutItGlobal(object):
 
 	def add_shutit_session(self, shutit):
 		self.shutit_objects.append(shutit)
+
 
 	def yield_to_draw(self):
 		# Release the lock to allow the screen to be drawn, then acquire again.
@@ -204,10 +230,6 @@ class ShutItGlobal(object):
 			self.shutit_objects[0].log('\r\n\r\n' + self.report_final_messages + '\r\n\r\n', level=logging.INFO, transient=True)
 
 
-	def set_noninteractive(self):
-		self.interactive = 0
-
-
 	def determine_interactive(self):
 		"""Determine whether we're in an interactive shell.
 		Sets interactivity off if appropriate.
@@ -215,10 +237,10 @@ class ShutItGlobal(object):
 		"""
 		try:
 			if not sys.stdout.isatty() or os.getpgrp() != os.tcgetpgrp(sys.stdout.fileno()):
-				self.set_noninteractive()
+				self.interactive = 0
 				return False
 		except Exception:
-			self.set_noninteractive()
+			self.interactive = 0
 			return False
 		if self.interactive == 0:
 			return False
@@ -253,6 +275,8 @@ class ShutItGlobal(object):
 
 
 	def shutit_print(self, msg):
+		"""Handles simple printing of a msg at the global level.
+		"""
 		if self.pane_manager is None:
 			print(msg)
 
