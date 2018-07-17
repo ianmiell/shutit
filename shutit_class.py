@@ -4223,10 +4223,6 @@ class ShutIt(object):
 		shutit_global.shutit_global_object.yield_to_draw()
 		# Parse command-line arguments
 		self.parse_args()
-		# TODO: set loglevel and logfile
-		#self.loglevel = 'INFO'
-		#self.setup_logging()
-		# Load configuration from files. Should this go before parse_args?
 		self.load_configs()
 		# Try and ensure shutit is on the path - makes onboarding easier
 		# Only do this if we're in a terminal

@@ -184,9 +184,9 @@ class ShutItGlobal(object):
 			                                   walkthrough_wait=walkthrough_wait,
 			                                   loglevel=loglevel))
 			# TODO: can we get rid of/rationalise load_configs?
+			new_shutit.load_configs()
 			new_shutit.loglevel = loglevel
 			new_shutit.setup_logging()
-			new_shutit.load_configs()
 			new_shutit.setup_host_child_environment()
 			return new_shutit
 		elif session_type == 'docker':
