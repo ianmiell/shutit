@@ -53,7 +53,6 @@ class ShutItGlobal(object):
 	"""
 
 	only_one = None
-	report_final_messages = ''
 	def __init__(self):
 		"""Constructor.
 		"""
@@ -172,18 +171,6 @@ class ShutItGlobal(object):
 		return str_repr
 
 
-	def add_shutit_session(self, shutit):
-		self.shutit_objects.append(shutit)
-
-
-	def yield_to_draw(self):
-		# Release the lock to allow the screen to be drawn, then acquire again.
-		# Only ever yield if there are any sessions to draw.
-		if len(get_shutit_pexpect_sessions()) > 0:
-			self.global_thread_lock.release()
-			# Allow a _little_ time for others to get a look in
-			time.sleep(0.001)
-			self.global_thread_lock.acquire()
 
 	def create_session(self,
 	                   session_type='bash',
@@ -196,7 +183,7 @@ class ShutItGlobal(object):
 	                   loglevel='WARNING'):
 		assert isinstance(session_type, str), shutit_util.print_debug()
 		new_shutit = ShutIt(standalone=True)
-		self.add_shutit_session(new_shutit)
+		self.shutit_objects.append(new_shutit)
 		if session_type == 'bash':
 			new_shutit.process_args(ShutItInit('build',
 			                                   delivery='bash',
@@ -223,11 +210,6 @@ class ShutItGlobal(object):
 		new_shutit.fail('unhandled session type: ' + session_type)
 		return new_shutit
 
-
-	def do_final_messages(self):
-		# Show final report messages (ie messages to show after standard report).
-		if self.report_final_messages != '':
-			self.shutit_objects[0].log('\r\n\r\n' + self.report_final_messages + '\r\n\r\n', level=logging.INFO, transient=True)
 
 
 	def determine_interactive(self):
@@ -259,7 +241,19 @@ class ShutItGlobal(object):
 				shutit_threads.track_main_thread_simple()
 
 
-	def handle_exit(self,exit_code=0,loglevel=logging.CRITICAL,msg=None):
+	def yield_to_draw(self):
+		# Release the lock to allow the screen to be drawn, then acquire again.
+		# Only ever yield if there are any sessions to draw.
+		if len(get_shutit_pexpect_sessions()) > 0:
+			self.global_thread_lock.release()
+			# Allow a _little_ time for others to get a look in
+			time.sleep(0.001)
+			self.global_thread_lock.acquire()
+
+
+	def handle_exit(self,
+	                exit_code=0,
+	                msg=None):
 		if not msg:
 			msg = '\r\nExiting with error code: ' + str(exit_code)
 			msg += '\r\nInvoking command was: ' + sys.executable
@@ -488,7 +482,6 @@ class PaneManager(object):
 # Represents a window pane with no concept of context or content.
 class SessionPane(object):
 
-
 	def __init__(self, name):
 		self.name                 = name
 		self.top_left_x           = -1
@@ -497,7 +490,6 @@ class SessionPane(object):
 		self.bottom_right_y       = -1
 		self.line_buffer_size     = 1000
 		assert self.name in ('top_left','bottom_left','top_right','bottom_right')
-
 
 	def __str__(self):
 		string =  '\n============= SESSION PANE OBJECT BEGIN ==================='
@@ -511,17 +503,14 @@ class SessionPane(object):
 		string += '\n============= SESSION PANE OBJECT END   ==================='
 		return string
 
-
 	def set_position(self, top_left_x, top_left_y, bottom_right_x, bottom_right_y):
 		self.top_left_x     = top_left_x
 		self.top_left_y     = top_left_y
 		self.bottom_right_x = bottom_right_x
 		self.bottom_right_y = bottom_right_y
 
-
 	def get_width(self):
 		return self.bottom_right_x - self.top_left_x
-
 
 	def get_height(self):
 		return self.bottom_right_y - self.top_left_y
@@ -529,7 +518,6 @@ class SessionPane(object):
 
 # Represents a line in the array of output
 class SessionPaneLine(object):
-
 
 	def __init__(self, line_str, time_seen, line_type):
 		assert line_type in ('log','output')
@@ -540,17 +528,20 @@ class SessionPaneLine(object):
 		self.time_seen       = time_seen
 		self.time_seen       = time_seen
 
-
 	def __str__(self):
 		return self.line_str
 
 
 def setup_signals():
+	"""Set up the signal handlers.
+	"""
 	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
 
 def get_shutit_pexpect_sessions():
+	"""Returns all the shutit_pexpect sessions in existence.
+	"""
 	sessions = []
 	for shutit_object in shutit_global_object.shutit_objects:
 		for key in shutit_object.shutit_pexpect_sessions:
@@ -563,4 +554,5 @@ shutit_global_object = ShutItGlobal()
 from shutit_class import ShutIt, ShutItInit
 import shutit_util
 
-shutit_global_object.add_shutit_session(ShutIt(standalone=False))
+# Create default shutit object. TODO: do we need this?
+shutit_global_object.shutit_objects.append(ShutIt(standalone=False))

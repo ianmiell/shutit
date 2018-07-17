@@ -4259,7 +4259,6 @@ class ShutIt(object):
 		self.finalize_target()
 		self.log(self.build_report('#Module: N/A (END)'), level=logging.DEBUG)
 		self.do_exam_output()
-		shutit_global.shutit_global_object.do_final_messages()
 		self.log('ShutIt run finished',level=logging.INFO)
 		shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
