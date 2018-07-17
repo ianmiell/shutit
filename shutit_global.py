@@ -209,64 +209,7 @@ class ShutItGlobal(object):
 			self.shutit_objects[0].log('\r\n\r\n' + self.report_final_messages + '\r\n\r\n', level=logging.INFO, transient=True)
 
 
-	def log(self,
-	        msg,
-	        add_final_message=False,
-	        color_code=0,
-	        level=logging.INFO,
-	        mask_password=True,
-	        newline=True,
-	        transient=False):
-		"""Logging function.
-
-		@param add_final_message: Add this log line to the final message output to the user
-		@param level:             Python log level
-		@param transient:         Just write to terminal, no new line. If not a
-		                          terminal, write nothing.
-		@param mask_password      Whether to mask passwords (default True)
-		@param color_code         Color of log line (default based on loglevel).
-		                          if 0, then take defaults, else override
-		"""
-		if mask_password:
-			for password in shutit_global_object.secret_words_set:
-				if password in msg:
-					msg.replace(password,'REDACTED')
-		# Never print in color if nocolor switched on.
-		if not self.nocolor:
-			if color_code == 0:
-				if level == logging.INFO:
-					msg = shutit_util.colorise(32,msg)
-				elif level == logging.WARNING:
-					msg = shutit_util.colorise(36,msg)
-				elif level == logging.CRITICAL:
-					msg = shutit_util.colorise(31,msg)
-				elif level == logging.ERROR:
-					msg = shutit_util.colorise(92,msg)
-				elif level == logging.DEBUG:
-					msg = shutit_util.colorise(35,msg)
-			else:
-				msg = shutit_util.colorise(color_code,msg)
-		# yield to draw here
-		self.yield_to_draw()
-		# Message now in color if configured to be.
-		if transient:
-			self.last_log_time = time.time()
-			if sys.stdout.isatty():
-				if newline:
-					msg += '\r\n'
-				sys.stdout.write(msg)
-		else:
-			logobj = logging.getLogger(self.logger_name)
-			if logobj.getEffectiveLevel() <= level:
-				self.last_log_time = time.time()
-			logobj.log(level,msg)
-			if add_final_message:
-				self.report_final_messages = self.report_final_messages + '\r\n' + msg + '\r\n'
-		return True
-
-
-	def set_noninteractive(self, msg="setting non-interactive"):
-		self.log(msg,level=logging.DEBUG)
+	def set_noninteractive(self):
 		self.interactive = 0
 
 
@@ -280,7 +223,7 @@ class ShutItGlobal(object):
 				self.set_noninteractive()
 				return False
 		except Exception:
-			self.set_noninteractive(msg='Problems determining interactivity, assuming not.')
+			self.set_noninteractive()
 			return False
 		if self.interactive == 0:
 			return False
@@ -314,9 +257,9 @@ class ShutItGlobal(object):
 			for arg in sys.argv:
 				msg += ' ' + arg
 		if exit_code != 0:
-			self.log('\r\nExiting with error code: ' + str(exit_code),level=loglevel)
-			self.log(msg,level=loglevel)
-			self.log('\r\nResetting terminal',level=loglevel)
+			self.shutit_print('\r\nExiting with error code: ' + str(exit_code))
+			self.shutit_print(msg)
+			self.shutit_print('\r\nResetting terminal')
 			shutit_util.sanitize_terminal()
 			shutit_util.exit_cleanup()
 		sys.exit(exit_code)

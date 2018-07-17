@@ -305,7 +305,7 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color=No
 		return default
 	if valid is not None:
 		while answer not in valid:
-			shutit_global.shutit_global_object.log('Answer must be one of: ' + str(valid),transient=True,level=logging.INFO)
+			shutit_global.shutit_global_object.shutit_print('Answer must be one of: ' + str(valid),transient=True)
 			if color:
 				answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
 			else:
@@ -326,21 +326,21 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color=No
 
 def print_debug(exc_info=None, msg=''):
 	if msg:
-		shutit_global.shutit_global_object.log('Message: '         + msg,level=logging.CRITICAL)
+		shutit_global.shutit_global_object.shutit_print('Message: '         + msg)
 	environ_string = ''
 	for env in os.environ:
 		environ_string += 'export ' + env + '=' + str(os.environ[env]) + ';'
-	shutit_global.shutit_global_object.log('\n=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('This file: '              + os.path.dirname(os.path.realpath(__file__)),level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Python version: '         + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version),level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Shutit version: '         + shutit.shutit_version,level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Server: '                 + socket.gethostname(),level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Environment: '            + environ_string,level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('Command was: '            + sys.executable + (' ').join(sys.argv),level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('ShutIt global state: '    + str(shutit_global.shutit_global_object),level=logging.CRITICAL)
+	shutit_global.shutit_global_object.shutit_print('\n=============================== DEBUG INFO =========================================')
+	shutit_global.shutit_global_object.shutit_print('This file: '              + os.path.dirname(os.path.realpath(__file__)))
+	shutit_global.shutit_global_object.shutit_print('Python version: '         + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version))
+	shutit_global.shutit_global_object.shutit_print('Shutit version: '         + shutit.shutit_version)
+	shutit_global.shutit_global_object.shutit_print('Server: '                 + socket.gethostname())
+	shutit_global.shutit_global_object.shutit_print('Environment: '            + environ_string)
+	shutit_global.shutit_global_object.shutit_print('Command was: '            + sys.executable + (' ').join(sys.argv))
+	shutit_global.shutit_global_object.shutit_print('ShutIt global state: '    + str(shutit_global.shutit_global_object))
 	if exc_info:
 		stack_trace = ''
 		for line in traceback.format_exception(*exc_info):
 			stack_trace += line
-		shutit_global.shutit_global_object.log('Stacktrace:\n'        + stack_trace,level=logging.CRITICAL)
-	shutit_global.shutit_global_object.log('\n=============================== DEBUG INFO =========================================',level=logging.CRITICAL)
+		shutit_global.shutit_global_object.shutit_print('Stacktrace:\n'        + stack_trace)
+	shutit_global.shutit_global_object.shutit_print('\n=============================== DEBUG INFO =========================================')

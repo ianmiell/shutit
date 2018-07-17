@@ -77,7 +77,7 @@ class ShutItLoginStackItem(object):
 
 
 	def append_background_send(self,sendspec):
-		shutit_background_command_object = ShutItBackgroundCommand(sendspec)
+		shutit_background_command_object = ShutItBackgroundCommand(sendspec, self.shutit_obj)
 		self.background_objects.append(shutit_background_command_object)
 		return shutit_background_command_object
 
