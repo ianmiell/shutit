@@ -1673,8 +1673,8 @@ class ShutIt(object):
 		config_parser = self.config_parser
 		usercfg       = os.path.join(self.host['shutit_path'], 'config')
 
-		self.log('\nPROMPTING FOR CONFIG: %s' % (cfgstr,),transient=True,level=logging.INFO, color_code=32)
-		self.log('\n' + msg + '\n',transient=True,level=logging.INFO, color_code=32)
+		self.log('\nPROMPTING FOR CONFIG: %s' % (cfgstr,),transient=True,level=logging.INFO)
+		self.log('\n' + msg + '\n',transient=True,level=logging.INFO)
 
 		if not shutit_global.shutit_global_object.determine_interactive():
 			self.fail('ShutIt is not in a terminal so cannot prompt for values.', throw_exception=False) # pragma: no cover
@@ -2914,9 +2914,9 @@ class ShutIt(object):
 	# that have been sanity-checked.
 	# Should only be called from load_configs above.
 	def get_base_config(self):
-		shutit_global.shutit_global_object.yield_to_draw()
 		"""Responsible for getting core configuration from config files.
 		"""
+		shutit_global.shutit_global_object.yield_to_draw()
 		cp = self.config_parser
 		# TODO: what happens if a command-line arg was already set?
 		# BEGIN Read from config files

@@ -1,12 +1,10 @@
-import curtsies
-from curtsies.events import PasteEvent
-from curtsies.input import Input
 import itertools
 import time
 import threading
 import traceback
 import sys
 import os
+from curtsies.input import Input
 
 # There are two threads running in ShutIt. The 'main' one, which drives the
 # automation, and the 'watcher' one, which manages either the different view
@@ -174,7 +172,7 @@ def managing_thread_main_simple():
 				print(this_header + this_msg)
 				last_msg = this_msg
 		time.sleep(5)
-	
+
 
 def track_main_thread_simple():
 	t = threading.Thread(target=managing_thread_main_simple)
