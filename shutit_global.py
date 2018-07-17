@@ -209,7 +209,14 @@ class ShutItGlobal(object):
 			self.shutit_objects[0].log('\r\n\r\n' + self.report_final_messages + '\r\n\r\n', level=logging.INFO, transient=True)
 
 
-	def log(self, msg, add_final_message=False, level=logging.INFO, transient=False, newline=True, mask_password=True, color_code=0):
+	def log(self,
+	        msg,
+	        add_final_message=False,
+	        color_code=0,
+	        level=logging.INFO,
+	        mask_password=True,
+	        newline=True,
+	        transient=False):
 		"""Logging function.
 
 		@param add_final_message: Add this log line to the final message output to the user

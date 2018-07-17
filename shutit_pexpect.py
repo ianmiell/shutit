@@ -106,7 +106,7 @@ class ShutItPexpectSession(object):
 		self.in_shell                  = True
 		self.pexpect_session_id        = pexpect_session_id
 		self.pexpect_session_number    = len(shutit_global.get_shutit_pexpect_sessions()) + 1
-		self.login_stack               = ShutItLoginStack()
+		self.login_stack               = ShutItLoginStack(shutit_obj=shutit)
 		self.current_environment       = None
 		args = args or []
 		if not delaybeforesend:

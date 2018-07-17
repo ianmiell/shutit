@@ -3362,6 +3362,7 @@ class ShutIt(object):
 			self.handle_build(args)
 		else:
 			self.fail('Should not get here: action was: ' + str(self.action))
+		self.nocolor = args.nocolor
 
 
 	def handle_skeleton(self, args):
@@ -4735,15 +4736,29 @@ class ShutIt(object):
 	def log(self,
 	        msg,
 	        add_final_message=False,
+	        color_code=0,
 	        level=logging.INFO,
-	        newline=True,
 	        mask_password=True,
+	        newline=True,
 	        transient=False):
 		if mask_password:
 			for password in shutit_global.shutit_global_object.secret_words_set:
 				if password in msg:
 					msg.replace(password,'REDACTED')
-		# TODO nocolor as per shutit_global
+		if not self.nocolor:
+			if color_code == 0:
+				if level == logging.INFO:
+					msg = shutit_util.colorise(32,msg)
+				elif level == logging.WARNING:
+					msg = shutit_util.colorise(36,msg)
+				elif level == logging.CRITICAL:
+					msg = shutit_util.colorise(31,msg)
+				elif level == logging.ERROR:
+					msg = shutit_util.colorise(92,msg)
+				elif level == logging.DEBUG:
+					msg = shutit_util.colorise(35,msg)
+			else:
+				msg = shutit_util.colorise(color_code,msg)
 		shutit_global.shutit_global_object.yield_to_draw()
 		if transient:
 			self.last_log_time = time.time()

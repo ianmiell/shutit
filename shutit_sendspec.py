@@ -202,7 +202,6 @@ Args:         run_in_background=True, ignore_background=True, block_other_comman
 		if self.check_exit and self.run_in_background:
 			self.check_exit = False
 		#if send_dict and run_in_background:
-			#shutit_global.shutit_global_object.log('run_in_background and send_dict make no sense',level=logging.CRITICAL)
 			#assert False, shutit_util.print_debug()
 		# END Setup/checking
 

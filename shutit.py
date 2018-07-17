@@ -71,6 +71,7 @@ def main():
 		shutit.setup_shutit_obj()
 	except KeyboardInterrupt:
 		shutit_util.print_debug(sys.exc_info())
+		# TODO: remove global log function, and replace this with print?
 		shutit_global.shutit_global_object.log('Keyboard interrupt caught, exiting with status 1', level=logging.CRITICAL)
 		sys.exit(1)
 
