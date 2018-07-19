@@ -28,9 +28,9 @@ import sys
 import subprocess
 import time
 import uuid
-import shutit
 import texttable
 import pexpect
+import shutit
 import shutit_util
 import shutit_global
 import shutit_skeleton
@@ -184,7 +184,7 @@ class ShutItInit(object):
 	             deps_only=False,
 	             echo=False,
 	             history=False,
-	             long=False,
+	             long_modules=False,
 	             sort='id',
 	             interactive=1,
 	             trace=False,
@@ -263,7 +263,7 @@ class ShutItInit(object):
 			self.exam               = exam
 			self.history            = history
 			self.sort               = sort
-			self.long               = long
+			self.long_modules       = long_modules
 			# Video/exam/training logic
 			if self.exam and not self.training:
 				shutit_global.shutit_global_object.shutit_print('Exam starting up')
@@ -2534,7 +2534,7 @@ class ShutIt(object):
 		shutit_global.shutit_global_object.yield_to_draw()
 		assert self.build['asciinema_session'] is True, shutit_util.print_debug()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
-		output = self.logout(timeout=shutit_global.shutit_global_object.default_timeout)
+		self.logout(timeout=shutit_global.shutit_global_object.default_timeout)
 		self.build['asciinema_session'] = None
 		self.build['asciinema_session_file'] = None
 		return True
@@ -3600,7 +3600,7 @@ class ShutIt(object):
 		if self.action['list_configs']:
 			self.list_configs['cfghistory'] = args.history
 		elif self.action['list_modules']:
-			self.list_modules['long'] = args.long
+			self.list_modules['long'] = args.long_module
 			self.list_modules['sort'] = args.sort
 
 		# Default this to False as it's not always set (mostly for debug logging).
@@ -3923,7 +3923,7 @@ class ShutIt(object):
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
 			                             sort=args.sort,
-			                             long=args.long))
+			                             long_modules=args.long))
 
 
 	def conn_docker_start_container(self, shutit_session_name):

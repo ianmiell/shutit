@@ -118,7 +118,7 @@ end'''
 		shutit_session.send('cd ' + this_vagrant_run_dir, echo=False)
 		# Remove any existing landrush entry.
 		shutit_session.send('vagrant landrush rm ' + machines[machine]['fqdn'], echo=False)
-		# TODO: check whether vagrant box is already up
+		# TODO: check whether vagrant box is already up
 		# Needs to be done serially for stability reasons.
 		try:
 			shutit_session.multisend('vagrant up --provider ' + virt_method + ' ' + machine,{'assword for':pw,'assword:':pw}, echo=False)
