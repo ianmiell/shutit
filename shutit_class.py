@@ -552,7 +552,6 @@ class ShutIt(object):
 		return True
 
 
-	# TODO: should this be in global? Or fail globally if there is only one un-failed shutit object?
 	def fail(self, msg, shutit_pexpect_child=None, throw_exception=False):
 		"""Handles a failure, pausing if a pexpect child object is passed in.
 
@@ -1809,11 +1808,11 @@ class ShutIt(object):
 		log_trace_when_idle_original_value = shutit_global.shutit_global_object.log_trace_when_idle
 		shutit_global.shutit_global_object.log_trace_when_idle = False
 		if shutit_pexpect_child:
-			# TODO: comments and context added to pause point message
 			if shutit_global.shutit_global_object.pane_manager is not None:
 				shutit_global.shutit_global_object.pane_manager.draw_screen(draw_type='clearscreen')
 				shutit_global.shutit_global_object.pane_manager.do_render = False
 			shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
+			# TODO: context added to pause point message
 			shutit_pexpect_session.pause_point(msg=msg,
 			                                   print_input=print_input,
 			                                   resize=resize,

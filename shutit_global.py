@@ -42,6 +42,7 @@ from distutils.dir_util import mkpath
 import curtsies
 #from curtsies.fmtfuncs import black, yellow, magenta, cyan, gray, blue, red, green, on_black, on_dark, on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_gray, bold, dark, underline, blink, invert, plain
 from curtsies.fmtfuncs import blue, cyan, invert
+from shutit_session_setup import vagrant
 import shutit_threads
 
 if sys.version_info[0] >= 3:
@@ -238,18 +239,15 @@ class ShutItGlobal(object):
 		                                   loglevel=loglevel))
 		new_shutit.load_configs()
 		new_shutit.setup_host_child_environment()
-		from shutit_session_setup import vagrant
 		vagrant.pre_build(shutit=new_shutit,
 		                  vagrant_version=vagrant_version,
 		                  virt_method=virt_method)
-		print(gui) #False
-		print(memory) #1024
 		machines = vagrant.setup_machines(new_shutit,
 		                                  vagrant_image,
 		                                  virt_method,
 		                                  gui,
 		                                  memory,
-		                                  '/tmp/TODO',
+		                                  root_folder,
 		                                  session_name,
 		                                  swapsize,
 		                                  num_machines)
