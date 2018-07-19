@@ -225,6 +225,7 @@ class ShutItGlobal(object):
 	                           nocolor,
 	                           vagrant_version,
 	                           virt_method,
+	                           root_folder,
 	                           loglevel):
 		new_shutit = ShutIt(standalone=True)
 		self.shutit_objects.append(new_shutit)
