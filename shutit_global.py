@@ -65,15 +65,15 @@ class ShutItGlobal(object):
 		# Capture the original working directory.
 		self.owd                     = os.getcwd()
 
-		# Python version.
+		# Python version.
 		self.ispy3                   = (sys.version_info[0] >= 3)
 
-		# Threading.
+		# Threading.
 		self.global_thread_lock      = threading.Lock()
 		# Acquire the lock by default.
 		self.global_thread_lock.acquire()
 
-		# Secret words.
+		# Secret words.
 		self.secret_words_set        = set()
 
 		# Logging.
