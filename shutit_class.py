@@ -377,6 +377,9 @@ class ShutIt(object):
 		self.logging_setup_done              = False
 		self.nocolor                         = False
 
+		# Vagrant machine data
+		self.vagrant_machines                = None
+
 
 	def __str__(self):
 		string = '\n======= SHUTIT OBJECT BEGIN ========'
@@ -399,6 +402,13 @@ class ShutIt(object):
 		string += '\tshutit_main_dir='                + str(self.shutit_main_dir)
 		string += '\tcfg='                            + str(self.cfg)
 		string += '\tcurrent_shutit_pexpect_session=' + str(self.current_shutit_pexpect_session)
+		string += '\tuuid_str='                       + str(self.uuid)
+		string += '\tnocolor='                        + str(self.nocolor)
+		string += '\tlogging_setup_done='             + str(self.logging_setup_done)
+		string += '\tlast_log_time='                  + str(self.last_log_time)
+		string += '\tlogfile='                        + str(self.logfile)
+		string += '\tloglevel='                       + str(self.loglevel)
+		string += '\tshutitfile='                     + str(self.shutitfile)
 		if self.current_shutit_pexpect_session:
 			string += '\tlogin_stack='                    + str(self.current_shutit_pexpect_session.login_stack)
 		string += '\n======= SHUTIT OBJECT DONE ========'

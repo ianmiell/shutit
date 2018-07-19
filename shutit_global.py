@@ -239,6 +239,7 @@ class ShutItGlobal(object):
 		                                   loglevel=loglevel))
 		new_shutit.load_configs()
 		new_shutit.setup_host_child_environment()
+		# Run vagrant setup now
 		vagrant.pre_build(shutit=new_shutit,
 		                  vagrant_version=vagrant_version,
 		                  virt_method=virt_method)
@@ -251,6 +252,7 @@ class ShutItGlobal(object):
 		                                  session_name,
 		                                  swapsize,
 		                                  num_machines)
+		new_shutit.vagrant_machines = machines
 		return new_shutit
 
 
