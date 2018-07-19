@@ -402,7 +402,7 @@ class ShutIt(object):
 		string += '\tshutit_main_dir='                + str(self.shutit_main_dir)
 		string += '\tcfg='                            + str(self.cfg)
 		string += '\tcurrent_shutit_pexpect_session=' + str(self.current_shutit_pexpect_session)
-		string += '\tuuid_str='                       + str(self.uuid)
+		string += '\tuuid_str='                       + str(self.uuid_str)
 		string += '\tnocolor='                        + str(self.nocolor)
 		string += '\tlogging_setup_done='             + str(self.logging_setup_done)
 		string += '\tlast_log_time='                  + str(self.last_log_time)
@@ -2535,7 +2535,6 @@ class ShutIt(object):
 		assert self.build['asciinema_session'] is True, shutit_util.print_debug()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		output = self.logout(timeout=shutit_global.shutit_global_object.default_timeout)
-		self.log(output,add_final_message=True,level=logging.INFO)
 		self.build['asciinema_session'] = None
 		self.build['asciinema_session_file'] = None
 		return True
@@ -4736,7 +4735,6 @@ class ShutIt(object):
 	# Pass through log to global function.
 	def log(self,
 	        msg,
-	        add_final_message=False,
 	        color_code=0,
 	        level=logging.INFO,
 	        mask_password=True,
