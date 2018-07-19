@@ -263,7 +263,7 @@ class ShutItInit(object):
 			self.exam               = exam
 			self.history            = history
 			self.sort               = sort
-			self.long_modules       = long_modules
+			self.long               = long_modules
 			# Video/exam/training logic
 			if self.exam and not self.training:
 				shutit_global.shutit_global_object.shutit_print('Exam starting up')
@@ -3600,7 +3600,7 @@ class ShutIt(object):
 		if self.action['list_configs']:
 			self.list_configs['cfghistory'] = args.history
 		elif self.action['list_modules']:
-			self.list_modules['long'] = args.long_module
+			self.list_modules['long'] = args.long
 			self.list_modules['sort'] = args.sort
 
 		# Default this to False as it's not always set (mostly for debug logging).
