@@ -1,7 +1,7 @@
 import random
 import logging
 import string
-import virtualization
+from shutit_session_setup import virtualization
 
 
 def pre_build(shutit,
@@ -49,8 +49,7 @@ def pre_build(shutit,
 			shutit.send('echo VAGRANT VERSION MAY BE TOO LOW SEE https://github.com/ianmiell/shutit-library/issues/1 && sleep 10')
 	return True
 
-
-
+                                                                                                                  
 def setup_machines(shutit,
                    vagrant_image,
                    virt_method,
@@ -61,6 +60,9 @@ def setup_machines(shutit,
                    swapsize,
                    num_machines):
 
+	assert isinstance(num_machines, str)
+	assert isinstance(gui, bool)
+	num_machines = int(num_machines)
 	vagrant_run_dir = sourcepath + '/vagrant_run'
 	module_name = module_base_name + '_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 	this_vagrant_run_dir = vagrant_run_dir + '/' + module_name
@@ -76,7 +78,7 @@ def setup_machines(shutit,
 	vagrantfile_contents = '''Vagrant.configure("2") do |config|
   config.landrush.enabled = true
   config.vm.provider "virtualbox" do |vb|
-    vb.gui = ''' + gui + '''
+    vb.gui = ''' + str(gui).lower() + '''
     vb.memory = "''' + memory + '''"
   end'''
 	for m in range(1, num_machines+1):
@@ -116,6 +118,7 @@ end'''
 		shutit_session.send('cd ' + this_vagrant_run_dir, echo=False)
 		# Remove any existing landrush entry.
 		shutit_session.send('vagrant landrush rm ' + machines[machine]['fqdn'], echo=False)
+		# TODO: check whether vagrant box is already up
 		# Needs to be done serially for stability reasons.
 		try:
 			shutit_session.multisend('vagrant up --provider ' + virt_method + ' ' + machine,{'assword for':pw,'assword:':pw}, echo=False)

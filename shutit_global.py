@@ -210,16 +210,21 @@ class ShutItGlobal(object):
 		new_shutit.fail('unhandled session type: ' + session_type)
 		return new_shutit
 
-
-	def create_session_vagrant(vagrant_image,
+                                                                                                                  
+	def create_session_vagrant(self,
+	                           session_name,
+	                           num_machines,
+	                           vagrant_image,
 	                           vagrant_provider,
 	                           gui,
 	                           memory,
-	                           swapsize
+	                           swapsize,
 	                           echo,
 	                           walkthrough,
 	                           walkthrough_wait,
 	                           nocolor,
+	                           vagrant_version,
+	                           virt_method,
 	                           loglevel):
 		new_shutit = ShutIt(standalone=True)
 		self.shutit_objects.append(new_shutit)
@@ -232,8 +237,22 @@ class ShutItGlobal(object):
 		                                   loglevel=loglevel))
 		new_shutit.load_configs()
 		new_shutit.setup_host_child_environment()
-		TODO: run the vagrant script with the appropriate args
-		pass
+		from shutit_session_setup import vagrant
+		vagrant.pre_build(shutit=new_shutit,
+		                  vagrant_version=vagrant_version,
+		                  virt_method=virt_method)
+		print(gui) #False
+		print(memory) #1024
+		machines = vagrant.setup_machines(new_shutit,
+		                                  vagrant_image,
+		                                  virt_method,
+		                                  gui,
+		                                  memory,
+		                                  '/tmp/TODO',
+		                                  session_name,
+		                                  swapsize,
+		                                  num_machines)
+		return new_shutit
 
 
 
