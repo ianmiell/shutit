@@ -301,6 +301,7 @@ class ShutIt(object):
 	"""
 
 	def __init__(self,
+	             session_type,
 	             standalone):
 		"""Constructor.
 		Sets up:
@@ -368,8 +369,12 @@ class ShutIt(object):
 		self.cfg['shutitfile']               = self.shutitfile   # required for patterns
 		self.cfg['skeleton']                 = {}                # required for patterns
 
+		# Session type
+		self.session_type                    = session_type
+
 		# Unique id
 		self.uuid_str                        = str(uuid.uuid4())
+
 		# Logging
 		self.loglevel                        = None
 		self.logfile                         = None
@@ -409,6 +414,7 @@ class ShutIt(object):
 		string += '\tlogfile='                        + str(self.logfile)
 		string += '\tloglevel='                       + str(self.loglevel)
 		string += '\tshutitfile='                     + str(self.shutitfile)
+		string += '\tsession_type='                   + str(self.session_type)
 		if self.current_shutit_pexpect_session:
 			string += '\tlogin_stack='                    + str(self.current_shutit_pexpect_session.login_stack)
 		string += '\n======= SHUTIT OBJECT DONE ========'

@@ -183,7 +183,7 @@ class ShutItGlobal(object):
 	                   nocolor=False,
 	                   loglevel='WARNING'):
 		assert isinstance(session_type, str), shutit_util.print_debug()
-		new_shutit = ShutIt(standalone=True)
+		new_shutit = ShutIt(standalone=True, session_type=session_type)
 		self.shutit_objects.append(new_shutit)
 		if session_type == 'bash':
 			new_shutit.process_args(ShutItInit('build',
@@ -228,7 +228,7 @@ class ShutItGlobal(object):
 	                           virt_method,
 	                           root_folder,
 	                           loglevel):
-		new_shutit = ShutIt(standalone=True)
+		new_shutit = ShutIt(standalone=True, session_type='vagrant')
 		self.shutit_objects.append(new_shutit)
 		# Vagrant is: delivery over bash, but running the vagrant scripts first.
 		new_shutit.process_args(ShutItInit('build',
@@ -600,4 +600,4 @@ from shutit_class import ShutIt, ShutItInit
 import shutit_util
 
 # Create default shutit object. TODO: do we need this?
-shutit_global_object.shutit_objects.append(ShutIt(standalone=False))
+shutit_global_object.shutit_objects.append(ShutIt(standalone=False, session_type='bash'))
