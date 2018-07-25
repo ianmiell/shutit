@@ -68,7 +68,8 @@ def create_session(session_type='bash',
 		                                           nocolor=nocolor,
 		                                           loglevel=loglevel)
 	elif session_type == 'vagrant':
-		assert session_name is not None
+		if session_name is None:
+			session_name = 'shutit_' + shutit_util.random_id()
 		if isinstance(num_machines, int):
 			num_machines = str(num_machines)
 		assert isinstance(num_machines, str)
