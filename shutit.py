@@ -49,6 +49,11 @@ def create_session(session_type='bash',
                    num_machines='1',
                    root_folder=None,
                    loglevel='WARNING'):
+	"""Creates a distinct ShutIt session. Sessions can be of type:
+
+	bash    - a bash shell is spawned and 
+	vagrant - a Vagrantfile is created and 'vagrant up'ped 
+	"""
 	assert session_type in ('bash','docker','vagrant'), shutit_util.print_debug()
 	shutit_global_object = shutit_global.shutit_global_object
 	if video != -1 and video > 0:

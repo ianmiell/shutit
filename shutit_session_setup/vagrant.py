@@ -92,7 +92,7 @@ def setup_machines(shutit,
       vb.name = "''' + machine_name + '''"
     end
   end'''
-    vagarantfile_contents += '''
+	vagarantfile_contents += '''
 end'''
 		# machines is a dict of dicts containing information about each machine for you to use.
 		machine_fqdn = machine_name + '.vagrant.test'
