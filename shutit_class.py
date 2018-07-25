@@ -4805,6 +4805,16 @@ class ShutIt(object):
 	def is_interactive(self):
 		return shutit_global.shutit_global_object.determine_interactive()
 
+	def destroy(self):
+		"""Finish up a session.
+		"""
+		if self.session_type == 'bash':
+			# TODO: does this work/handle already being logged out/logged in deep OK?
+			self.logout()
+		elif self.session_type == 'vagrant':
+			# TODO: does this work/handle already being logged out/logged in deep OK?
+			self.logout()
+
 
 def check_dependee_order(depender, dependee, dependee_id):
 	"""Checks whether run orders are in the appropriate order.
