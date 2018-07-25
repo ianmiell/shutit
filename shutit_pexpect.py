@@ -410,6 +410,13 @@ class ShutItPexpectSession(object):
 		return True
 
 
+	def logout_all(self, sendspec):
+		"""Completely logs the user out of all logins in this pexpect session
+		"""
+		while self.login_stack.length() > 0:
+			self.logout(sendspec)
+
+
 	def logout(self, sendspec):
 		"""Logs the user out. Assumes that login has been called.
 		If login has never been called, throw an error.

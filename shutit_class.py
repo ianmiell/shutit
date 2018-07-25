@@ -351,6 +351,7 @@ class ShutIt(object):
 		self.list_configs                    = {}
 		self.target                          = {}
 		self.action                          = {}
+		# TODO: do we ever have more than one of these? if so, much code can be refactored.
 		self.shutit_pexpect_sessions         = {}
 		self.shutit_map                      = {}
 		self.shutit_file_map                 = {}
@@ -2096,6 +2097,22 @@ class ShutIt(object):
 		                                                   loglevel=loglevel))
 
 
+	def logout_all(self,
+	               command='exit',
+	               note=None,
+	               echo=None,
+	               timeout=shutit_global.shutit_global_object.default_timeout,
+	               nonewline=False,
+	               loglevel=logging.DEBUG):
+		shutit_global.shutit_global_object.yield_to_draw()
+		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
+		# TODO: see TODO regarding shutit_sessions - if there's only one this code can be simplified. If not, then we need to cycle through the pexpect objects and logout_all from them.
+		return shutit_pexpect_session.logout_all(ShutItSendSpec(shutit_pexpect_session,send=command,
+		                                                        note=note,
+		                                                        timeout=timeout,
+		                                                        nonewline=nonewline,
+		                                                        loglevel=loglevel,
+		                                                        echo=echo))
 	def logout(self,
 	           command='exit',
 	           note=None,
@@ -2559,25 +2576,6 @@ class ShutIt(object):
 		shutit_global.shutit_global_object.yield_to_draw()
 		for key in self.shutit_pexpect_sessions:
 			self.shutit_pexpect_sessions[key].pexpect_child.logfile = output
-		return True
-
-
-	def add_shutit_pexpect_session(self, shutit_pexpect_child):
-		shutit_global.shutit_global_object.yield_to_draw()
-		pexpect_session_id = shutit_pexpect_child.pexpect_session_id
-		# Check id is unique
-		if self.shutit_pexpect_sessions.has_key(pexpect_session_id) and self.shutit_pexpect_sessions[pexpect_session_id] != shutit_pexpect_child:
-			self.fail('shutit_pexpect_child already added and differs from passed-in object',throw_exception=True) # pragma: no cover
-		return self.shutit_pexpect_sessions.update({pexpect_session_id:shutit_pexpect_child})
-
-
-	def remove_shutit_pexpect_session(self, shutit_pexpect_session_id=None, shutit_pexpect_child=None):
-		shutit_global.shutit_global_object.yield_to_draw()
-		if shutit_pexpect_session_id is None and shutit_pexpect_child is None:
-			self.fail('Must pass value into remove_pexpect_child.',throw_exception=True) # pragma: no cover
-		if shutit_pexpect_session_id is None:
-			shutit_pexpect_session_id = shutit_pexpect_child.pexpect_session_id
-		del self.shutit_pexpect_sessions[shutit_pexpect_session_id]
 		return True
 
 
