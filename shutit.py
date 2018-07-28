@@ -68,7 +68,7 @@ def create_session(docker_image=None,
 		                                           loglevel=loglevel)
 	elif session_type == 'vagrant':
 		if vagrant_session_name is None:
-			vagrant_session_name = 'shutit_' + shutit_util.random_id()
+			vagrant_session_name = 'shutit' + shutit_util.random_id()
 		if isinstance(vagrant_num_machines, int):
 			vagrant_num_machines = str(vagrant_num_machines)
 		assert isinstance(vagrant_num_machines, str)
