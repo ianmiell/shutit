@@ -94,7 +94,7 @@ def setup_machines(shutit,
 
   config.vm.define "''' + machine_name + '''" do |''' + machine_name + '''|
     ''' + machine_name + '''.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    ''' + machine_name + '''.vm.hostname = "''' + machine_name + '''.vagrant.test"
+    ''' + machine_name + '''.vm.hostname = "''' + machine_name.replace('_','').replace('-','') + '''.vagrant.test"
     config.vm.provider :virtualbox do |vb|
       vb.name = "''' + machine_name + '''"
     end
