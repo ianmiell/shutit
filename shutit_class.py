@@ -351,7 +351,7 @@ class ShutIt(object):
 		self.list_configs                    = {}
 		self.target                          = {}
 		self.action                          = {}
-		# TODO: do we ever have more than one of these? if so, much code can be refactored.
+		# TODO: do we ever have more than one of these? YES
 		self.shutit_pexpect_sessions         = {}
 		self.shutit_map                      = {}
 		self.shutit_file_map                 = {}
@@ -527,6 +527,19 @@ class ShutIt(object):
 		return res
 
 
+	def get_shutit_pexpect_sessions(self, note=None):
+		"""Returns all the shutit_pexpect_session keys for this object.
+
+		@return: list of all shutit_pexpect_session keys (pexpect_session_ids)
+		"""
+		self.handle_note(note)
+		sessions = []
+		for key in self.shutit_pexpect_sessions:
+			sessions.append(shutit_object.shutit_pexpect_sessions[key])
+		self.handle_note_after(note)
+		return sessions
+
+
 	def get_default_shutit_pexpect_session_expect(self):
 		"""Returns the currently-set default pexpect string (usually a prompt).
 
@@ -563,7 +576,7 @@ class ShutIt(object):
 		@type expect: string
 		"""
 		if expect is None:
-			self.current_shutit_pexpect_session.default_expect = self.expect_prompts['root']
+			self.current_shutit_pexpect_session.default_expect = self.expect_prompts['ORIGIN_ENV']
 		else:
 			self.current_shutit_pexpect_session.default_expect = expect
 		return True
@@ -641,7 +654,8 @@ class ShutIt(object):
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		expect = expect or self.get_current_shutit_pexpect_session().default_expect
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		return shutit_pexpect_session.multisend(ShutItSendSpec(shutit_pexpect_session,send=send,
+		return shutit_pexpect_session.multisend(ShutItSendSpec(shutit_pexpect_session,
+		                                                       send=send,
 		                                                       send_dict=send_dict,
 		                                                       expect=expect,
 		                                                       timeout=timeout,
@@ -876,20 +890,21 @@ class ShutIt(object):
 		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=send,
-		                            expect=expect,
-		                            timeout=timeout,
-		                            check_exit=False,
-		                            fail_on_empty_before=fail_on_empty_before,
-		                            record_command=record_command,
-		                            exit_values=exit_values,
-		                            echo=echo,
-		                            escape=escape,
-		                            retry=retry,
-		                            note=note,
-		                            assume_gnu=assume_gnu,
-		                            loglevel=loglevel,
-		                            follow_on_commands=follow_on_commands))
+		shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,
+		                                           send=send,
+		                                           expect=expect,
+		                                           timeout=timeout,
+		                                           check_exit=False,
+		                                           fail_on_empty_before=fail_on_empty_before,
+		                                           record_command=record_command,
+		                                           exit_values=exit_values,
+		                                           echo=echo,
+		                                           escape=escape,
+		                                           retry=retry,
+		                                           note=note,
+		                                           assume_gnu=assume_gnu,
+		                                           loglevel=loglevel,
+		                                           follow_on_commands=follow_on_commands))
 		return shutit_pexpect_session.check_last_exit_values(send,
 		                                                     check_exit=True,
 		                                                     expect=expect,
@@ -1160,7 +1175,8 @@ class ShutIt(object):
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
 		self.handle_note(note, 'Sending host directory: ' + hostfilepath + ' to target path: ' + path)
 		self.log('Sending host directory: ' + hostfilepath + ' to: ' + path, level=logging.INFO)
-		shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path,
+		shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,
+		                                           send=' command mkdir -p ' + path,
 		                                           echo=False,
 		                                           loglevel=loglevel))
 		if user is None:
@@ -1180,14 +1196,16 @@ class ShutIt(object):
 			                                 group=group,
 			                                 loglevel=loglevel,
 			                                 encoding='iso-8859-1')
-			shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path + ' && command tar -C ' + path + ' -zxf ' + gzipfname))
+			shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,
+			                                           send=' command mkdir -p ' + path + ' && command tar -C ' + path + ' -zxf ' + gzipfname))
 		else:
 			# If no gunzip, fall back to old slow method.
 			for root, subfolders, files in os.walk(hostfilepath):
 				subfolders.sort()
 				files.sort()
 				for subfolder in subfolders:
-					shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,send=' command mkdir -p ' + path + '/' + subfolder,
+					shutit_pexpect_session.send(ShutItSendSpec(shutit_pexpect_session,
+					                                           send=' command mkdir -p ' + path + '/' + subfolder,
 					                                           echo=False,
 					                                           loglevel=loglevel))
 					self.log('send_host_dir recursing to: ' + hostfilepath + '/' + subfolder, level=logging.DEBUG)
@@ -2081,7 +2099,8 @@ class ShutIt(object):
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		return shutit_pexpect_session.login(ShutItSendSpec(shutit_pexpect_session,user=user,
+		return shutit_pexpect_session.login(ShutItSendSpec(shutit_pexpect_session,
+		                                                   user=user,
 		                                                   send=command,
 		                                                   password=password,
 		                                                   prompt_prefix=prompt_prefix,
@@ -2104,15 +2123,24 @@ class ShutIt(object):
 	               timeout=shutit_global.shutit_global_object.default_timeout,
 	               nonewline=False,
 	               loglevel=logging.DEBUG):
+		"""Logs the user out of all pexpect sessions within this ShutIt object.
+
+			@param command:         Command to run to log out (default=exit)
+			@param note:            See send()
+		"""
 		shutit_global.shutit_global_object.yield_to_draw()
-		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		# TODO: see TODO regarding shutit_sessions - if there's only one this code can be simplified. If not, then we need to cycle through the pexpect objects and logout_all from them.
-		return shutit_pexpect_session.logout_all(ShutItSendSpec(shutit_pexpect_session,send=command,
-		                                                        note=note,
-		                                                        timeout=timeout,
-		                                                        nonewline=nonewline,
-		                                                        loglevel=loglevel,
-		                                                        echo=echo))
+		for key in self.shutit_pexpect_sessions:
+			shutit_pexpect_session = self.shutit_pexpect_sessions[key]
+			shutit_pexpect_session.logout_all(ShutItSendSpec(shutit_pexpect_session,
+		                                                     send=command,
+		                                                     note=note,
+		                                                     timeout=timeout,
+		                                                     nonewline=nonewline,
+		                                                     loglevel=loglevel,
+		                                                     echo=echo))
+		return True
+
+
 	def logout(self,
 	           command='exit',
 	           note=None,
@@ -2128,7 +2156,8 @@ class ShutIt(object):
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_session = self.get_current_shutit_pexpect_session()
-		return shutit_pexpect_session.logout(ShutItSendSpec(shutit_pexpect_session,send=command,
+		return shutit_pexpect_session.logout(ShutItSendSpec(shutit_pexpect_session,
+		                                                    send=command,
 		                                                    note=note,
 		                                                    timeout=timeout,
 		                                                    nonewline=nonewline,

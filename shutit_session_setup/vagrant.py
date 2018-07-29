@@ -64,7 +64,7 @@ def setup_machines(shutit,
 	assert isinstance(gui, bool)
 	num_machines = int(num_machines)
 	vagrant_run_dir = sourcepath + '/vagrant_run'
-	module_name = module_base_name + '_' + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+	module_name = module_base_name + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
 	this_vagrant_run_dir = vagrant_run_dir + '/' + module_name
 	shutit.send(' command rm -rf ' + this_vagrant_run_dir + ' && command mkdir -p ' + this_vagrant_run_dir + ' && command cd ' + this_vagrant_run_dir, echo=False)
 	# check whether vagrant box is already up
@@ -87,6 +87,7 @@ def setup_machines(shutit,
     vb.gui = ''' + str(gui).lower() + '''
     vb.memory = "''' + memory + '''"
   end'''
+	# TODO: check no hyphens or underscores in module_name as that can confuse things
 	for m in range(1, num_machines+1):
 		machine_name = module_base_name + str(m)
 		vagrantfile_contents += '''
@@ -104,6 +105,7 @@ end'''
 		machine_fqdn = machine_name + '.vagrant.test'
 		machines.update({machine_name:{'fqdn':machine_fqdn}})
 	shutit.send_file(this_vagrant_run_dir+ '/Vagrantfile',vagrantfile_contents)
+	module_base_name = None
 
 	try:
 		pw = open('secret').read().strip()
