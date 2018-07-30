@@ -58,7 +58,8 @@ def setup_machines(shutit,
                    sourcepath,
                    module_base_name,
                    swapsize,
-                   num_machines):
+                   num_machines,
+                   cpus):
 
 	assert isinstance(num_machines, str)
 	assert isinstance(gui, bool)
@@ -98,6 +99,7 @@ def setup_machines(shutit,
     ''' + machine_name + '''.vm.hostname = "''' + machine_name + '''.vagrant.test"
     config.vm.provider :virtualbox do |vb|
       vb.name = "''' + machine_name + '''"
+      vb.cpus = "''' + cpus + '''"
     end
   end'''
 		vagrantfile_contents += '''

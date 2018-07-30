@@ -227,6 +227,7 @@ class ShutItGlobal(object):
 	                           vagrant_version,
 	                           virt_method,
 	                           root_folder,
+	                           cpus,
 	                           loglevel):
 		new_shutit = ShutIt(standalone=True, session_type='vagrant')
 		self.shutit_objects.append(new_shutit)
@@ -251,7 +252,8 @@ class ShutItGlobal(object):
 		                                  root_folder,
 		                                  session_name,
 		                                  swapsize,
-		                                  num_machines)
+		                                  num_machines,
+		                                  cpus)
 		new_shutit.vagrant_machines = machines
 		return new_shutit
 
