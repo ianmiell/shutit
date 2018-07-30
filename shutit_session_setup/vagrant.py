@@ -64,7 +64,8 @@ def setup_machines(shutit,
 	assert isinstance(gui, bool)
 	num_machines = int(num_machines)
 	vagrant_run_dir = sourcepath + '/vagrant_run'
-	module_name = module_base_name + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6))
+	module_base_name = module_base_name.replace('-','').replace('_','')
+	module_name = module_base_name + ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(6)).replace('-','').replace('_','')
 	this_vagrant_run_dir = vagrant_run_dir + '/' + module_name
 	shutit.send(' command rm -rf ' + this_vagrant_run_dir + ' && command mkdir -p ' + this_vagrant_run_dir + ' && command cd ' + this_vagrant_run_dir, echo=False)
 	# check whether vagrant box is already up
@@ -94,7 +95,7 @@ def setup_machines(shutit,
 
   config.vm.define "''' + machine_name + '''" do |''' + machine_name + '''|
     ''' + machine_name + '''.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    ''' + machine_name + '''.vm.hostname = "''' + machine_name.replace('_','').replace('-','') + '''.vagrant.test"
+    ''' + machine_name + '''.vm.hostname = "''' + machine_name + '''.vagrant.test"
     config.vm.provider :virtualbox do |vb|
       vb.name = "''' + machine_name + '''"
     end
@@ -118,30 +119,32 @@ end'''
 		time.sleep(10)
 
 	# Set up the sessions.
+	shutit_host_session = shutit.create_session(session_type='bash')
 	for machine in sorted(machines.keys()):
-		shutit_sessions.update({machine:shutit.create_session('bash', walkthrough=False)})
+		shutit_sessions.update({machine:shutit.create_session(session_type='bash', walkthrough=False)})
 	# Set up and validate landrush.
 	for machine in sorted(machines.keys()):
 		shutit_session = shutit_sessions[machine]
-		machine_name = machines
+		machine_name   = machines
 		shutit_session.send('cd ' + this_vagrant_run_dir, echo=False)
+		shutit_host_session.send('cd ' + this_vagrant_run_dir, echo=False)
 		# Remove any existing landrush entry.
-		shutit_session.send('vagrant landrush rm ' + machines[machine]['fqdn'], echo=False)
+		shutit_host_session.send('vagrant landrush rm ' + machines[machine]['fqdn'], echo=False)
 		# Needs to be done serially for stability reasons.
 		try:
-			shutit_session.multisend('vagrant up --provider ' + virt_method + ' ' + machine,{'assword for':pw,'assword:':pw}, echo=False)
+			shutit_host_session.multisend('vagrant up --provider ' + virt_method + ' ' + machine,{'assword for':pw,'assword:':pw}, echo=False)
 		except NameError:
-			shutit_session.multisend('vagrant up ' + machine,{'assword for':pw,'assword:':pw},timeout=99999, echo=False)
-		if shutit_session.send_and_get_output("vagrant status 2> /dev/null | grep -w ^" + machine + " | awk '{print $2}'", echo=False) != 'running':
-			shutit_session.pause_point("machine: " + machine + " appears not to have come up cleanly")
-		ip = shutit_session.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''', echo=False)
+			shutit_host_session.multisend('vagrant up ' + machine,{'assword for':pw,'assword:':pw},timeout=99999, echo=False)
+		if shutit_host_session.send_and_get_output("vagrant status 2> /dev/null | grep -w ^" + machine + " | awk '{print $2}'", echo=False) != 'running':
+			shutit_host_session.pause_point("machine: " + machine + " appears not to have come up cleanly")
+		ip = shutit_host_session.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''', echo=False)
 		machines.get(machine).update({'ip':ip})
 		shutit_session.login(command='vagrant ssh ' + machine, echo=False)
 		shutit_session.login(command='sudo su - ', echo=False)
 		# Correct /etc/hosts
 		shutit_session.send(r'''cat <(echo $(ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/') $(hostname)) <(cat /etc/hosts | grep -v $(hostname -s)) > /tmp/hosts && mv -f /tmp/hosts /etc/hosts''', echo=False)
 		# Correct any broken ip addresses.
-		if shutit_session.send_and_get_output('''vagrant landrush ls | grep ''' + machine + ''' | grep 10.0.2.15 | wc -l''', echo=False) != '0':
+		if shutit_host_session.send_and_get_output('''vagrant landrush ls | grep ''' + machine + ''' | grep 10.0.2.15 | wc -l''', echo=False) != '0':
 			shutit_session.log('A 10.0.2.15 landrush ip was detected for machine: ' + machine + ', correcting.',level=logging.WARNING)
 			# This beaut gets all the eth0 addresses from the machine and picks the first one that it not 10.0.2.15.
 			while True:
@@ -151,12 +154,12 @@ end'''
 				else:
 					break
 			# Send this on the host (shutit, not shutit_session)
-			shutit.send('vagrant landrush set ' + machines[machine]['fqdn'] + ' ' + ipaddr)
+			shutit_host_session.send('vagrant landrush set ' + machines[machine]['fqdn'] + ' ' + ipaddr)
 		# Check that the landrush entry is there.
-		shutit.send('vagrant landrush ls | grep -w ' + machines[machine]['fqdn'])
+		shutit_host_session.send('vagrant landrush ls | grep -w ' + machines[machine]['fqdn'])
 	# All done, so gather landrush info
 	for machine in sorted(machines.keys()):
-		ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''', echo=False)
+		ip = shutit_host_session.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''', echo=False)
 		machines.get(machine).update({'ip':ip})
 
 	for machine in sorted(machines.keys()):
