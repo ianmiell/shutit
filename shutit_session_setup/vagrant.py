@@ -70,11 +70,10 @@ def setup_machines(shutit,
 	this_vagrant_run_dir = vagrant_run_dir + '/' + module_name
 	shutit.send(' command rm -rf ' + this_vagrant_run_dir + ' && command mkdir -p ' + this_vagrant_run_dir + ' && command cd ' + this_vagrant_run_dir, echo=False)
 	# check whether vagrant box is already up
-	if shutit.send_and_get_output('''vagrant global-status | sed -n '3,$p' | sed '/^The above/,$d' | awk '{print $2}' | grep ''' + module_name + ''' | wc -l''') != '0':
+	if shutit.send_and_get_output('''vagrant global-status | sed -n '3,$p' | sed '/^The above/,$d' | awk '{print $2}' | grep ''' + module_base_name + ''' | wc -l''') != '0':
 		# TODO: ask first
-		lines = shutit.send_and_get_output('''vagrant global-status | sed -n '3,$p' | sed '/^The above/,$d' | grep ''' + module_name)
-		shutit.send('''vagrant global-status | sed -n '3,$p' | sed '/^The above/,$d' | awk '{print $1, $2}' | grep ''' + module_name + ''' | awk {print $1}' | xargs -n1 vagrant-destroy''')
-
+		lines = shutit.send_and_get_output('''vagrant global-status | sed -n '3,$p' | sed '/^The above/,$d' | grep ''' + module_base_name)
+		shutit.send('''vagrant global-status | sed -n '3,$p' | sed '/^The above/,$d' | awk '{print $1, $2}' | grep ''' + module_base_name + ''' | awk '{print $1}' | xargs -n1 vagrant destroy -f''')
 	if shutit.send_and_get_output('vagrant plugin list | grep landrush', echo=False) == '':
 		shutit.send('vagrant plugin install landrush', echo=False)
 	shutit.send('vagrant init ' + vagrant_image, echo=False)
