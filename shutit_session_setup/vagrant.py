@@ -59,10 +59,12 @@ def setup_machines(shutit,
                    module_base_name,
                    swapsize,
                    num_machines,
-                   cpus):
+                   cpus,
+                   synced_folder):
 
 	assert isinstance(num_machines, str)
 	assert isinstance(gui, bool)
+	assert isinstance(synced_folder, (dict, None))
 	num_machines = int(num_machines)
 	vagrant_run_dir = sourcepath + '/vagrant_run'
 	module_base_name = module_base_name.replace('-','').replace('_','')
@@ -91,11 +93,25 @@ def setup_machines(shutit,
 	# TODO: check no hyphens or underscores in module_name as that can confuse things
 	for m in range(1, num_machines+1):
 		machine_name = module_base_name + str(m)
-		vagrantfile_contents += '''
+		#hostfolder = '/space'
+		#guesfolder = '/space'
+		#owner      = 'imiell'
+		#group      = 'imiell'
+		if synced_folder is not None:
+			hostfolder = synced_folder.get('hostfolder')
+			guestfolder = synced_folder.get('guestfolder')
+			owner = synced_folder.get('owner')
+			group = synced_folder.get('group')
+			synced_folder_line = '''
+''' + machine_name + '''.vm.synced_folder "''' + hostfolder + '''", "''' + guestfolder + '''", owner: "''' + owner + '''", group: "''' + group + '''"
+'''
+		else:
+			synced_folder_line = ''
 
+		vagrantfile_contents += '''
   config.vm.define "''' + machine_name + '''" do |''' + machine_name + '''|
     ''' + machine_name + '''.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    ''' + machine_name + '''.vm.hostname = "''' + machine_name + '''.vagrant.test"
+    ''' + machine_name + '''.vm.hostname = "''' + machine_name + '''.vagrant.test"''' + synced_folder_line + '''
     config.vm.provider :virtualbox do |vb|
       vb.name = "''' + machine_name + '''"
       vb.cpus = "''' + cpus + '''"
@@ -186,6 +202,9 @@ echo "
 		     'Room':'',
 		     'Other':'',
 		     'Is the information correct':'Y'}, echo=False)
+
+
+	
 
 
 	# TODO: copy ssh keys code

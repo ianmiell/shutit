@@ -30,7 +30,6 @@ import socket
 import time
 import getpass
 import datetime
-import logging
 import fcntl
 import pwd
 import re
@@ -211,7 +210,7 @@ class ShutItGlobal(object):
 		new_shutit.fail('unhandled session type: ' + session_type)
 		return new_shutit
 
-                                                                                                                  
+
 	def create_session_vagrant(self,
 	                           session_name,
 	                           num_machines,
@@ -228,6 +227,7 @@ class ShutItGlobal(object):
 	                           virt_method,
 	                           root_folder,
 	                           cpus,
+	                           synced_folder,
 	                           loglevel):
 		new_shutit = ShutIt(standalone=True, session_type='vagrant')
 		self.shutit_objects.append(new_shutit)
@@ -253,7 +253,8 @@ class ShutItGlobal(object):
 		                                  session_name,
 		                                  swapsize,
 		                                  num_machines,
-		                                  cpus)
+		                                  cpus,
+		                                  synced_folder)
 		new_shutit.vagrant_machines = machines
 		return new_shutit
 
