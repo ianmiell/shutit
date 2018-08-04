@@ -64,7 +64,9 @@ def setup_machines(shutit,
 
 	assert isinstance(num_machines, str)
 	assert isinstance(gui, bool)
-	assert isinstance(synced_folder, (dict, None))
+	if synced_folder is None:
+		synced_folder = {}
+	assert isinstance(synced_folder, (dict))
 	num_machines = int(num_machines)
 	vagrant_run_dir = sourcepath + '/vagrant_run'
 	module_base_name = module_base_name.replace('-','').replace('_','')
@@ -97,7 +99,7 @@ def setup_machines(shutit,
 		#guesfolder = '/space'
 		#owner      = 'imiell'
 		#group      = 'imiell'
-		if synced_folder is not None:
+		if synced_folder != {}:
 			hostfolder = synced_folder.get('hostfolder')
 			guestfolder = synced_folder.get('guestfolder')
 			owner = synced_folder.get('owner')
