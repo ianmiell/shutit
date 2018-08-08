@@ -910,6 +910,7 @@ class ShutIt(object):
 		                                                     expect=expect,
 		                                                     exit_values=exit_values,
 		                                                     retry=retry,
+		                                                     do_pause_point=False,
 		                                                     retbool=True)
 
 

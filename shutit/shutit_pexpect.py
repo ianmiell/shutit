@@ -698,6 +698,7 @@ class ShutItPexpectSession(object):
 	                           expect=None,
 	                           exit_values=None,
 	                           retry=0,
+	                           do_pause_point=True,
 	                           retbool=False):
 		"""Internal function to check the exit value of the shell. Do not use.
 		"""
@@ -722,18 +723,22 @@ class ShutItPexpectSession(object):
 		shutit.log('before: ' + str(self.pexpect_child.before),level=logging.DEBUG)
 		res = shutit.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res is None: # pragma: no cover
-			res_str = res or str(res)
 			shutit.log('shutit_pexpect_child.after: ' + str(self.pexpect_child.after), level=logging.DEBUG)
 			shutit.log('Exit value from command: ' + str(send) + ' was:' + res_str, level=logging.DEBUG)
-			msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res_str + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
-			shutit.build['report'] += msg
-			if retbool:
-				return False
-			elif retry == 1 and shutit_global.shutit_global_object.interactive >= 1:
-				# This is a failure, so we pass in level=0
-				shutit.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res_str + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
-			elif retry == 1:
-				shutit.fail('Exit value from command\n' + send + '\nwas:\n' + res_str, throw_exception=False) # pragma: no cover
+			if do_pause_point:
+				res_str = res or str(res)
+				msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res_str + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
+				shutit.build['report'] += msg
+				if retbool:
+					return False
+				elif retry == 1 and shutit_global.shutit_global_object.interactive >= 1:
+					# This is a failure, so we pass in level=0
+					shutit.pause_point(msg + '\n\nInteractive, so not retrying.\nPause point on exit_code != 0 (' + res_str + '). CTRL-C to quit', shutit_pexpect_child=self.pexpect_child, level=0)
+				elif retry == 1:
+					shutit.fail('Exit value from command\n' + send + '\nwas:\n' + res_str, throw_exception=False) # pragma: no cover
+				else:
+					shutit.log('no pause point or fail, returning False', level=logging.DEBUG)
+					return False
 			else:
 				return False
 		return True
