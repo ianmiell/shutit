@@ -56,16 +56,16 @@ import base64
 import sys
 import textwrap
 import pexpect
-import shutit_util
-import shutit_global
+from shutit import shutit_util
+from shutit import shutit_global
 from shutit_global import SessionPaneLine
-import package_map
-import shutit_class
-from shutit_login_stack import ShutItLoginStack
-from shutit_sendspec import ShutItSendSpec
-from shutit_module import ShutItFailException
-from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
-from shutit_background import ShutItBackgroundCommand
+from shutit import package_map
+from shutit import shutit_class
+from shutit.shutit_login_stack import ShutItLoginStack
+from shutit.shutit_sendspec import ShutItSendSpec
+from shutit.shutit_module import ShutItFailException
+from shutit.shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
+from shutit.shutit_background import ShutItBackgroundCommand
 
 if sys.version_info[0] >= 3:
 	unicode = str

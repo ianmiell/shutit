@@ -41,8 +41,8 @@ from distutils.dir_util import mkpath
 import curtsies
 #from curtsies.fmtfuncs import black, yellow, magenta, cyan, gray, blue, red, green, on_black, on_dark, on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_gray, bold, dark, underline, blink, invert, plain
 from curtsies.fmtfuncs import blue, cyan, invert
-from shutit_session_setup import vagrant
-import shutit_threads
+from shutit.shutit_session_setup import vagrant
+from shutit import shutit_threads
 
 if sys.version_info[0] >= 3:
 	unicode = str

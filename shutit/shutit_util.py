@@ -42,10 +42,10 @@ import sys
 import threading
 import time
 import traceback
-import shutit_assets
-import shutit_class
-import shutit_global
-import shutit
+from shutit import shutit_assets
+from shutit import shutit_class
+from shutit import shutit_global
+from shutit import shutit
 
 
 if shutit_global.shutit_global_object.ispy3:
