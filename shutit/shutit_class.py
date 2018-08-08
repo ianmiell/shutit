@@ -30,12 +30,12 @@ import time
 import uuid
 import texttable
 import pexpect
-from shutit import shutit_base
+from shutit import shutit
 from shutit import shutit_util
 from shutit import shutit_global
 from shutit import shutit_skeleton
 from shutit import shutit_exam
-from shutit import ShutIt
+from shutit import shutitclass
 from shutit import ShutItInit
 try:
 	import ConfigParser
