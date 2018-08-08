@@ -1,7 +1,7 @@
 import random
 import logging
 import string
-from shutit_session_setup import virtualization
+from . import virtualization
 
 
 def pre_build(shutit,
