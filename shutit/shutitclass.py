@@ -2938,7 +2938,7 @@ class ShutItClass(object):
 			# Default to allow any image
 			self.get_config(module_id, 'shutit.core.module.allowed_images', [".*"])
 			module = self.shutit_map[module_id]
-			cfg_file = os.path.dirname(get_module_file(self,module)) + '/configs/build.cnf'
+			cfg_file = os.path.dirname(shutit_class.get_module_file(self,module)) + '/configs/build.cnf'
 			if os.path.isfile(cfg_file):
 				# use self.get_config, forcing the passed-in default
 				config_parser = ConfigParser.ConfigParser()
@@ -3876,13 +3876,13 @@ class ShutItClass(object):
 			cfg = self.cfg
 			# Show dependency graph
 			digraph = 'digraph depgraph {\n'
-			digraph += '\n'.join([ make_dep_graph(module) for module_id, module in self.shutit_map.items() if module_id in cfg and cfg[module_id]['shutit.core.module.build'] ])
+			digraph += '\n'.join([ shutit_class.make_dep_graph(module) for module_id, module in self.shutit_map.items() if module_id in cfg and cfg[module_id]['shutit.core.module.build'] ])
 			digraph += '\n}'
 			f = open(self.build['log_config_path'] + '/digraph.txt','w')
 			f.write(digraph)
 			f.close()
 			digraph_all = 'digraph depgraph {\n'
-			digraph_all += '\n'.join([ make_dep_graph(module) for module_id, module in self.shutit_map.items() ])
+			digraph_all += '\n'.join([ shutit_class.make_dep_graph(module) for module_id, module in self.shutit_map.items() ])
 			digraph_all += '\n}'
 			fname = self.build['log_config_path'] + '/digraph_all.txt'
 			f = open(fname,'w')
@@ -4126,7 +4126,7 @@ class ShutItClass(object):
 
 		triples = err_checker([ self.check_dependee_exists(depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
 		triples = err_checker([ self.check_dependee_build(depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
-		triples = err_checker([ check_dependee_order(depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
+		triples = err_checker([ shutit_class.check_dependee_order(depender, dependee, dependee_id) for depender, dependee, dependee_id in triples ], triples)
 
 		if found_errs:
 			return [(err,) for err in found_errs]
@@ -4426,7 +4426,7 @@ class ShutItClass(object):
 			if module.run_order == 0:
 				has_core_module = True
 			self.shutit_map[module.module_id] = run_orders[module.run_order] = module
-			self.shutit_file_map[module.module_id] = get_module_file(self, module)
+			self.shutit_file_map[module.module_id] = shutit_class.get_module_file(self, module)
 
 		if not has_core_module:
 			self.fail('No module with run_order=0 specified! This is required.') # pragma: no cover
