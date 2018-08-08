@@ -43,8 +43,10 @@ except ImportError: # pragma: no cover
 	import configparser as ConfigParser
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException, ShutItModule
-from shutit_pexpect import ShutItPexpectSession
-from ShutItInit import ShutItInit
+
+import shutit_pexpect
+import ShutItInit
+
 
 
 class ShutItClass(object):
@@ -3115,7 +3117,7 @@ class ShutItClass(object):
 		"""Process the args we have. 'args' is always a ShutItInit object.
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
-		assert isinstance(args,ShutItInit), shutit_util.print_debug()
+		assert isinstance(args,ShutItInit.ShutItInit), shutit_util.print_debug()
 
 		if args.action == 'version':
 			shutit_global.shutit_global_object.shutit_print('ShutItClass version: ' + shutit.shutit_version)
@@ -3615,11 +3617,11 @@ class ShutItClass(object):
 
 		# Set up shutit_global
 		if args.action == 'version':
-			self.process_args(ShutItInit(args.action))
+			self.process_args(ShutItInit.ShutItInit(args.action))
 		elif args.action == 'skeleton':
 			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
 			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
-			self.process_args(ShutItInit(args.action,
+			self.process_args(ShutItInit.ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             loglevel=args.log,
 			                             nocolor=args.nocolor,
@@ -3642,7 +3644,7 @@ class ShutItClass(object):
 		elif args.action == 'run':
 			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)
 			shutit_global.shutit_global_object.prompt_command  = args.promptcommand
-			self.process_args(ShutItInit(args.action,
+			self.process_args(ShutItInit.ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             loglevel=args.log,
 			                             nocolor=args.nocolor,
@@ -3660,7 +3662,7 @@ class ShutItClass(object):
 				if not shutit_global.shutit_global_object.determine_interactive():
 					self.log('You cannot have panes if you are not in an interactive shell',level=logging.WARNING)
 					shutit_global.shutit_global_object.managed_panes = False
-			self.process_args(ShutItInit(args.action,
+			self.process_args(ShutItInit.ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             loglevel=args.log,
 			                             nocolor=args.nocolor,
@@ -3700,12 +3702,12 @@ class ShutItClass(object):
 				sys.settrace(tracefunc)
 
 		elif args.action == 'list_configs':
-			self.process_args(ShutItInit(args.action,
+			self.process_args(ShutItInit.ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
 			                             history=args.history))
 		elif args.action == 'list_modules':
-			self.process_args(ShutItInit(args.action,
+			self.process_args(ShutItInit.ShutItInit(args.action,
 			                             logfile=args.logfile,
 			                             nocolor=args.nocolor,
 			                             sort=args.sort,
