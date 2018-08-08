@@ -316,7 +316,7 @@ class ShutItClass(object):
 
 		@param shutit_pexpect_session: pexpect child to set as default
 		"""
-		assert isinstance(shutit_pexpect_session, ShutItPexpectSession), shutit_util.print_debug()
+		assert isinstance(shutit_pexpect_session, shutit_pexpect.ShutItPexpectSession), shutit_util.print_debug()
 		self.current_shutit_pexpect_session = shutit_pexpect_session
 		return True
 
@@ -3783,7 +3783,7 @@ class ShutItClass(object):
 		# docker run happens here
 		self.log('Startup command is: ' + self.build['docker_command'],level=logging.DEBUG)
 		self.log('Downloading context, please be patient',level=logging.INFO)
-		shutit_pexpect_session = ShutItPexpectSession(self, shutit_session_name, docker_command[0], docker_command[1:])
+		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(self, shutit_session_name, docker_command[0], docker_command[1:])
 		target_child = shutit_pexpect_session.pexpect_child
 		expect = ['assword', shutit_global.shutit_global_object.base_prompt.strip(), 'Waiting', 'ulling', 'endpoint', 'Download','o such file']
 		res = shutit_pexpect_session.expect(expect, timeout=shutit_global.shutit_global_object.default_timeout)
@@ -3850,7 +3850,7 @@ class ShutItClass(object):
 		shutit_global.shutit_global_object.yield_to_draw()
 		# Now let's have a host_child
 		self.log('Spawning host child',level=logging.DEBUG)
-		shutit_pexpect_session = ShutItPexpectSession(self, 'host_child', '/bin/bash')
+		shutit_pexpect_session = shutit_pexpect.ShutItPexpectSession(self, 'host_child', '/bin/bash')
 		# Set up prompts and let the user do things before the build
 		self.set_default_shutit_pexpect_session(shutit_pexpect_session)
 		self.set_default_shutit_pexpect_session_expect(shutit_global.shutit_global_object.base_prompt)
