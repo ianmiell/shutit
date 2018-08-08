@@ -30,18 +30,19 @@ import time
 import uuid
 import texttable
 import pexpect
-from shutit import shutit
-from shutit import shutit_util
-from shutit import shutit_global
-from shutit import shutit_skeleton
-from shutit import shutit_exam
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+import shutit
+import shutit_util
+import shutit_global
+import shutit_skeleton
+import shutit_exam
 try:
 	import ConfigParser
 except ImportError: # pragma: no cover
 	import configparser as ConfigParser
-from shutit.shutit_sendspec import ShutItSendSpec
-from shutit.shutit_module import ShutItFailException, ShutItModule
-from shutit.shutit_pexpect import ShutItPexpectSession
+from shutit_sendspec import ShutItSendSpec
+from shutit_module import ShutItFailException, ShutItModule
+from shutit_pexpect import ShutItPexpectSession
 
 
 class ShutItInit(object):
