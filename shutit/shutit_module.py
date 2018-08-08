@@ -25,7 +25,8 @@
 from __future__ import print_function
 import decimal
 import inspect
-from shutit import shutit_util
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+import shutit_util
 from abc import ABCMeta, abstractmethod
 from six import with_metaclass, iteritems
 

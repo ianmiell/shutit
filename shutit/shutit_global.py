@@ -41,8 +41,9 @@ from distutils.dir_util import mkpath
 import curtsies
 #from curtsies.fmtfuncs import black, yellow, magenta, cyan, gray, blue, red, green, on_black, on_dark, on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_gray, bold, dark, underline, blink, invert, plain
 from curtsies.fmtfuncs import blue, cyan, invert
-from shutit.shutit_session_setup import vagrant
-from shutit import shutit_threads
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+from shutit_session_setup import vagrant
+import shutit_threads
 
 if sys.version_info[0] >= 3:
 	unicode = str
@@ -599,10 +600,10 @@ def get_shutit_pexpect_sessions():
 shutit_global_object = ShutItGlobal()
 
 # Only at this point can we import other modules, otherwise we get race failures.
-from shutit import shutitclass
+import shutitclass
 from shutitclass import ShutItClass
 from shutit import ShutItInit
-from shutit import shutit_util
+import shutit_util
 
 # Create default shutit object. TODO: do we need this?
 shutit_global_object.shutit_objects.append(ShutItClass(standalone=False, session_type='bash'))

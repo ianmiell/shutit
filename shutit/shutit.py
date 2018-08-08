@@ -26,8 +26,9 @@
 """ShutIt is a means of building stateless target hosts in a flexible and predictable way.
 """
 import sys
-from shutit import shutit_global
-from shutit import shutit_util
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+import shutit_global
+import shutit_util
 
 
 def create_session(docker_image=None,
