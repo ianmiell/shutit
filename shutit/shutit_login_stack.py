@@ -10,6 +10,8 @@ belonging to this login.
 
 from __future__ import print_function
 import logging
+import sys
+import os
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 import shutit_global
 from shutit_background import ShutItBackgroundCommand
