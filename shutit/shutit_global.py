@@ -182,7 +182,7 @@ class ShutItGlobal(object):
 	                   nocolor=False,
 	                   loglevel='WARNING'):
 		assert isinstance(session_type, str), shutit_util.print_debug()
-		new_shutit = ShutIt(standalone=True, session_type=session_type)
+		new_shutit = ShutItClass(standalone=True, session_type=session_type)
 		self.shutit_objects.append(new_shutit)
 		if session_type == 'bash':
 			new_shutit.process_args(ShutItInit('build',
@@ -229,7 +229,7 @@ class ShutItGlobal(object):
 	                           cpus,
 	                           synced_folder,
 	                           loglevel):
-		new_shutit = ShutIt(standalone=True, session_type='vagrant')
+		new_shutit = ShutItClass(standalone=True, session_type='vagrant')
 		self.shutit_objects.append(new_shutit)
 		# Vagrant is: delivery over bash, but running the vagrant scripts first.
 		new_shutit.process_args(ShutItInit('build',
@@ -599,8 +599,8 @@ def get_shutit_pexpect_sessions():
 shutit_global_object = ShutItGlobal()
 
 # Only at this point can we import other modules, otherwise we get race failures.
-from shutit_class import ShutIt, ShutItInit
-import shutit_util
+from shutit.shutitclass import ShutItClass, ShutItInit
+from shutit import shutit_util
 
 # Create default shutit object. TODO: do we need this?
-shutit_global_object.shutit_objects.append(ShutIt(standalone=False, session_type='bash'))
+shutit_global_object.shutit_objects.append(ShutItClass(standalone=False, session_type='bash'))

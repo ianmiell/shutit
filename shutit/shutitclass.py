@@ -1,4 +1,4 @@
-"""Contains all the core ShutIt methods and functionality, and public interface
+"""Contains all the core ShutItClass methods and functionality, and public interface
 off to internal objects such as shutit_pexpect.
 """
 
@@ -44,9 +44,9 @@ from shutit_module import ShutItFailException, ShutItModule
 from shutit_pexpect import ShutItPexpectSession
 
 
-class ShutIt(object):
-	"""ShutIt build class.
-	Represents an instance of a ShutIt run/session/build with associated config.
+class ShutItClass(object):
+	"""ShutItClass build class.
+	Represents an instance of a ShutItClass run/session/build with associated config.
 	"""
 
 	def __init__(self,
@@ -746,7 +746,7 @@ class ShutIt(object):
 					shutit_pexpect_child.send('\x1a')
 					res = shutit_pexpect_session.expect(expect,timeout=1)
 					if res == len(expect):
-						self.fail('CTRL-C sent by ShutIt following a timeout, and could not recover') # pragma: no cover
+						self.fail('CTRL-C sent by ShutItClass following a timeout, and could not recover') # pragma: no cover
 				shutit_pexpect_session.pause_point('CTRL-C sent by ShutIt following a timeout; the command has been cancelled')
 				return res
 			else:
@@ -1462,7 +1462,7 @@ class ShutIt(object):
 		self.log('\n' + msg + '\n',transient=True,level=logging.INFO)
 
 		if not shutit_global.shutit_global_object.determine_interactive():
-			self.fail('ShutIt is not in a terminal so cannot prompt for values.', throw_exception=False) # pragma: no cover
+			self.fail('ShutItClass is not in a terminal so cannot prompt for values.', throw_exception=False) # pragma: no cover
 
 		if config_parser.has_option(sec, name):
 			whereset = config_parser.whereset(sec, name)
@@ -1873,7 +1873,7 @@ class ShutIt(object):
 	               timeout=shutit_global.shutit_global_object.default_timeout,
 	               nonewline=False,
 	               loglevel=logging.DEBUG):
-		"""Logs the user out of all pexpect sessions within this ShutIt object.
+		"""Logs the user out of all pexpect sessions within this ShutItClass object.
 
 			@param command:         Command to run to log out (default=exit)
 			@param note:            See send()
@@ -2607,7 +2607,7 @@ class ShutIt(object):
 
 
 	def print_modules(self):
-		"""Returns a string table representing the modules in the ShutIt module map.
+		"""Returns a string table representing the modules in the ShutItClass module map.
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
 		cfg = self.cfg
@@ -2658,7 +2658,7 @@ class ShutIt(object):
 
 
 	def load_configs(self):
-		"""Responsible for loading config files into ShutIt.
+		"""Responsible for loading config files into ShutItClass.
 		Recurses down from configured shutit module paths.
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
@@ -2794,7 +2794,7 @@ class ShutIt(object):
 
 
 	def load_mod_from_file(self, fpath):
-		"""Loads modules from a .py file into ShutIt if there are no modules from
+		"""Loads modules from a .py file into ShutItClass if there are no modules from
 		this file already.
 		We expect to have a callable 'module/0' which returns one or more module
 		objects.
@@ -3065,7 +3065,7 @@ class ShutIt(object):
 
 
 	def print_config(self, cfg, hide_password=True, history=False, module_id=None):
-		"""Returns a string representing the config of this ShutIt run.
+		"""Returns a string representing the config of this ShutItClass run.
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
 		cp = self.config_parser
@@ -3115,7 +3115,7 @@ class ShutIt(object):
 		assert isinstance(args,ShutItInit), shutit_util.print_debug()
 
 		if args.action == 'version':
-			shutit_global.shutit_global_object.shutit_print('ShutIt version: ' + shutit.shutit_version)
+			shutit_global.shutit_global_object.shutit_print('ShutItClass version: ' + shutit.shutit_version)
 			shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
 		# What are we asking shutit to do?
