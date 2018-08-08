@@ -67,8 +67,7 @@ from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
 from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
 from shutit_background import ShutItBackgroundCommand
-import shutitclass
-from shutitclass import ShutItClass
+from shutit import shutitclass
 
 if sys.version_info[0] >= 3:
 	unicode = str
@@ -99,7 +98,7 @@ class ShutItPexpectSession(object):
 		# TODO: spawn encoding in PY2 and handle appropriately there also.
 		if not encoding and shutit_global.shutit_global_object.ispy3: # pragma: no cover
 			encoding = shutit_global.shutit_global_object.default_encoding
-		assert isinstance(shutit, ShutItClass), shutit_util.print_debug()
+		assert isinstance(shutit, shutitclass.ShutItClass), shutit_util.print_debug()
 		self.shutit                    = shutit
 		self.check_exit                = True
 		self.default_expect            = [shutit_global.shutit_global_object.base_prompt]
