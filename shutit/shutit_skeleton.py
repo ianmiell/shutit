@@ -29,7 +29,7 @@ from __future__ import print_function
 import os
 import re
 import json
-from shutit_patterns import shutitfile
+from shutit.shutit_patterns import shutitfile
 
 
 def create_skeleton(shutit):

@@ -599,7 +599,9 @@ def get_shutit_pexpect_sessions():
 shutit_global_object = ShutItGlobal()
 
 # Only at this point can we import other modules, otherwise we get race failures.
-from shutit.shutitclass import ShutItClass, ShutItInit
+from shutit import shutitclass
+from shutitclass import ShutItClass
+from shutit import ShutItInit
 from shutit import shutit_util
 
 # Create default shutit object. TODO: do we need this?
