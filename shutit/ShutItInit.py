@@ -30,11 +30,11 @@ import time
 import uuid
 import texttable
 import pexpect
-from . import shutit
-from . import shutit_util
-from . import shutit_global
-from . import shutit_skeleton
-from . import shutit_exam
+from shutit import shutit
+from shutit import shutit_util
+from shutit import shutit_global
+from shutit import shutit_skeleton
+from shutit import shutit_exam
 try:
 	import ConfigParser
 except ImportError: # pragma: no cover

@@ -35,6 +35,7 @@ from shutit import shutit_util
 from shutit import shutit_global
 from shutit import shutit_skeleton
 from shutit import shutit_exam
+from shutit import shutit_class
 try:
 	import ConfigParser
 except ImportError: # pragma: no cover
@@ -42,6 +43,8 @@ except ImportError: # pragma: no cover
 from shutit.shutit_sendspec import ShutItSendSpec
 from shutit.shutit_module import ShutItFailException, ShutItModule
 from shutit.shutit_pexpect import ShutItPexpectSession
+from shutit import ShutItInit
+from ShutItInit import ShutItInit
 
 
 class ShutItClass(object):
@@ -2664,7 +2667,7 @@ class ShutItClass(object):
 		shutit_global.shutit_global_object.yield_to_draw()
 		# Get root default config.
 		# TODO: change default_cnf so it places whatever the values are at this stage of the build.
-		configs = [('defaults', StringIO(default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(self.host['shutit_path'], 'config'), 'configs/build.cnf']
+		configs = [('defaults', StringIO(shutit_class.default_cnf)), os.path.expanduser('~/.shutit/config'), os.path.join(self.host['shutit_path'], 'config'), 'configs/build.cnf']
 		# Add the shutit global host- and user-specific config file.
 		# Add the local build.cnf
 		# Get passed-in config(s)
@@ -3371,9 +3374,9 @@ class ShutItClass(object):
 		if not os.path.isfile(os.path.join(shutit_home, 'config')):
 			f = os.open(os.path.join(shutit_home, 'config'), os.O_WRONLY | os.O_CREAT, 0o600)
 			if shutit_global.shutit_global_object.ispy3:
-				os.write(f,bytes(default_cnf,shutit_global.shutit_global_object.default_encoding))
+				os.write(f,bytes(shutit_class.default_cnf,shutit_global.shutit_global_object.default_encoding))
 			else:
-				os.write(f,default_cnf)
+				os.write(f,shutit_class.default_cnf)
 			os.close(f)
 
 		self.list_configs['cfghistory']  = False
@@ -4591,3 +4594,70 @@ class ShutItClass(object):
 		elif self.session_type == 'vagrant':
 			# TODO: does this work/handle already being logged out/logged in deep OK?
 			self.logout()
+
+
+class LayerConfigParser(ConfigParser.RawConfigParser):
+
+	def __init__(self):
+		ConfigParser.RawConfigParser.__init__(self)
+		self.layers = []
+
+	def read(self, filenames):
+		if not isinstance(filenames, list):
+			filenames = [filenames]
+		for filename in filenames:
+			cp = ConfigParser.RawConfigParser()
+			cp.read(filename)
+			self.layers.append((cp, filename, None))
+		return ConfigParser.RawConfigParser.read(self, filenames)
+
+	def readfp(self, fp, filename=None):
+		cp = ConfigParser.RawConfigParser()
+		fp.seek(0)
+		cp.readfp(fp, filename)
+		self.layers.append((cp, filename, fp))
+		fp.seek(0)
+		ret = ConfigParser.RawConfigParser.readfp(self, fp, filename)
+		return ret
+
+	def whereset(self, section, option):
+		for cp, filename, fp in reversed(self.layers):
+			fp = fp # pylint
+			if cp.has_option(section, option):
+				return filename
+		raise ShutItFailException('[%s]/%s was never set' % (section, option)) # pragma: no cover
+
+	def get_config_set(self, section, option):
+		"""Returns a set with each value per config file in it.
+		"""
+		values = set()
+		for cp, filename, fp in self.layers:
+			filename = filename # pylint
+			fp = fp # pylint
+			if cp.has_option(section, option):
+				values.add(cp.get(section, option))
+		return values
+
+	def reload(self):
+		"""
+		Re-reads all layers again. In theory this should overwrite all the old
+		values with any newer ones.
+		It assumes we never delete a config item before reload.
+		"""
+		oldlayers = self.layers
+		self.layers = []
+		for cp, filename, fp in oldlayers:
+			cp = cp # pylint
+			if fp is None:
+				self.read(filename)
+			else:
+				self.readfp(fp, filename)
+
+	def remove_section(self, *args, **kwargs):
+		raise NotImplementedError('''Layer config parsers aren't directly mutable''') # pragma: no cover
+
+	def remove_option(self, *args, **kwargs):
+		raise NotImplementedError('''Layer config parsers aren't directly mutable''') # pragma: no cover
+
+	def set(self, *args, **kwargs):
+		raise NotImplementedError('''Layer config parsers aren\'t directly mutable''') # pragma: no cover
