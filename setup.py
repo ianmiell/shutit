@@ -5,7 +5,7 @@ from codecs import open
 from setuptools import setup, find_packages
 
 setup(
-	name='shutit2',
+	name='shutit',
 
 	# Versions should comply with PEP440.  For a discussion on single-sourcing
 	# the version across setup.py and the project code, see
@@ -84,7 +84,7 @@ setup(
 	# pip to create the appropriate form of executable for the target platform.
 	entry_points={
 		'console_scripts': [
-			'shutit2=shutit.shutit:main',
+			'shutit=shutit.shutit:main',
 		],
 	},
 )

@@ -30,7 +30,7 @@ import time
 import uuid
 import texttable
 import pexpect
-import shutit
+import shutit_base
 import shutit_util
 import shutit_global
 import shutit_skeleton

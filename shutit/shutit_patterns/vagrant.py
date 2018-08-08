@@ -2,6 +2,8 @@ from __future__ import print_function
 import os
 import readline
 import texttable
+import sys
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/..')
 import shutit_util
 from . import shutitfile
 
