@@ -30,7 +30,7 @@ import os
 import re
 import json
 import sys
-sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit_patterns')
 import shutitfile
 
 
