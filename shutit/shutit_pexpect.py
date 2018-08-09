@@ -67,7 +67,7 @@ from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
 from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
 from shutit_background import ShutItBackgroundCommand
-from shutit import shutitclass
+import shutitclass
 
 if sys.version_info[0] >= 3:
 	unicode = str

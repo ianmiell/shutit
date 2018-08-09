@@ -29,6 +29,8 @@ from __future__ import print_function
 import os
 import re
 import json
+import sys
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
 from shutit.shutit_patterns import shutitfile
 
 

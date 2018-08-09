@@ -603,7 +603,7 @@ shutit_global_object = ShutItGlobal()
 # Only at this point can we import other modules, otherwise we get race failures.
 import shutitclass
 from shutitclass import ShutItClass
-from shutit import ShutItInit
+import ShutItInit
 import shutit_util
 
 # Create default shutit object. TODO: do we need this?
