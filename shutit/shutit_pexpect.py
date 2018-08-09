@@ -727,9 +727,9 @@ class ShutItPexpectSession(object):
 		res = shutit.match_string(str(self.pexpect_child.before), '^EXIT_CODE:([0-9][0-9]?[0-9]?)$')
 		if res not in exit_values or res is None: # pragma: no cover
 			shutit.log('shutit_pexpect_child.after: ' + str(self.pexpect_child.after), level=logging.DEBUG)
-			shutit.log('Exit value from command: ' + str(send) + ' was:' + res_str, level=logging.DEBUG)
 			if do_pause_point:
 				res_str = res or str(res)
+				shutit.log('Exit value from command: ' + str(send) + ' was:' + res_str, level=logging.DEBUG)
 				msg = ('\nWARNING: command:\n' + send + '\nreturned unaccepted exit code: ' + res_str + '\nIf this is expected, pass in check_exit=False or an exit_values array into the send function call.')
 				shutit.build['report'] += msg
 				if retbool:

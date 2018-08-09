@@ -41,7 +41,8 @@ from distutils.dir_util import mkpath
 import curtsies
 #from curtsies.fmtfuncs import black, yellow, magenta, cyan, gray, blue, red, green, on_black, on_dark, on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_gray, bold, dark, underline, blink, invert, plain
 from curtsies.fmtfuncs import blue, cyan, invert
-sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)))
+# TODO: [x for x in a if not (x in seen or seen.add(x))] to remove dupes but retain order.
+sys.path.insert(0,s.path.abspath(os.path.dirname(__file__)))
 from shutit_session_setup import vagrant
 import shutit_threads
 
