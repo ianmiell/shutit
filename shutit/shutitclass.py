@@ -316,7 +316,7 @@ class ShutItClass(object):
 
 		@param shutit_pexpect_session: pexpect child to set as default
 		"""
-		assert isinstance(shutit_pexpect_session, shutit_pexpect.ShutItPexpectSession), shutit_util.print_debug()
+		#assert isinstance(shutit_pexpect_session, shutit_pexpect.ShutItPexpectSession), shutit_util.print_debug()
 		self.current_shutit_pexpect_session = shutit_pexpect_session
 		return True
 
