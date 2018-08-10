@@ -3365,7 +3365,7 @@ class ShutIt(object):
 		assert isinstance(args,ShutItInit), shutit_util.print_debug()
 
 		if args.action == 'version':
-			shutit_global.shutit_global_object.shutit_print('ShutIt version: ' + shutit.shutit_version)
+			shutit_global.shutit_global_object.shutit_print('ShutIt version: ' + shutit_main.shutit_version)
 			shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
 		# What are we asking shutit to do?
