@@ -45,7 +45,7 @@ import traceback
 import shutit_assets
 import shutit_class
 import shutit_global
-import shutit
+import shutit_main
 
 
 if shutit_global.shutit_global_object.ispy3:
@@ -333,7 +333,7 @@ def print_debug(exc_info=None, msg=''):
 	shutit_global.shutit_global_object.shutit_print('\n=============================== DEBUG INFO =========================================')
 	shutit_global.shutit_global_object.shutit_print('This file: '              + os.path.dirname(os.path.realpath(__file__)))
 	shutit_global.shutit_global_object.shutit_print('Python version: '         + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version))
-	shutit_global.shutit_global_object.shutit_print('Shutit version: '         + shutit.shutit_version)
+	shutit_global.shutit_global_object.shutit_print('Shutit version: '         + shutit_main.shutit_version)
 	shutit_global.shutit_global_object.shutit_print('Server: '                 + socket.gethostname())
 	shutit_global.shutit_global_object.shutit_print('Environment: '            + environ_string)
 	shutit_global.shutit_global_object.shutit_print('Command was: '            + sys.executable + (' ').join(sys.argv))
