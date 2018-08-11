@@ -7,11 +7,13 @@ r"""Represents a ShutIt background command.
 """
 
 from __future__ import print_function
+import os
 import sys
 import time
 import logging
 import traceback
 import shutit_global
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shu
 import shutit_util
 
 

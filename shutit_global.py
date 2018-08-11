@@ -597,6 +597,7 @@ shutit_global_object = ShutItGlobal()
 
 # Only at this point can we import other modules, otherwise we get race failures.
 from shutit_class import ShutIt, ShutItInit
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit')
 import shutit_util
 
 # Create default shutit object. TODO: do we need this?

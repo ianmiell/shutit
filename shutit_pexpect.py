@@ -56,6 +56,7 @@ import base64
 import sys
 import textwrap
 import pexpect
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit')
 import shutit_util
 import shutit_global
 from shutit_global import SessionPaneLine
