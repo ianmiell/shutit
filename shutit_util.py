@@ -45,7 +45,8 @@ import traceback
 import shutit_assets
 import shutit_class
 import shutit_global
-from shutit import shutit_main
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/..')
+import shutit_main
 
 
 if shutit_global.shutit_global_object.ispy3:

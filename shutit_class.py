@@ -30,7 +30,8 @@ import time
 import uuid
 import texttable
 import pexpect
-from shutit import shutit_main
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit')
+import shutit_main
 import shutit_util
 import shutit_global
 import shutit_skeleton
