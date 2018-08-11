@@ -26,6 +26,8 @@
 """ShutIt is a means of building stateless target hosts in a flexible and predictable way.
 """
 import sys
+import os
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/..')
 import shutit_global
 import shutit_util
 
