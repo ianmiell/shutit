@@ -13,7 +13,7 @@ import time
 import logging
 import traceback
 import shutit_global
-sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shu
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit')
 import shutit_util
 
 
