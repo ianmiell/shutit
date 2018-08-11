@@ -50,7 +50,7 @@ setup(
 
 	# You can just specify the packages manually here if your project is
 	# simple. Or you can use find_packages().
-	packages=['.','shutit'],
+	packages=['.','shutit','shutit_session_setup','shutit_patterns'],
 
 	# List run-time dependencies here.  These will be installed by pip when
 	# your project is installed. For an analysis of "install_requires" vs pip's
@@ -84,7 +84,7 @@ setup(
 	# pip to create the appropriate form of executable for the target platform.
 	entry_points={
 		'console_scripts': [
-			'shutit=shutit/shutit_main:main',
+			'shutit=shutit.shutit_main:main',
 		],
 	},
 )

@@ -45,7 +45,7 @@ import traceback
 import shutit_assets
 import shutit_class
 import shutit_global
-import shutit_main
+from shutit import shutit_main
 
 
 if shutit_global.shutit_global_object.ispy3:
