@@ -31,6 +31,7 @@ import uuid
 import texttable
 import pexpect
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit')
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit_patterns')
 import shutit_main
 import shutit_util
 import shutit_global
