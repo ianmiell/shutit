@@ -27,7 +27,6 @@ import decimal
 import inspect
 import os
 import sys
-sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit')
 import shutit_util
 from abc import ABCMeta, abstractmethod
 from six import with_metaclass, iteritems
