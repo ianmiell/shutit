@@ -35,7 +35,7 @@ Nomenclature:
 from __future__ import print_function
 import sys
 import os
-sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit')
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/..')
 import shutit_global
 import shutit_util
 from shutit_module import ShutItModule
