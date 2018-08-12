@@ -43,6 +43,7 @@ import curtsies
 #from curtsies.fmtfuncs import black, yellow, magenta, cyan, gray, blue, red, green, on_black, on_dark, on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_gray, bold, dark, underline, blink, invert, plain
 from curtsies.fmtfuncs import blue, cyan, invert
 from shutit_session_setup import vagrant
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit')
 import shutit_threads
 
 if sys.version_info[0] >= 3:
