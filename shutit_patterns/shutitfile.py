@@ -36,8 +36,9 @@ except ImportError:
 	from urlparse import urlparse
 	from urllib2 import urlopen
 from six import iteritems
-import shutit_global
 import shutit_skeleton
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/..')
+import shutit_global
 
 
 def setup_shutitfile_pattern(shutit,
