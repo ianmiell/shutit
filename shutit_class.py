@@ -4265,7 +4265,7 @@ class ShutIt(object):
 		# Only do this if we're in a terminal
 		if shutit_global.shutit_global_object.determine_interactive() and spawn.find_executable('shutit') is None:
 			self.setup_shutit_path()
-		self.load_mod_from_file(os.path.join(self.shutit_main_dir, 'shutit_setup.py'))
+		self.load_mod_from_file(os.path.join(self.shutit_main_dir, 'shutit/shutit_setup.py'))
 		self.load_shutit_modules()
 		self.log('ShutIt modules loaded',level=logging.INFO)
 		self.init_shutit_map()
@@ -4702,7 +4702,7 @@ class ShutIt(object):
 		"""Finalize the target using the core finalize method.
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
-		self.pause_point('\nFinalizing the target module (' + self.shutit_main_dir + '/shutit_setup.py)', print_input=False, level=3)
+		self.pause_point('\nFinalizing the target module (' + self.shutit_main_dir + '/shutit/shutit_setup.py)', print_input=False, level=3)
 		# Can assume conn_module exists at this point
 		for mod in self.conn_modules:
 			if mod.module_id == self.build['conn_module']:
