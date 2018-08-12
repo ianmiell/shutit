@@ -52,10 +52,12 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from email.mime.multipart import MIMEMultipart
 from smtplib import SMTP, SMTP_SSL, SMTPSenderRefused
-import os
 import gzip
-import shutit_global
 import logging
+import os
+import sys
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/..')
+import shutit_global
 
 class Emailer():
 	""" Emailer class definition
