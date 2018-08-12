@@ -4265,8 +4265,7 @@ class ShutIt(object):
 		# Only do this if we're in a terminal
 		if shutit_global.shutit_global_object.determine_interactive() and spawn.find_executable('shutit') is None:
 			self.setup_shutit_path()
-		print(self.shutit_main_dir)
-		self.load_mod_from_file(os.path.join(self.shutit_main_dir, '/shutit_setup.py'))
+		self.load_mod_from_file(os.path.abspath(os.path.dirname(__file__)) + '/shutit_setup.py')
 		self.load_shutit_modules()
 		self.log('ShutIt modules loaded',level=logging.INFO)
 		self.init_shutit_map()
