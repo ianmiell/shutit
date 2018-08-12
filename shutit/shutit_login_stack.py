@@ -10,11 +10,11 @@ belonging to this login.
 
 from __future__ import print_function
 import logging
-import shutit_global
 import os
 import sys
-sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit')
 from shutit_background import ShutItBackgroundCommand
+sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/..')
+import shutit_global
 
 class ShutItLoginStack(object):
 

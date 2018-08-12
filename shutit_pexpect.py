@@ -66,7 +66,6 @@ from shutit_login_stack import ShutItLoginStack
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
 from shutit_pexpect_session_environment import ShutItPexpectSessionEnvironment
-sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit')
 from shutit_background import ShutItBackgroundCommand
 
 if sys.version_info[0] >= 3:
