@@ -27,6 +27,7 @@
 """
 import sys
 import os
+import signal
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/..')
 import shutit_global
 import shutit_util
@@ -151,8 +152,15 @@ def main():
 		sys.exit(1)
 
 
+def setup_signals():
+	"""Set up the signal handlers.
+	"""
+	signal.signal(signal.SIGINT, shutit_util.ctrl_c_signal_handler)
+	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
+
+
 shutit_version='1.0.136'
 
 if __name__ == '__main__':
-	shutit_global.setup_signals()
+	setup_signals()
 	main()

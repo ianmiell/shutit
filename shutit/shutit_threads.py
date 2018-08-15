@@ -2,8 +2,12 @@ import itertools
 import time
 import threading
 import traceback
+import re
 import sys
 import os
+import curtsies
+#from curtsies.fmtfuncs import black, yellow, magenta, cyan, gray, blue, red, green, on_black, on_dark, on_red, on_green, on_yellow, on_blue, on_magenta, on_cyan, on_gray, bold, dark, underline, blink, invert, plain
+from curtsies.fmtfuncs import blue, cyan, invert
 from curtsies.input import Input
 
 # There are two threads running in ShutIt. The 'main' one, which drives the
@@ -12,6 +16,267 @@ from curtsies.input import Input
 
 # Boolean indicating whether we've already set up a tracker.
 tracker_setup = False
+
+
+
+
+
+# shutit_global.shutit_objects have the pexpect sessions in their shutit_pexpect_sessions variable.
+class PaneManager(object):
+	only_one = None
+	def __init__(self, shutit_global_object):
+		"""
+
+		only_one             - singleton insurance
+		"""
+		assert self.only_one is None
+		self.only_one is True
+		# Keep it simple for now by creating four panes
+		self.shutit_global             = shutit_global_object
+		self.top_left_session_pane     = SessionPane('top_left')
+		self.top_right_session_pane    = SessionPane('top_right')
+		self.bottom_left_session_pane  = SessionPane('bottom_left')
+		self.bottom_right_session_pane = SessionPane('bottom_right')
+		self.window                    = None
+		self.screen_arr                = None
+		self.wheight                   = None
+		self.wwidth                    = None
+		# Whether to actually draw the screen - defaults to 'True'
+		self.do_render                 = True
+		# Refresh the window
+		self.refresh_window()
+
+
+	def refresh_window(self):
+		self.window               = curtsies.FullscreenWindow(hide_cursor=True)
+		self.wheight              = self.window.height
+		self.wwidth               = self.window.width
+		self.screen_arr           = None
+		# Divide the screen up into two, to keep it simple for now
+		self.wheight_top_end      = int(self.wheight / 2)
+		self.wheight_bottom_start = int(self.wheight / 2)
+		self.wwidth_left_end      = int(self.wwidth / 2)
+		self.wwidth_right_start   = int(self.wwidth / 2)
+		assert self.wheight >= 24, 'Terminal not tall enough: ' + str(self.wheight) + ' < 24'
+		assert self.wwidth >= 80, 'Terminal not wide enough: ' + str(self.wwidth) + ' < 80'
+
+
+	def draw_screen(self, draw_type='default', quick_help=None):
+		if quick_help is None:
+			quick_help = 'Help: (r)otate shutit sessions | re(d)raw screen | (1,2,3,4) zoom pane in/out | (q)uit'
+		assert draw_type in ('default','clearscreen','zoomed1','zoomed2','zoomed3','zoomed4')
+		# Header
+		header_text = u'  <= Shutit'
+		self.screen_arr           = curtsies.FSArray(self.wheight, self.wwidth)
+		self.screen_arr[0:1,0:len(header_text)] = [blue(header_text)]
+		# Footer
+		space = (self.wwidth - len(quick_help))*' '
+		footer_text = space + quick_help
+		if not self.shutit_global.ispy3:
+			footer_text = footer_text.decode('utf-8')
+		self.screen_arr[self.wheight-1:self.wheight,0:len(footer_text)] = [invert(blue(footer_text))]
+		if draw_type in ('default','zoomed3','zoomed4'):
+			# get sessions - for each ShutIt object in shutit_global
+			sessions = list(get_shutit_pexpect_sessions())
+			# reverse sessions as we're more likely to be interested in later ones.
+			sessions.reverse()
+			# Update the lower_pane_rotate_count so that it doesn't exceed the length of sessions.
+			self.shutit_global.lower_pane_rotate_count = self.shutit_global.lower_pane_rotate_count % len(sessions)
+			sessions = sessions[-self.shutit_global.lower_pane_rotate_count:] + sessions[:-self.shutit_global.lower_pane_rotate_count]
+		# Truncate logstream if it gets too big.
+		if self.shutit_global.logstream.getvalue() > self.shutit_global.logstream_size:
+			self.shutit_global.logstream.truncate(self.shutit_global.logstream_size)
+		if draw_type == 'default':
+			# Draw the sessions.
+			self.do_layout_default()
+			logstream_lines = []
+			logstream_string_lines_list = self.shutit_global.logstream.getvalue().split('\n')
+			for line in logstream_string_lines_list:
+				logstream_lines.append(SessionPaneLine(line,time.time(),'log'))
+			self.write_out_lines_to_fit_pane(self.top_left_session_pane, logstream_lines, u'Logs')
+			self.write_out_lines_to_fit_pane(self.top_right_session_pane, self.shutit_global.stacktrace_lines_arr, u'Code Context')
+			# Count two sessions
+			count = 0
+			for shutit_pexpect_session in sessions:
+				count += 1
+				if count == 2:
+					self.write_out_lines_to_fit_pane(self.bottom_left_session_pane,
+					                                 shutit_pexpect_session.session_output_lines,
+					                                 u'Shutit Session: ' + str(shutit_pexpect_session.pexpect_session_number) + '/' + str(len(sessions)))
+				elif count == 1:
+					self.write_out_lines_to_fit_pane(self.bottom_right_session_pane,
+					                                 shutit_pexpect_session.session_output_lines,
+					                                 u'ShutIt Session: ' + str(shutit_pexpect_session.pexpect_session_number) + '/' + str(len(sessions)))
+				else:
+					break
+		elif draw_type == 'zoomed1':
+			self.do_layout_zoomed(zoom_number=1)
+			logstream_lines = []
+			logstream_string_lines_list = self.shutit_global.logstream.getvalue().split('\n')
+			for line in logstream_string_lines_list:
+				logstream_lines.append(SessionPaneLine(line,time.time(),'log'))
+			self.write_out_lines_to_fit_pane(self.top_left_session_pane, logstream_lines, u'Logs')
+		elif draw_type == 'zoomed2':
+			self.do_layout_zoomed(zoom_number=2)
+			self.write_out_lines_to_fit_pane(self.top_left_session_pane, self.shutit_global.stacktrace_lines_arr, u'Code Context')
+		elif draw_type == 'zoomed3':
+			self.do_layout_zoomed(zoom_number=3)
+			# Get first session
+			count = 0
+			for shutit_pexpect_session in sessions:
+				count += 1
+				if count == 2:
+					self.write_out_lines_to_fit_pane(self.top_left_session_pane,
+					                                 shutit_pexpect_session.session_output_lines,
+					                                 u'Shutit Session: ' + str(shutit_pexpect_session.pexpect_session_number) + '/' + str(len(sessions)))
+				elif count > 2:
+					break
+		elif draw_type == 'zoomed4':
+			self.do_layout_zoomed(zoom_number=4)
+			# Get second session
+			for shutit_pexpect_session in sessions:
+				self.write_out_lines_to_fit_pane(self.top_left_session_pane,
+					                                 shutit_pexpect_session.session_output_lines,
+					                                 u'ShutIt Session: ' + str(shutit_pexpect_session.pexpect_session_number) + '/' + str(len(sessions)))
+				break
+		elif draw_type == 'clearscreen':
+			for y in range(0,self.wheight):
+				line = u' '*self.wwidth
+				self.screen_arr[y:y+1,0:len(line)] = [line]
+		else:
+			assert False, 'Layout not handled: ' + draw_type
+		if self.do_render:
+			self.window.render_to_terminal(self.screen_arr, cursor_pos=(0,0))
+
+
+	def write_out_lines_to_fit_pane(self, pane, p_lines, title):
+		assert pane is not None
+		assert isinstance(pane, SessionPane)
+		assert isinstance(title, unicode)
+		pane_width  = pane.get_width()
+		pane_height = pane.get_height()
+		assert pane_width > 39
+		assert pane_height > 19
+		# We reserve one row at the end as a pane status line
+		available_pane_height   = pane.get_height() - 1
+		lines_in_pane_str_arr   = []
+		p_lines_str = []
+		for session_pane_line in p_lines:
+			assert isinstance(session_pane_line, SessionPaneLine)
+			p_lines_str.append(session_pane_line.line_str)
+		p_lines = p_lines_str
+		p_lines_str = None
+		# Scrub any ansi escape sequences.
+		ansi_escape = re.compile(r'(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]')
+		if not self.shutit_global.ispy3:
+			lines = [ ansi_escape.sub('', line).strip().decode('utf-8') for line in p_lines ]
+		else:
+			lines = [ ansi_escape.sub('', line).strip() for line in p_lines ]
+		# If the last line is blank we can just skip it.
+		if len(lines) > 0 and lines[-1] == '':
+			lines = lines[:-1]
+		for line in lines:
+			# Take the next line in the stream. If it's greater than the pane_width,
+			# Then parcel over multiple lines
+			while len(line) > pane_width-1 and len(line) > 0:
+				lines_in_pane_str_arr.append(line[:pane_width-1])
+				line = line[pane_width-1:]
+			lines_in_pane_str_arr.append(line)
+		# Status line:
+		lines_in_pane_str_arr.append(title)
+		top_y                                      = pane.top_left_y
+		bottom_y                                   = pane.bottom_right_y
+		for i, line in zip(reversed(range(top_y,bottom_y)), reversed(lines_in_pane_str_arr)):
+			# Status on bottom line
+			# If    this is on the top, and height + top_y value == i (ie this is the last line of the pane)
+			#    OR this is on the bottom (ie top_y is not 1), and height + top_y == i
+			# One or both of these help prevent glitches on the screen. Don't know why. Maybe replace with more standard list TODO
+			if (top_y == 1 and available_pane_height + top_y == i) or (top_y != 1 and available_pane_height + top_y == i):
+				self.screen_arr[i:i+1, pane.top_left_x:pane.top_left_x+len(line)] = [cyan(invert(line))]
+			else:
+				self.screen_arr[i:i+1, pane.top_left_x:pane.top_left_x+len(line)] = [line]
+
+
+
+	def do_layout_zoomed(self, zoom_number):
+		# Only one window - the top left.
+		self.top_left_session_pane.set_position    (top_left_x=0,
+		                                            top_left_y=1,
+		                                            bottom_right_x=self.wwidth,
+		                                            bottom_right_y=self.wheight-1)
+
+
+	def do_layout_default(self):
+		self.top_left_session_pane.set_position    (top_left_x=0,
+		                                            top_left_y=1,
+		                                            bottom_right_x=self.wwidth_left_end,
+		                                            bottom_right_y=self.wheight_bottom_start)
+		self.top_right_session_pane.set_position   (top_left_x=self.wwidth_right_start,
+		                                            top_left_y=1,
+		                                            bottom_right_x=self.wwidth,
+		                                            bottom_right_y=self.wheight_bottom_start)
+		self.bottom_right_session_pane.set_position(top_left_x=self.wwidth_right_start,
+		                                            top_left_y=self.wheight_bottom_start,
+		                                            bottom_right_x=self.wwidth,
+		                                            bottom_right_y=self.wheight-1)
+		self.bottom_left_session_pane.set_position (top_left_x=0,
+		                                            top_left_y=self.wheight_bottom_start,
+		                                            bottom_right_x=self.wwidth_left_end,
+		                                            bottom_right_y=self.wheight-1)
+
+
+# Represents a line in the array of output
+class SessionPaneLine(object):
+
+	def __init__(self, line_str, time_seen, line_type):
+		assert line_type in ('log','output')
+		self.line_str        = line_str
+		if isinstance(line_str, bytes):
+			line_str = line_str.decode('utf-8')
+		assert isinstance(line_str, unicode), 'line_str type: ' + str(type(line_str))
+		self.time_seen       = time_seen
+		self.time_seen       = time_seen
+
+	def __str__(self):
+		return self.line_str
+
+
+
+# Represents a window pane with no concept of context or content.
+class SessionPane(object):
+
+	def __init__(self, name):
+		self.name                 = name
+		self.top_left_x           = -1
+		self.top_left_y           = -1
+		self.bottom_right_x       = -1
+		self.bottom_right_y       = -1
+		self.line_buffer_size     = 1000
+		assert self.name in ('top_left','bottom_left','top_right','bottom_right')
+
+	def __str__(self):
+		string =  '\n============= SESSION PANE OBJECT BEGIN ==================='
+		string += '\nname: '           + str(self.name)
+		string += '\ntop_left_x: '     + str(self.top_left_x)
+		string += '\ntop_left_y: '     + str(self.top_left_y)
+		string += '\nbottom_right_x: ' + str(self.bottom_right_x)
+		string += '\nbottom_right_y: ' + str(self.bottom_right_y)
+		string += '\nwidth: '          + str(self.get_width())
+		string += '\nheight: '         + str(self.get_width())
+		string += '\n============= SESSION PANE OBJECT END   ==================='
+		return string
+
+	def set_position(self, top_left_x, top_left_y, bottom_right_x, bottom_right_y):
+		self.top_left_x     = top_left_x
+		self.top_left_y     = top_left_y
+		self.bottom_right_x = bottom_right_x
+		self.bottom_right_y = bottom_right_y
+
+	def get_width(self):
+		return self.bottom_right_x - self.top_left_x
+
+	def get_height(self):
+		return self.bottom_right_y - self.top_left_y
 
 
 # TODO: reject tmux sessions - it does not seem to play nice

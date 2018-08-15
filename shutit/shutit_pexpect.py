@@ -59,9 +59,9 @@ import pexpect
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit')
 import shutit_util
 import shutit_global
-from shutit_global import SessionPaneLine
 import package_map
 import shutit_class
+from shutit_threads import SessionPaneLine
 from shutit_login_stack import ShutItLoginStack
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException
