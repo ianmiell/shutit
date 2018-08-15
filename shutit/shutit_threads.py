@@ -17,10 +17,6 @@ from curtsies.input import Input
 # Boolean indicating whether we've already set up a tracker.
 tracker_setup = False
 
-
-
-
-
 # shutit_global.shutit_objects have the pexpect sessions in their shutit_pexpect_sessions variable.
 class PaneManager(object):
 	only_one = None
