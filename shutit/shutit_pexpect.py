@@ -60,7 +60,7 @@ sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/shutit')
 import shutit_util
 import shutit_global
 import package_map
-from shutit_class import ShutIt
+import shutit_class
 from shutit_threads import SessionPaneLine
 from shutit_login_stack import ShutItLoginStack
 from shutit_sendspec import ShutItSendSpec
@@ -97,7 +97,7 @@ class ShutItPexpectSession(object):
 		# TODO: spawn encoding in PY2 and handle appropriately there also.
 		if not encoding and shutit_global.shutit_global_object.ispy3: # pragma: no cover
 			encoding = shutit_global.shutit_global_object.default_encoding
-		assert isinstance(shutit, ShutIt), shutit_util.print_debug()
+		assert isinstance(shutit, shutit_class.ShutIt), shutit_util.print_debug()
 		self.shutit                    = shutit
 		self.check_exit                = True
 		self.default_expect            = [shutit_global.shutit_global_object.base_prompt]
