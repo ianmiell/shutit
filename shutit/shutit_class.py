@@ -32,7 +32,6 @@ import texttable
 import pexpect
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/..')
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/../shutit_patterns')
-import shutit_main
 import shutit_util
 import shutit_global
 import shutit_skeleton
@@ -3367,7 +3366,7 @@ class ShutIt(object):
 		assert isinstance(args,ShutItInit), shutit_util.print_debug()
 
 		if args.action == 'version':
-			shutit_global.shutit_global_object.shutit_print('ShutIt version: ' + shutit_main.shutit_version)
+			shutit_global.shutit_global_object.shutit_print('ShutIt version: ' + shutit_util.shutit_version)
 			shutit_global.shutit_global_object.handle_exit(exit_code=0)
 
 		# What are we asking shutit to do?
@@ -4864,6 +4863,16 @@ def make_dep_graph(depender):
 	for dependee_id in depender.depends_on:
 		digraph = (digraph + '"' + depender.module_id + '"->"' + dependee_id + '";\n')
 	return digraph
+
+
+# CTRL-\ HANDLING CODE STARTS
+def ctrl_quit_signal_handler(_,frame):
+	shutit_global.shutit_global_object.shutit_print(r'CRTL-\ caught, hard-exiting ShutIt')
+	shutit_frame = get_shutit_frame(frame)
+	if shutit_frame:
+		do_finalize()
+	shutit_global.shutit_global_object.handle_exit(exit_code=1)
+# CTRL-\ HANDLING CODE ENDS
 
 
 # TODO: change default_cnf - see above

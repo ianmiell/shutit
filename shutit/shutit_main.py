@@ -159,8 +159,6 @@ def setup_signals():
 	signal.signal(signal.SIGQUIT, shutit_util.ctrl_quit_signal_handler)
 
 
-shutit_version='1.0.136'
-
 if __name__ == '__main__':
 	setup_signals()
 	main()

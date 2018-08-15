@@ -13,8 +13,6 @@ import logging
 import os
 import sys
 from shutit_background import ShutItBackgroundCommand
-sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/..')
-import shutit_global
 
 class ShutItLoginStack(object):
 
