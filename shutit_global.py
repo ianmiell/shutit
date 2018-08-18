@@ -324,8 +324,6 @@ def get_shutit_pexpect_sessions():
 			sessions.append(shutit_object.shutit_pexpect_sessions[key])
 	return sessions
 
-print('WALRUS')
-
 shutit_global_object = ShutItGlobal()
 
 # Only at this point can we import other modules, otherwise we get race failures.

@@ -45,7 +45,7 @@ import traceback
 import shutit_global
 sys.path.insert(0,os.path.abspath(os.path.dirname(__file__)) + '/..')
 
-shutit_version='1.0.136'
+shutit_version='1.0.137'
 
 if shutit_global.shutit_global_object.ispy3:
 	from builtins import input
