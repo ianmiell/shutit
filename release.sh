@@ -26,3 +26,5 @@ done
 git commit -am "release: $major.$minor.$newpoint"
 echo Success after $i attempts
 git push
+git tag -f $major.$minor.$point
+git push --tags
