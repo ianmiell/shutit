@@ -210,6 +210,7 @@ If you want to change a config, choose the number: ''')
 			machines.get(machine).update({'ip':ip})
 			shutit_session.login(command='vagrant ssh ' + machine)
 			shutit_session.login(command='sudo su - ')
+			shutit_session.send('sysctl -w net.ipv4.conf.all.route_localnet=1')
 			# Correct /etc/hosts
 			shutit_session.send(r'''cat <(echo $(ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/') $(hostname)) <(cat /etc/hosts | grep -v $(hostname -s)) > /tmp/hosts && mv -f /tmp/hosts /etc/hosts''')
 			# Correct any broken ip addresses.
