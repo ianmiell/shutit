@@ -58,8 +58,8 @@ def setup_machines(shutit,
                    sourcepath,
                    module_base_name,
                    swapsize,
-                   num_machines):
-
+                   num_machines,
+                   cpu):
 	assert isinstance(num_machines, str)
 	assert isinstance(gui, bool)
 	num_machines = int(num_machines)
@@ -87,6 +87,7 @@ def setup_machines(shutit,
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + str(gui).lower() + '''
     vb.memory = "''' + memory + '''"
+    vb.cpu = "''' + cpu + '''"
   end'''
 	# TODO: check no hyphens or underscores in module_name as that can confuse things
 	for m in range(1, num_machines+1):

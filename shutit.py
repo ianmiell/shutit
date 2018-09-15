@@ -46,6 +46,7 @@ def create_session(docker_image=None,
                    vagrant_swapsize='2G',
                    vagrant_version='1.8.6',
                    vagrant_virt_method='virtualbox',
+                   vagrant_cpu='1',
                    video=-1,
                    walkthrough=False):
 	"""Creates a distinct ShutIt session. Sessions can be of type:
@@ -89,6 +90,7 @@ def create_session(docker_image=None,
 		                              vagrant_version,
 		                              vagrant_virt_method,
 		                              vagrant_root_folder,
+		                              vagrant_cpu,
 		                              loglevel)
 
 
@@ -106,6 +108,7 @@ def create_session_vagrant(session_name,
                            vagrant_version,
                            virt_method,
                            root_folder,
+                           cpu,
                            loglevel):
 	if video != -1 and video > 0:
 		walkthrough = True
