@@ -1868,9 +1868,9 @@ class ShutItPexpectSession(object):
 		# problem - see IWT-4812.
 		before = before.split('\x1b')[0].strip()
 		if shutit_global.shutit_global_object.ispy3:
-			shutit.log('send_and_get_output returning in base64: ' + str(base64.b64encode(bytes(before,shutit_global.shutit_global_object.default_encoding))), level=logging.DEBUG)
+			shutit.log('send_and_get_output returning in base64: ' + str(base64.b64encode(bytes(before,shutit_global.shutit_global_object.default_encoding))), level=logging.DEBUGV)
 		else:
-			shutit.log('send_and_get_output returning in base64: ' + base64.b64encode(bytes(before)), level=logging.DEBUG)
+			shutit.log('send_and_get_output returning in base64: ' + base64.b64encode(bytes(before)), level=logging.DEBUGV)
 		shutit.handle_note_after(note=note)
 		return before
 
