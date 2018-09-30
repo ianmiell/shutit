@@ -44,6 +44,16 @@ from shutit_module import ShutItFailException, ShutItModule
 from shutit_pexpect import ShutItPexpectSession
 
 
+# https://stackoverflow.com/questions/2183233/how-to-add-a-custom-loglevel-to-pythons-logging-facility/35804945
+DEBUG_LEVELV_NUM = 9 
+logging.addLevelName(DEBUG_LEVELV_NUM, "DEBUGV")
+def debugv(self, message, *args, **kws):
+    if self.isEnabledFor(DEBUG_LEVELV_NUM):
+        # Yes, logger takes its '*args' as 'args'.
+        self._log(DEBUG_LEVELV_NUM, message, args, **kws) 
+logging.Logger.debugv = debugv
+
+
 def get_module_file(shutit, module):
 	shutit.shutit_file_map[module.module_id] = module.__module_file
 	return shutit.shutit_file_map[module.module_id]
@@ -428,7 +438,10 @@ class ShutIt(object):
 		if self.shutit_global_object.managed_panes:
 			# Set up logging for https://stackoverflow.com/questions/31999627/storing-logger-messages-in-a-string
 			self.loglevel = self.loglevel.upper()
-			if self.loglevel == 'DEBUG':
+			if self.loglevel == 'DEBUGV':
+				logging.basicConfig(format=logformat, stream=self.shutit_global_object.logstream)
+				logobj.level = logging.DEBUGV
+			elif self.loglevel == 'DEBUG':
 				logging.basicConfig(format=logformat, stream=self.shutit_global_object.logstream)
 				logobj.level = logging.DEBUG
 			elif self.loglevel == 'ERROR':
@@ -448,7 +461,10 @@ class ShutIt(object):
 				logobj.level = logging.DEBUG
 		elif self.logfile == '':
 			self.loglevel = self.loglevel.upper()
-			if self.loglevel == 'DEBUG':
+			if self.loglevel == 'DEBUGV':
+				logging.basicConfig(format=logformat)
+				logobj.level = logging.DEBUGV
+			elif self.loglevel == 'DEBUG':
 				logging.basicConfig(format=logformat)
 				logobj.level = logging.DEBUG
 			elif self.loglevel == 'ERROR':
@@ -468,7 +484,10 @@ class ShutIt(object):
 				logobj.level = logging.DEBUG
 		else:
 			self.loglevel = self.loglevel.upper()
-			if self.loglevel == 'DEBUG':
+			if self.loglevel == 'DEBUGV':
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.DEBUGV
+			elif self.loglevel == 'DEBUG':
 				logging.basicConfig(format=logformat,filename=self.logfile)
 				logobj.level = logging.DEBUG
 			elif self.loglevel == 'ERROR':
@@ -483,6 +502,9 @@ class ShutIt(object):
 			elif self.loglevel == 'INFO':
 				logging.basicConfig(format=logformat,filename=self.logfile)
 				logobj.level = logging.INFO
+			else:
+				logging.basicConfig(format=logformat,filename=self.logfile)
+				logobj.level = logging.DEBUG
 			else:
 				logging.basicConfig(format=logformat,filename=self.logfile)
 				logobj.level = logging.DEBUG
@@ -3771,7 +3793,7 @@ class ShutIt(object):
 			sub_parsers[action].add_argument('--delaybeforesend', help='Delay before send setting (see pexpect)', default='0.05')
 			sub_parsers[action].add_argument('--promptcommand', help='Prompt command to set', default="'sleep .05||sleep 1'")
 			sub_parsers[action].add_argument('-o','--logfile',default='', help='Log output to this file')
-			sub_parsers[action].add_argument('-l','--log',default='', help='Log level (DEBUG, INFO (default), WARNING, ERROR, CRITICAL)',choices=('DEBUG','INFO','WARNING','ERROR','CRITICAL','debug','info','warning','error','critical'))
+			sub_parsers[action].add_argument('-l','--log',default='', help='Log level (DEBUGV, DEBUG, INFO (default), WARNING, ERROR, CRITICAL)',choices=('DEBUG','INFO','WARNING','ERROR','CRITICAL','debugv','debug','info','warning','error','critical'))
 			sub_parsers[action].add_argument('--nocolor', help='Remove colorization from ShutIt', default=False, action='store_const', const=True)
 			sub_parsers[action].add_argument('-d','--delivery', help='Delivery method, aka target. "docker" container (default)', default=None, choices=('docker','dockerfile','bash'))
 			sub_parsers[action].add_argument('--echo', help='Always echo output', const=True, default=False, action='store_const')

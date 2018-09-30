@@ -1859,9 +1859,9 @@ class ShutItPexpectSession(object):
 		shutit.log('send_and_get_output got: ' + before, level=logging.DEBUG)
 		# Leave this debug in in case there are any strange characters to consider.
 		if shutit_global.shutit_global_object.ispy3:
-			shutit.log('send_and_get_output returning in base64:\n' + str(base64.b64encode(bytes(before,shutit_global.shutit_global_object.default_encoding))), level=logging.DEBUG)
+			shutit.log('send_and_get_output returning in base64:\n' + str(base64.b64encode(bytes(before,shutit_global.shutit_global_object.default_encoding))), level=logging.DEBUGV)
 		else:
-			shutit.log('send_and_get_output returning in base64:\n' + base64.b64encode(before), level=logging.DEBUG)
+			shutit.log('send_and_get_output returning in base64:\n' + base64.b64encode(before), level=logging.DEBUGV)
 		## In rare cases a bell has been seen - can't see why we'd want a bell so simply remove them all.
 		before = before.replace('\x07','')
 		# If there happens to be an escape character in there, it's likely a
