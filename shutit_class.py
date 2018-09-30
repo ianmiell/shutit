@@ -210,6 +210,7 @@ class ShutItInit(object):
 		self.action   = action
 		self.logfile  = logfile
 		self.loglevel = loglevel
+		print(nocolor)
 		self.nocolor  = nocolor
 
 		if self.action == 'version':
@@ -3007,7 +3008,6 @@ class ShutIt(object):
 		if isinstance(self.host['password'],str):
 			shutit_global.shutit_global_object.secret_words_set.add(self.host['password'])
 		self.logfile = cp.get('host', 'logfile')
-		self.nocolor = cp.getboolean('host', 'nocolor')
 		self.host['shutit_module_path']          = cp.get('host', 'shutit_module_path').split(':')
 
 		# repository - information relating to docker repository/registry
@@ -3665,7 +3665,7 @@ class ShutIt(object):
 		self.build['mount_docker']       = args.mount_docker
 		self.build['walkthrough']        = args.walkthrough
 		self.build['walkthrough_wait']   = args.walkthrough_wait
-		self.build['nocolor']            = args.nocolor
+		self.nocolor            = args.nocolor
 		self.build['training']           = args.training
 		self.build['exam']               = args.exam
 		self.build['choose_config']      = args.choose_config
