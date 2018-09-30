@@ -46,12 +46,15 @@ from shutit_pexpect import ShutItPexpectSession
 
 # https://stackoverflow.com/questions/2183233/how-to-add-a-custom-loglevel-to-pythons-logging-facility/35804945
 DEBUG_LEVELV_NUM = 9 
+DEBUG_LEVELV_NAME = "DEBUGV"
 logging.addLevelName(DEBUG_LEVELV_NUM, "DEBUGV")
 def debugv(self, message, *args, **kws):
     if self.isEnabledFor(DEBUG_LEVELV_NUM):
         # Yes, logger takes its '*args' as 'args'.
         self._log(DEBUG_LEVELV_NUM, message, args, **kws) 
 logging.Logger.debugv = debugv
+setattr(logging, "DEBUGV", DEBUG_LEVELV_NUM)
+logging.DEBUGV
 
 
 def get_module_file(shutit, module):
@@ -502,9 +505,6 @@ class ShutIt(object):
 			elif self.loglevel == 'INFO':
 				logging.basicConfig(format=logformat,filename=self.logfile)
 				logobj.level = logging.INFO
-			else:
-				logging.basicConfig(format=logformat,filename=self.logfile)
-				logobj.level = logging.DEBUG
 			else:
 				logging.basicConfig(format=logformat,filename=self.logfile)
 				logobj.level = logging.DEBUG
