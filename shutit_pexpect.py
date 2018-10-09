@@ -1842,6 +1842,9 @@ class ShutItPexpectSession(object):
 			string_with_termcodes = before.strip()
 			string_without_termcodes = ansi_escape.sub('', string_with_termcodes)
 			#string_without_termcodes_stripped = string_without_termcodes.strip()
+
+			# Occasionally we see ' \r' without a following \n. Remove these. This could be optional.
+			string_without_termcodes_stripped_no_cr = string_without_termcodes.replace(' \r','')
 			# Strip out \rs to make it output the same as a typical CL. This could be optional.
 			string_without_termcodes_stripped_no_cr = string_without_termcodes.replace('\r','')
 			if preserve_newline:
