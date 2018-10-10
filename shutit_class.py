@@ -4834,6 +4834,7 @@ class ShutIt(object):
 	                   session_type='bash',
 	                   docker_image=None,
 	                   walkthrough=False,
+	                   nocolor=False,
 	                   rm=None,
 	                   loglevel='WARNING'):
 		shutit_global.shutit_global_object.yield_to_draw()
@@ -4841,6 +4842,7 @@ class ShutIt(object):
 		return shutit_global.shutit_global_object.create_session(session_type=session_type,
 		                                                         docker_image=docker_image,
 		                                                         walkthrough=walkthrough,
+		                                                         nocolor=nocolor,
 		                                                         rm=rm,
 		                                                         loglevel=loglevel)
 
