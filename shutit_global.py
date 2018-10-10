@@ -237,6 +237,7 @@ class ShutItGlobal(object):
 		                                   echo=echo,
 		                                   walkthrough=walkthrough,
 		                                   walkthrough_wait=walkthrough_wait,
+		                                   nocolor=nocolor,
 		                                   loglevel=loglevel))
 		new_shutit.load_configs()
 		new_shutit.setup_host_child_environment()
