@@ -210,7 +210,6 @@ class ShutItInit(object):
 		self.action   = action
 		self.logfile  = logfile
 		self.loglevel = loglevel
-		print(nocolor)
 		self.nocolor  = nocolor
 
 		if self.action == 'version':
