@@ -77,7 +77,7 @@ Choose an item to change if you want to change the default.
 Input 'c' to continue to the build.
 
 If you want to change a config, choose the number: ''')
-			readline.set_startup_hook() 
+			readline.set_startup_hook()
 			if choice in ('c','1','2','3','4','5','6','7'):
 				if choice == 'c':
 					break
@@ -201,7 +201,7 @@ If you want to change a config, choose the number: ''')
 			shutit_session.send('vagrant landrush rm ' + machines[machine]['fqdn'])
 			# Needs to be done serially for stability reasons.
 			try:
-				shutit_session.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'] + machine,{'assword for':pw,'assword:':pw})
+				shutit_session.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'] + ' ' + machine,{'assword for':pw,'assword:':pw})
 			except NameError:
 				shutit.multisend('vagrant up ' + machine,{'assword for':pw,'assword:':pw},timeout=99999)
 			if shutit.send_and_get_output("vagrant status 2> /dev/null | grep -w ^" + machine + " | awk '{print $2}'") != 'running':
