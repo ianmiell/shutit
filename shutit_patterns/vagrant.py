@@ -454,6 +454,10 @@ then
 fi
 if [[ $(command -v virsh) ]] && [[ $(kvm-ok 2>&1 | command grep 'can be used') != '' ]]
 then
+	if [[ $(id -u) != '0' ]]
+	then
+	    echo If using kvm, then you may need to be root or give perms to this user to destroy the pre-existing machines
+	fi
 	virsh list | grep ${MODULE_NAME} | awk '{print $1}' | xargs $XARGS_FLAG -n1 virsh destroy
 fi'''
 	destroyvmssh_file.write(destroyvmssh_file_contents)
