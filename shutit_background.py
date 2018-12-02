@@ -69,7 +69,7 @@ class ShutItBackgroundCommand(object):
 			## Required to reset terminal before a background send. (TODO: why?)
 			#self.sendspec.shutit_pexpect_child.reset_terminal()
 			# Run in the background
-			self.sendspec.shutit_pexpect_child.quick_send(self.sendspec.send)
+			self.sendspec.shutit_pexpect_child.quick_send(self.sendspec.send,loglevel=logging.DEBUG)
 			# Put into an 'S' state as that means 'running'
 			self.run_state        = 'S'
 			# Required to reset terminal after a background send. (TODO: why?)
@@ -140,7 +140,7 @@ class ShutItBackgroundCommand(object):
 				time_taken = current_time - self.start_time
 				if time_taken > self.sendspec.timeout:
 					# We've timed out, kill with prejudice.
-					self.sendspec.shutit_pexpect_child.quick_send(' kill -9 ' + self.pid)
+					self.sendspec.shutit_pexpect_child.quick_send(' kill -9 ' + self.pid,loglevel=logging.DEBUG)
 					self.run_state = 'T'
 			assert self.run_state in ('S','T'), shutit_util.print_debug()
 			return self.run_state
@@ -150,7 +150,7 @@ class ShutItBackgroundCommand(object):
 			self.shutit_obj.log('background task: ' + self.sendspec.send + ', id: ' + self.id + ' complete',level=logging.DEBUG)
 			# Stop this from blocking other commands from here.
 			assert self.return_value is None, shutit_util.print_debug(msg='check_background_command_state called with self.return_value already set?' + str(self))
-			self.sendspec.shutit_pexpect_child.quick_send(' wait ' + self.pid)
+			self.sendspec.shutit_pexpect_child.quick_send(' wait ' + self.pid,loglevel=logging.DEBUG)
 			# Get the exit code.
 			self.return_value = self.sendspec.shutit_pexpect_child.send_and_get_output(' cat ' + self.exit_code_file, ignore_background=True)
 			# If the return value is deemed a failure:
