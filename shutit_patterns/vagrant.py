@@ -309,23 +309,27 @@ echo "\n/swapfile none            swap    sw              0       0" >> /etc/fst
 		upload_code = ''
 
 
-	shutit.log('''********************************************************************************
+	print("""
+
+		shutit.log('''********************************************************************************
 
 # Vagrantfile created in: ''' + shutit.build['vagrant_run_dir'] + '''
 # Run:
 
 cd ''' + shutit.build['vagrant_run_dir'] + ''' && vagrant status && vagrant landrush ls
 
-# to get information about your machines' setup.''')
+# to get information about your machines' setup.
 
+********************************************************************************''')""")
 
 	if snapshot:
+		print("""
 		shutit.log('''********************************************************************************
 
 Your VM images have been snapshotted in the folder ''' + shutit.build['vagrant_run_dir'] + '''
 
 ********************************************************************************
-''')
+''')""")
 
 	get_config_section = """
 	def get_config(self, shutit):
