@@ -1129,7 +1129,10 @@ class ShutItPexpectSession(object):
 		if isinstance(res, str):
 			dist_string = res
 			d['distro']       = dist_string.lower().strip()
-			d['install_type'] = (package_map.INSTALL_TYPE_MAP[dist_string.lower()])
+			try:
+				d['install_type'] = (package_map.INSTALL_TYPE_MAP[dist_string.lower()])
+			except KeyError:
+				raise Exception("Distribution '%s' is not supported." % dist_string)
 		else:
 			return d
 		res = shutit.match_string(self.pexpect_child.before, r'^Release:[\s*](.*)$')
