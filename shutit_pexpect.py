@@ -194,9 +194,9 @@ class ShutItPexpectSession(object):
 		"""
 		assert not sendspec.started, shutit_util.print_debug()
 		shutit = self.shutit
-		shutit.log('Sending in pexpect session (' + str(id(self)) + '): ' + str(sendspec.send),level=logging.INFO)
+		shutit.log('Sending in pexpect session (' + str(id(self)) + '): ' + str(sendspec.send),level=logging.DEBUG)
 		if sendspec.expect:
-			shutit.log('Expecting: ' + str(sendspec.expect),level=logging.INFO)
+			shutit.log('Expecting: ' + str(sendspec.expect),level=logging.DEBUG)
 		else:
 			shutit.log('Not expecting anything')
 		try:
