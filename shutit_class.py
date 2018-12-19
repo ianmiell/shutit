@@ -45,13 +45,13 @@ from shutit_pexpect import ShutItPexpectSession
 
 
 # https://stackoverflow.com/questions/2183233/how-to-add-a-custom-loglevel-to-pythons-logging-facility/35804945
-DEBUG_LEVELV_NUM = 9 
+DEBUG_LEVELV_NUM = 9
 DEBUG_LEVELV_NAME = "DEBUGV"
 logging.addLevelName(DEBUG_LEVELV_NUM, "DEBUGV")
 def debugv(self, message, *args, **kws):
     if self.isEnabledFor(DEBUG_LEVELV_NUM):
         # Yes, logger takes its '*args' as 'args'.
-        self._log(DEBUG_LEVELV_NUM, message, args, **kws) 
+        self._log(DEBUG_LEVELV_NUM, message, args, **kws)
 logging.Logger.debugv = debugv
 setattr(logging, "DEBUGV", DEBUG_LEVELV_NUM)
 logging.DEBUGV
@@ -2493,7 +2493,7 @@ class ShutIt(object):
 	               default=None,
 	               boolean=False,
 	               secret=False,
-	               forcedefault=False,
+	               forceask=False,
 	               forcenone=False,
 	               hint=None):
 		"""Gets a specific config from the config files, allowing for a default.
@@ -2505,8 +2505,8 @@ class ShutIt(object):
 		@param default:      default value if not set in files
 		@param boolean:      whether this is a boolean value or not (default False)
 		@param secret:       whether the config item is a secret
-		@param forcedefault: if set to true, allows you to override any value already set (default False)
-		@param forcenone:    if set to true, allows you to set the value to None (default False)
+		@param forceask: if set to True, allows you to override any value already set (default False)
+		@param forcenone:    if set to True, allows you to set the value to None (default False)
 		@param hint:         if we are interactive, then show this prompt to help the user input a useful value
 
 		@type module_id:     string
@@ -2514,7 +2514,7 @@ class ShutIt(object):
 		@type default:       string
 		@type boolean:       boolean
 		@type secret:        boolean
-		@type forcedefault:  boolean
+		@type forceask:  boolean
 		@type forcenone:     boolean
 		@type hint:          string
 		"""
@@ -2524,7 +2524,7 @@ class ShutIt(object):
 			cfg[module_id] = {}
 		if not self.config_parser.has_section(module_id):
 			self.config_parser.add_section(module_id)
-		if not forcedefault and self.config_parser.has_option(module_id, option):
+		if not forceask and self.config_parser.has_option(module_id, option):
 			if boolean:
 				cfg[module_id][option] = self.config_parser.getboolean(module_id, option)
 			else:
@@ -3169,7 +3169,7 @@ class ShutIt(object):
 									value = config_parser.get(section,option)
 								if option == 'shutit.core.module.allowed_images':
 									value = json.loads(value)
-								self.get_config(module_id, option, value, forcedefault=True)
+								self.get_config(module_id, option, value, forceask=True)
 		# Check the allowed_images against the base_image
 		passed = True
 		for module_id in self.module_ids():
@@ -3226,7 +3226,7 @@ class ShutIt(object):
 								value = config_parser.get(section,option)
 								if option == 'shutit.core.module.allowed_images':
 									value = json.loads(value)
-								self.get_config(module_id, option, value, forcedefault=True)
+								self.get_config(module_id, option, value, forceask=True)
 			# ifneeded will (by default) only take effect if 'build' is not
 			# specified. It can, however, be forced to a value, but this
 			# should be unusual.
