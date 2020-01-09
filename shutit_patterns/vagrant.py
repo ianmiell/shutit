@@ -19,6 +19,7 @@ def setup_vagrant_pattern(shutit,
                           skel_vagrant_docker,
                           skel_vagrant_snapshot,
                           skel_vagrant_upload,
+                          skel_vagrant_disk_size,
                           skel_vagrant_image_name):
 
 ################################################################################
@@ -54,6 +55,10 @@ def setup_vagrant_pattern(shutit,
 		options.append({'name':'image_name','question':'What base vagrant image you want?','value':'ubuntu/xenial64','ok_values':[]})
 	else:
 		image_name = skel_vagrant_image_name
+	if skel_vagrant_disk_size is None:
+		options.append({'name':'disk_size','question':'What root disk size do you want?','value':'10','ok_values':[]})
+	else:
+		disk_size = skel_vagrant_disk_size
 	options.append({'name':'sudo_password','question':'Input sudo password to save time (will be saved in readonly-by-you file)','value':'','ok_values':[]})
 	if options:
 		while True:
@@ -132,6 +137,12 @@ If you want to change a config, choose the number: ''')
 					upload = True
 				else:
 					shutit.fail('Bad value for upload')
+			if opt['name'] == 'disk_size':
+				# TODO: check it's an int
+				if True:
+					pass
+				else:
+					shutit.fail('Bad value for disk_size')
 			if opt['name'] == 'image_name':
 				image_name = opt['value']
 			if opt['name'] == 'sudo_password':
@@ -561,9 +572,12 @@ so you can upload vagrant boxes.
 """ + vagrant_dir_section_1 + """
 		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
 			shutit.send('vagrant plugin install landrush')
+		if shutit.send_and_get_output('vagrant plugin list | grep vagrant-disksize') == '':
+			shutit.send('vagrant plugin install vagrant-disksize')
 		shutit.send('vagrant init ' + vagrant_image)
 		shutit.send_file(shutit.build['this_vagrant_run_dir'] + '/Vagrantfile','''Vagrant.configure("2") do |config|
   config.landrush.enabled = true
+  config.disksize.size = '""" + disk_size + """G'
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
     vb.memory = "''' + memory + '''"

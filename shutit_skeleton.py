@@ -50,6 +50,7 @@ def create_skeleton(shutit):
 	skel_vagrant_docker         = shutit.cfg['skeleton']['vagrant_docker']
 	skel_vagrant_snapshot       = shutit.cfg['skeleton']['vagrant_snapshot']
 	skel_vagrant_upload         = shutit.cfg['skeleton']['vagrant_upload']
+	skel_vagrant_disk_size      = shutit.cfg['skeleton']['vagrant_disk_size']
 	skel_vagrant_image_name     = shutit.cfg['skeleton']['vagrant_image_name']
 
 	# Check setup
@@ -104,6 +105,7 @@ def create_skeleton(shutit):
 		                              skel_vagrant_docker=skel_vagrant_docker,
 		                              skel_vagrant_snapshot=skel_vagrant_snapshot,
 		                              skel_vagrant_upload=skel_vagrant_upload,
+		                              skel_vagrant_disk_size=skel_vagrant_disk_size,
 		                              skel_vagrant_image_name=skel_vagrant_image_name)
 	elif shutit.cfg['skeleton']['pattern'] == 'shutitfile':
 		shutitfile.setup_shutitfile_pattern(shutit,

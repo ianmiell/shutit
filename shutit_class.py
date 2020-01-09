@@ -176,6 +176,7 @@ class ShutItInit(object):
 	             vagrant_docker=None,
 	             vagrant_snapshot=None,
 	             vagrant_upload=None,
+	             vagrant_disk_size=None,
 	             vagrant_image_name=None,
 	             push=False,
 	             export=False,
@@ -230,6 +231,7 @@ class ShutItInit(object):
 			self.vagrant_docker         = vagrant_docker
 			self.vagrant_snapshot       = vagrant_snapshot
 			self.vagrant_upload         = vagrant_upload
+			self.vagrant_disk_size      = vagrant_disk_size
 			self.vagrant_image_name     = vagrant_image_name
 			self.delivery               = delivery
 			assert self.accept in (True,False,None), shutit_util.print_debug()
@@ -3438,6 +3440,7 @@ class ShutIt(object):
 		vagrant_docker         = args.vagrant_docker
 		vagrant_snapshot       = args.vagrant_snapshot
 		vagrant_upload         = args.vagrant_upload
+		vagrant_disk_size      = args.vagrant_disk_size
 		vagrant_image_name     = args.vagrant_image_name
 		default_pattern        = 'bash'
 		# Looks through the arguments given for valid shutitfiles, and adds their names to _new_shutitfiles.
@@ -3604,6 +3607,7 @@ class ShutIt(object):
 			'vagrant_docker':         vagrant_docker,
 			'vagrant_snapshot':       vagrant_snapshot,
 			'vagrant_upload':         vagrant_upload,
+			'vagrant_disk_size':      vagrant_disk_size,
 			'vagrant_image_name':     vagrant_image_name
 		}
 		shutit_skeleton.create_skeleton(self)
@@ -3827,7 +3831,8 @@ class ShutIt(object):
 		sub_parsers['skeleton'].add_argument('--vagrant_machine_prefix', default=None)
 		sub_parsers['skeleton'].add_argument('--vagrant_docker', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--vagrant_snapshot', default=None, const=True, action='store_const')
-		sub_parsers['skeleton'].add_argument('--vagrant_upload', default=None, const=True, action='store_const')
+		sub_parsers['skeleton'].add_argument('--vagrant_upload', default='10')
+		sub_parsers['skeleton'].add_argument('--vagrant_disk_size', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--vagrant_image_name', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--pattern', help='Pattern to use', default='')
 		sub_parsers['skeleton'].add_argument('-a','--accept', help='Accept defaults', const=True, default=False, action='store_const')
@@ -3906,6 +3911,7 @@ class ShutIt(object):
 			                             vagrant_docker=args.vagrant_docker,
 			                             vagrant_snapshot=args.vagrant_snapshot,
 			                             vagrant_upload=args.vagrant_upload,
+			                             vagrant_disk_size=args.vagrant_disk_size,
 			                             vagrant_image_name=args.vagrant_image_name))
 		elif args.action == 'run':
 			shutit_global.shutit_global_object.delaybeforesend = float(args.delaybeforesend)

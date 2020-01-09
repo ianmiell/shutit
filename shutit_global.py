@@ -211,7 +211,7 @@ class ShutItGlobal(object):
 		new_shutit.fail('unhandled session type: ' + session_type)
 		return new_shutit
 
-                                                                                                                  
+
 	def create_session_vagrant(self,
 	                           session_name,
 	                           num_machines,
@@ -257,7 +257,6 @@ class ShutItGlobal(object):
 		                                  cpu)
 		new_shutit.vagrant_machines = machines
 		return new_shutit
-
 
 
 	def determine_interactive(self):
