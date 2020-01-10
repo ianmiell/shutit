@@ -56,7 +56,7 @@ def setup_vagrant_pattern(shutit,
 	else:
 		image_name = skel_vagrant_image_name
 	if skel_vagrant_disk_size is None:
-		options.append({'name':'disk_size','question':'What root disk size do you want?','value':'10','ok_values':[]})
+		options.append({'name':'disk_size','question':'What root disk size do you want?','value':'10GB','ok_values':[]})
 	else:
 		disk_size = skel_vagrant_disk_size
 	options.append({'name':'sudo_password','question':'Input sudo password to save time (will be saved in readonly-by-you file)','value':'','ok_values':[]})
@@ -577,7 +577,7 @@ so you can upload vagrant boxes.
 		shutit.send('vagrant init ' + vagrant_image)
 		shutit.send_file(shutit.build['this_vagrant_run_dir'] + '/Vagrantfile','''Vagrant.configure("2") do |config|
   config.landrush.enabled = true
-  config.disksize.size = '""" + disk_size + """G'
+  config.disksize.size = '""" + disk_size + """'
   config.vm.provider "virtualbox" do |vb|
     vb.gui = ''' + gui + '''
     vb.memory = "''' + memory + '''"
