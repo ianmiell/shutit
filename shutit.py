@@ -152,7 +152,7 @@ def main():
 		sys.exit(1)
 
 
-shutit_version='1.0.160'
+shutit_version='1.0.161'
 
 if __name__ == '__main__':
 	shutit_global.setup_signals()
