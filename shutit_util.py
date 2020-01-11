@@ -227,7 +227,7 @@ def sanitize_terminal():
 def exit_cleanup():
 	countdown = range(60,1,-1)
 	for s in countdown:
-		sys.stdout.write('\n\rShutIt has exited, resetting terminal in ' + str(s) + ' unless you CTRL-C...\n\n')
+		sys.stdout.write('ShutIt has exited, resetting terminal in ' + str(s) + ' unless you CTRL-C...\n')
 		time.sleep(1)
 		sys.stdout.flush()
 	os.system('reset')
