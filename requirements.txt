@@ -5,3 +5,4 @@ six>=1.10
 future>=0.15
 cjkwrap
 curtsies>=0.3.0
+pygithub
