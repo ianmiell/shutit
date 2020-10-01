@@ -8,7 +8,7 @@ A versatile automation framework.
 
 ShutIt is an automation tool that models a user's actions on a terminal.
 
-It can automate any process that can be run by a human on the command line with little effort.
+It can automate any process that can be run by any user on the command line with little effort.
 
 It was originally written to manage complex Docker builds, but is a now general-purpose automation tool that supports bash, Docker, Vagrant, ssh and arbitrary build contexts.
 
@@ -18,7 +18,7 @@ If you want to know more about Docker, see the [official site](https://www.docke
 
 Really Quick Overview
 =====================
-Some use cases:
+Some of common use cases:
 
 - You like bash, want to automate tasks, have structure and support, but don't want to learn a configuration management framework that takes you away from the command line you know and love.
 
