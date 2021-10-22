@@ -73,7 +73,7 @@ It supports both Virtualbox and Libvirt providers.
 
 This allows another kind of contained environment for more infrastructural projects than Docker allows for.
 
-This example demonstrates a reproducible build that sets up Docker on an Ubuntu VM (on a Linux host), then runs a CentOS image within Docker wihing the Ubuntu VM.
+This example demonstrates a reproducible build that sets up Docker on an Ubuntu VM (on a Linux host), then runs a CentOS image within Docker within the Ubuntu VM.
 
 It deposits the user into a shell mid-build to interrogate the environment, after which the user re-runs the build to add a directive to ensure ps is installed in the image.
 
