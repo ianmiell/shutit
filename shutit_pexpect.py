@@ -508,7 +508,7 @@ class ShutItPexpectSession(object):
 		send_str += """ export PS1_""" + str(prompt_name) + """=$PS1 && PS1='""" + str(local_prompt[:2]) + "''" + str(local_prompt[2:]) + """' && PROMPT_COMMAND=""" + shutit_global.shutit_global_object.prompt_command
 		self.send(ShutItSendSpec(self,
 		                         send=send_str,
-		                         expect=['\r\n' + shutit.expect_prompts[prompt_name]],
+		                         expect=[shutit.expect_prompts[prompt_name]],
 		                         fail_on_empty_before=False,
 		                         echo=False,
 		                         loglevel=loglevel,
@@ -2865,9 +2865,9 @@ $'"""
 				if not sendspec.echo:
 					shutit.log('Output (squashed): ' + logged_output, level=logging.DEBUG)
 				if shutit_global.shutit_global_object.ispy3:
-					shutit.log('pexpect: buffer: ' + str(base64.b64encode(bytes(self.pexpect_child.buffer,shutit_global.shutit_global_object.default_encoding))) + ' before: ' + str(base64.b64encode(bytes(self.pexpect_child.before,shutit_global.shutit_global_object.default_encoding))) + ' after: ' + str(base64.b64encode(bytes(self.pexpect_child.after,shutit_global.shutit_global_object.default_encoding))), level=logging.DEBUG)
+					shutit.log('pexpect: buffer (base64 encoded): ' + str(base64.b64encode(bytes(self.pexpect_child.buffer,shutit_global.shutit_global_object.default_encoding))) + ' before: ' + str(base64.b64encode(bytes(self.pexpect_child.before,shutit_global.shutit_global_object.default_encoding))) + ' after: ' + str(base64.b64encode(bytes(self.pexpect_child.after,shutit_global.shutit_global_object.default_encoding))), level=logging.DEBUG)
 				else:
-					shutit.log('pexpect: buffer: ' + base64.b64encode(self.pexpect_child.buffer) + ' before: ' + base64.b64encode(self.pexpect_child.before) + ' after: '  + base64.b64encode(self.pexpect_child.after), level=logging.DEBUG)
+					shutit.log('pexpect: buffer (base64 encoded): ' + base64.b64encode(self.pexpect_child.buffer) + ' before: ' + base64.b64encode(self.pexpect_child.before) + ' after: '  + base64.b64encode(self.pexpect_child.after), level=logging.DEBUG)
 			else:
 				shutit.log('[Send was marked secret; getting output debug will require code change]', level=logging.DEBUG)
 			if sendspec.fail_on_empty_before:

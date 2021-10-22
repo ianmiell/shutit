@@ -3831,7 +3831,7 @@ class ShutIt(object):
 		sub_parsers['skeleton'].add_argument('--vagrant_machine_prefix', default=None)
 		sub_parsers['skeleton'].add_argument('--vagrant_docker', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--vagrant_snapshot', default=None, const=True, action='store_const')
-		sub_parsers['skeleton'].add_argument('--vagrant_upload', default='10')
+		sub_parsers['skeleton'].add_argument('--vagrant_upload', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--vagrant_disk_size', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--vagrant_image_name', default=None, const=True, action='store_const')
 		sub_parsers['skeleton'].add_argument('--pattern', help='Pattern to use', default='')

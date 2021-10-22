@@ -171,7 +171,7 @@ If you want to change a config, choose the number: ''')
     ''' + machine_name + """.vm.box = ''' + '"' + vagrant_image + '"' + '''
     """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"''' +
     '''
-    config.vm.provider :virtualbox do |vb|
+    ''' + machine_name + '''.vm.provider :virtualbox do |vb|
       vb.name = "''' + skel_module_name + '_' + str(m) + '''"
     end
   end''')
@@ -185,7 +185,6 @@ If you want to change a config, choose the number: ''')
 		if pw == '':
 			shutit.log("""You can get round this manual step by creating a 'secret' with your password: 'touch secret && chmod 700 secret'""",level=logging.CRITICAL)
 			pw = shutit.get_env_pass()
-			import time
 			time.sleep(10)'''
 
 
@@ -358,7 +357,8 @@ import datetime
 import logging
 import string
 import os
-import inspect'''
+import inspect
+import time'''
 ################################################################################
 # END TEXT GOBBETS
 ################################################################################
