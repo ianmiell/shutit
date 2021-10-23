@@ -4820,6 +4820,7 @@ class ShutIt(object):
 				msg = shutit_util.colorise(color_code,msg)
 		shutit_global.shutit_global_object.yield_to_draw()
 		print('DELETEME transient: ' + str(transient))
+		print('DELETEME sys.stdout.isatty: ' + str(sys.stdout.isatty()))
 		if transient:
 			print('DELETEME sys.stdout.isatty: ' + str(sys.stdout.isatty()))
 			self.last_log_time = time.time()
