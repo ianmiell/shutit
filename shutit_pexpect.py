@@ -2668,6 +2668,7 @@ class ShutItPexpectSession(object):
 		@rtype:                      int
 		"""
 		shutit = self.shutit
+		print('DELETEME SENDING: ' + str(sendspec.send))
 		shutit.log('In session: ' + self.pexpect_session_id + ', trying to send: ' + str(sendspec.send), level=logging.DEBUG)
 		if self._check_blocked(sendspec):
 			shutit.log('In send for ' + str(sendspec.send) + ', check_blocked called and returned True.', level=logging.DEBUG)

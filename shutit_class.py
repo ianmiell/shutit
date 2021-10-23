@@ -4819,7 +4819,9 @@ class ShutIt(object):
 			else:
 				msg = shutit_util.colorise(color_code,msg)
 		shutit_global.shutit_global_object.yield_to_draw()
+		print('DELETEME transient: ' + str(transient))
 		if transient:
+			print('DELETEME sys.stdout.isatty: ' + str(sys.stdout.isatty()))
 			self.last_log_time = time.time()
 			if sys.stdout.isatty():
 				if newline:
@@ -4827,6 +4829,7 @@ class ShutIt(object):
 				sys.stdout.write(msg)
 		else:
 			logobj = logging.getLogger(self.uuid_str)
+			print('DELETEME logobj: ' + str(logobj))
 			if logobj.getEffectiveLevel() <= level:
 				self.last_log_time = time.time()
 			logobj.log(level,msg)

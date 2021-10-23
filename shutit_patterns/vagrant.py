@@ -292,7 +292,7 @@ swapon /swapfile
 swapon -s
 grep -i --color swap /proc/meminfo
 echo "\n/swapfile none            swap    sw              0       0" >> /etc/fstab\'\'\')
-			shutit_session.multisend('adduser person',{'Enter new UNIX password':'person','Retype new UNIX password:':'person','Full Name':'','Phone':'','Room':'','Other':'','Is the information correct':'Y'})'''
+			shutit_session.multisend('adduser person',{'password:':'person','Enter new UNIX password':'person','Retype new UNIX password:':'person','Full Name':'','Phone':'','Room':'','Other':'','Is the information correct':'Y'})'''
 	machine_seed_code = '''
 		for machine in sorted(machines.keys()):
 			shutit_session = shutit_sessions[machine]
