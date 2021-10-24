@@ -3,7 +3,7 @@
 
 from __future__ import print_function
 import logging
-import shutit_pexpect
+import shutit_pexpect_session
 
 from shutit_sendspec import ShutItSendSpec
 

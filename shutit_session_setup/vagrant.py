@@ -120,9 +120,9 @@ end'''
 		time.sleep(10)
 
 	# Set up the sessions.
-	shutit_host_session = shutit.create_session(session_type='bash')
+	shutit_host_session = shutit.create_session(session_type='bash', loglevel='DEBUG')
 	for machine in sorted(machines.keys()):
-		shutit_sessions.update({machine:shutit.create_session(session_type='bash', walkthrough=False)})
+		shutit_sessions.update({machine:shutit.create_session(session_type='bash', loglevel='DEBUG', walkthrough=False)})
 	# Set up and validate landrush.
 	for machine in sorted(machines.keys()):
 		shutit_session = shutit_sessions[machine]

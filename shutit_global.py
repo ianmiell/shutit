@@ -1,5 +1,5 @@
 """Contains all the core ShutIt methods and functionality, and public interface
-off to internal objects such as shutit_pexpect.
+off to internal objects such as shutit_pexpect_session.
 """
 
 # The MIT License (MIT)
@@ -587,7 +587,7 @@ def setup_signals():
 
 
 def get_shutit_pexpect_sessions():
-	"""Returns all the shutit_pexpect sessions in existence.
+	"""Returns all the shutit_pexpect_sessions in existence.
 	"""
 	sessions = []
 	for shutit_object in shutit_global_object.shutit_objects:

@@ -1,5 +1,5 @@
 """Contains all the core ShutIt methods and functionality, and public interface
-off to internal objects such as shutit_pexpect.
+off to internal objects such as shutit_pexpect_session.
 """
 
 from __future__ import print_function
@@ -41,7 +41,7 @@ except ImportError: # pragma: no cover
 	import configparser as ConfigParser
 from shutit_sendspec import ShutItSendSpec
 from shutit_module import ShutItFailException, ShutItModule
-from shutit_pexpect import ShutItPexpectSession
+from shutit_pexpect_session import ShutItPexpectSession
 
 
 # https://stackoverflow.com/questions/2183233/how-to-add-a-custom-loglevel-to-pythons-logging-facility/35804945
@@ -4819,10 +4819,10 @@ class ShutIt(object):
 			else:
 				msg = shutit_util.colorise(color_code,msg)
 		shutit_global.shutit_global_object.yield_to_draw()
-		print('DELETEME transient: ' + str(transient))
-		print('DELETEME sys.stdout.isatty: ' + str(sys.stdout.isatty()))
+		#print('DELETEME transient: ' + str(transient))  # always transient
+		#print('DELETEME sys.stdout.isatty: ' + str(sys.stdout.isatty()))  # always true
 		if transient:
-			print('DELETEME sys.stdout.isatty: ' + str(sys.stdout.isatty()))
+			#print('DELETEME sys.stdout.isatty: ' + str(sys.stdout.isatty()))
 			self.last_log_time = time.time()
 			if sys.stdout.isatty():
 				if newline:
@@ -4830,9 +4830,13 @@ class ShutIt(object):
 				sys.stdout.write(msg)
 		else:
 			logobj = logging.getLogger(self.uuid_str)
-			print('DELETEME logobj: ' + str(logobj))
+			#print('DELETEME level: ' + str(level))
+			#print('DELETEME effectivelevel: ' + str(logobj.getEffectiveLevel()))
 			if logobj.getEffectiveLevel() <= level:
+				#print('DELETEME logging!')
 				self.last_log_time = time.time()
+			else:
+				#print('DELETEME NOTlogging!')
 			logobj.log(level,msg)
 		return True
 
@@ -4859,7 +4863,6 @@ class ShutIt(object):
 		shutit_global.shutit_global_object.yield_to_draw()
 		self = self # For linters: we want this to be available to shutit object users
 		return self.current_shutit_pexpect_session.get_os()
-
 
 	# Returns true if the global session is interactive.
 	def is_interactive(self):
