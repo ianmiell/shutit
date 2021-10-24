@@ -202,7 +202,7 @@ If you want to change a config, choose the number: ''')
 		# Set up the sessions
 		shutit_sessions = {}
 		for machine in sorted(machines.keys()):
-			shutit_sessions.update({machine:shutit.create_session('bash')})
+			shutit_sessions.update({machine:shutit.create_session('bash', loglevel='DEBUG')})
 		# Set up and validate landrush
 		for machine in sorted(machines.keys()):
 			shutit_session = shutit_sessions[machine]
