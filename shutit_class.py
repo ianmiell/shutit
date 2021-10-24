@@ -4835,7 +4835,7 @@ class ShutIt(object):
 			if logobj.getEffectiveLevel() <= level:
 				#print('DELETEME logging!')
 				self.last_log_time = time.time()
-			else:
+			#else:
 				#print('DELETEME NOTlogging!')
 			logobj.log(level,msg)
 		return True
