@@ -49,7 +49,7 @@ if sys.version_info[0] >= 3:
 	unicode = str
 
 class ShutItGlobal(object):
-	"""Single object to store all the separate ShutIt sessions, and information
+	"""Singleton object to store all the separate ShutIt sessions, and information
 	that is global to all sessions.
 	"""
 
@@ -156,16 +156,16 @@ class ShutItGlobal(object):
 
 	def __str__(self):
 		str_repr = '\n====== SHUTIT_GLOBAL_OBJECT BEGIN ====='
-		str_repr += '\tself.signal_id='          + str(self.signal_id)
-		str_repr += '\tself.window_size_max='    + str(self.window_size_max)
-		str_repr += '\tself.username='           + str(self.username)
-		str_repr += '\tbase_prompt='             + str(self.base_prompt)
-		str_repr += '\treal_user='               + str(self.real_user)
-		str_repr += '\treal_user_id='            + str(self.real_user_id)
-		str_repr += '\tbuild_id='                + str(self.build_id)
-		str_repr += '\tdelaybeforesend='         + str(self.delaybeforesend)
-		str_repr += '\tprompt_command='          + str(self.prompt_command)
-		str_repr += '\tself.default_encoding='   + str(self.default_encoding)
+		str_repr += '\tSHUTIT_GLOBAL self.signal_id='          + str(self.signal_id)
+		str_repr += '\tSHUTIT_GLOBAL self.window_size_max='    + str(self.window_size_max)
+		str_repr += '\tSHUTIT_GLOBAL self.username='           + str(self.username)
+		str_repr += '\tSHUTIT_GLOBAL base_prompt='             + str(self.base_prompt)
+		str_repr += '\tSHUTIT_GLOBAL real_user='               + str(self.real_user)
+		str_repr += '\tSHUTIT_GLOBAL real_user_id='            + str(self.real_user_id)
+		str_repr += '\tSHUTIT_GLOBAL build_id='                + str(self.build_id)
+		str_repr += '\tSHUTIT_GLOBAL delaybeforesend='         + str(self.delaybeforesend)
+		str_repr += '\tSHUTIT_GLOBAL prompt_command='          + str(self.prompt_command)
+		str_repr += '\tSHUTIT_GLOBAL self.default_encoding='   + str(self.default_encoding)
 		for shutit_object in self.shutit_objects:
 			str_repr += str(shutit_object)
 		str_repr += '\n====== SHUTIT_GLOBAL_OBJECT DONE ====='
@@ -181,7 +181,7 @@ class ShutItGlobal(object):
 	                   walkthrough=False,
 	                   walkthrough_wait=-1,
 	                   nocolor=False,
-	                   loglevel='WARNING'):
+	                   loglevel=''):
 		assert isinstance(session_type, str), shutit_util.print_debug()
 		new_shutit = ShutIt(standalone=True, session_type=session_type)
 		self.shutit_objects.append(new_shutit)
@@ -319,7 +319,8 @@ class ShutItGlobal(object):
 		"""Handles simple printing of a msg at the global level.
 		"""
 		if self.pane_manager is None:
-			if file is not None:
+			if debugfile is not None:
+				print('Printing debug to file: ' + debugfile)
 				print(msg, file=debugfile)
 			else:
 				print(msg)

@@ -404,33 +404,33 @@ class ShutIt(object):
 
 	def __str__(self):
 		string = '\n======= SHUTIT OBJECT BEGIN ========'
-		string += '\nstandalone='                     + str(self.standalone)
-		string += '\nbuild='                          + str(self.build)
-		string += '\nhost='                           + str(self.host)
-		string += '\nrepository='                     + str(self.repository)
-		string += '\texpect_prompts='                 + str(self.expect_prompts)
-		string += '\tlist_configs='                   + str(self.list_configs)
-		string += '\ttarget='                         + str(self.target)
-		string += '\taction='                         + str(self.action)
-		string += '\tshutit_pexpect_sessions='        + str(self.shutit_pexpect_sessions)
-		string += '\tshutit_map='                     + str(self.shutit_map)
-		string += '\tshutit_file_map='                + str(self.shutit_file_map)
-		string += '\tlist_modules='                   + str(self.list_modules)
-		string += '\tcurrent_shutit_pexpect_session=' + str(self.current_shutit_pexpect_session)
-		string += '\tconfig_parser='                  + str(self.config_parser)
-		string += '\tshutit_modules='                 + str(self.shutit_modules)
-		string += '\tconn_modules='                   + str(self.conn_modules)
-		string += '\tshutit_main_dir='                + str(self.shutit_main_dir)
-		string += '\tcfg='                            + str(self.cfg)
-		string += '\tcurrent_shutit_pexpect_session=' + str(self.current_shutit_pexpect_session)
-		string += '\tuuid_str='                       + str(self.uuid_str)
-		string += '\tnocolor='                        + str(self.nocolor)
-		string += '\tlogging_setup_done='             + str(self.logging_setup_done)
-		string += '\tlast_log_time='                  + str(self.last_log_time)
-		string += '\tlogfile='                        + str(self.logfile)
-		string += '\tloglevel='                       + str(self.loglevel)
-		string += '\tshutitfile='                     + str(self.shutitfile)
-		string += '\tsession_type='                   + str(self.session_type)
+		string += '\nSHUTIT_OBJECT standalone='                     + str(self.standalone)
+		string += '\nSHUTIT_OBJECT build='                          + str(self.build)
+		string += '\nSHUTIT_OBJECT host='                           + str(self.host)
+		string += '\nSHUTIT_OBJECT repository='                     + str(self.repository)
+		string += '\nSHUTIT_OBJECT expect_prompts='                 + str(self.expect_prompts)
+		string += '\nSHUTIT_OBJECT list_configs='                   + str(self.list_configs)
+		string += '\nSHUTIT_OBJECT target='                         + str(self.target)
+		string += '\nSHUTIT_OBJECT action='                         + str(self.action)
+		string += '\nSHUTIT_OBJECT shutit_pexpect_sessions='        + str(self.shutit_pexpect_sessions)
+		string += '\nSHUTIT_OBJECT shutit_map='                     + str(self.shutit_map)
+		string += '\nSHUTIT_OBJECT shutit_file_map='                + str(self.shutit_file_map)
+		string += '\nSHUTIT_OBJECT list_modules='                   + str(self.list_modules)
+		string += '\nSHUTIT_OBJECT current_shutit_pexpect_session=' + str(self.current_shutit_pexpect_session)
+		string += '\nSHUTIT_OBJECT config_parser='                  + str(self.config_parser)
+		string += '\nSHUTIT_OBJECT shutit_modules='                 + str(self.shutit_modules)
+		string += '\nSHUTIT_OBJECT conn_modules='                   + str(self.conn_modules)
+		string += '\nSHUTIT_OBJECT shutit_main_dir='                + str(self.shutit_main_dir)
+		string += '\nSHUTIT_OBJECT cfg='                            + str(self.cfg)
+		string += '\nSHUTIT_OBJECT current_shutit_pexpect_session=' + str(self.current_shutit_pexpect_session)
+		string += '\nSHUTIT_OBJECT uuid_str='                       + str(self.uuid_str)
+		string += '\nSHUTIT_OBJECT nocolor='                        + str(self.nocolor)
+		string += '\nSHUTIT_OBJECT logging_setup_done='             + str(self.logging_setup_done)
+		string += '\nSHUTIT_OBJECT last_log_time='                  + str(self.last_log_time)
+		string += '\nSHUTIT_OBJECT logfile='                        + str(self.logfile)
+		string += '\nSHUTIT_OBJECT loglevel='                       + str(self.loglevel)
+		string += '\nSHUTIT_OBJECT shutitfile='                     + str(self.shutitfile)
+		string += '\nSHUTIT_OBJECT session_type='                   + str(self.session_type)
 		if self.current_shutit_pexpect_session:
 			string += '\tlogin_stack='                    + str(self.current_shutit_pexpect_session.login_stack)
 		string += '\n======= SHUTIT OBJECT DONE ========'
@@ -3404,6 +3404,8 @@ class ShutIt(object):
 			self.logfile  = args.logfile
 			self.loglevel = args.loglevel
 			if self.loglevel is None or self.loglevel == '':
+				# Get loglevel of any other session and take that
+				sessions = shutit_global.get_shutit_pexpect_sessions()
 				self.loglevel = 'INFO'
 			self.setup_logging()
 		shutit_global.shutit_global_object.setup_panes(action=args.action)
@@ -4849,7 +4851,7 @@ class ShutIt(object):
 	                   walkthrough=False,
 	                   nocolor=False,
 	                   rm=None,
-	                   loglevel='WARNING'):
+	                   loglevel=''):
 		shutit_global.shutit_global_object.yield_to_draw()
 		self = self # For linters: we want this to be available to shutit object users
 		return shutit_global.shutit_global_object.create_session(session_type=session_type,

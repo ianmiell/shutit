@@ -330,12 +330,12 @@ def print_debug(exc_info=None, msg=''):
 	environ_string = ''
 	for env in os.environ:
 		environ_string += 'export ' + env + '=' + str(os.environ[env]) + ';'
-	shutit_global.shutit_global_object.shutit_print('\n=============================== DEBUG INFO =========================================', debugfile=f)
+	shutit_global.shutit_global_object.shutit_print('\n=============================== DEBUG INFO START ==============================', debugfile=f)
 	shutit_global.shutit_global_object.shutit_print('This file: '              + os.path.dirname(os.path.realpath(__file__)), debugfile=f)
 	shutit_global.shutit_global_object.shutit_print('Python version: '         + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version), debugfile=f)
 	shutit_global.shutit_global_object.shutit_print('Shutit version: '         + shutit.shutit_version, debugfile=f)
 	shutit_global.shutit_global_object.shutit_print('Server: '                 + socket.gethostname(), debugfile=f)
-	shutit_global.shutit_global_object.shutit_print('Environment: '            + environ_string, debugfile=f)
+	shutit_global.shutit_global_object.shutit_print('Environment: '            + environ_string.replace(';','\n'), debugfile=f)
 	shutit_global.shutit_global_object.shutit_print('Command was: '            + sys.executable + (' ').join(sys.argv), debugfile=f)
 	shutit_global.shutit_global_object.shutit_print('ShutIt global state: '    + str(shutit_global.shutit_global_object), debugfile=f)
 	if exc_info:
@@ -343,4 +343,4 @@ def print_debug(exc_info=None, msg=''):
 		for line in traceback.format_exception(*exc_info):
 			stack_trace += line
 		shutit_global.shutit_global_object.shutit_print('Stacktrace:\n'        + stack_trace, debugfile=f)
-	shutit_global.shutit_global_object.shutit_print('\n=============================== DEBUG INFO =========================================', debugfile=f)
+	shutit_global.shutit_global_object.shutit_print('\n=============================== DEBUG INFO DONE  ==============================', debugfile=f)

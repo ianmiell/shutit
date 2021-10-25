@@ -33,7 +33,7 @@ import shutit_util
 def create_session(docker_image=None,
                    docker_rm=None,
                    echo=False,
-                   loglevel='WARNING',
+                   loglevel='',
                    nocolor=False,
                    session_type='bash',
                    vagrant_session_name=None,
