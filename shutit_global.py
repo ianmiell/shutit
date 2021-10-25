@@ -315,11 +315,14 @@ class ShutItGlobal(object):
 		sys.exit(exit_code)
 
 
-	def shutit_print(self, msg):
+	def shutit_print(self, msg, debugfile=None):
 		"""Handles simple printing of a msg at the global level.
 		"""
 		if self.pane_manager is None:
-			print(msg)
+			if file is not None:
+				print(msg, file=debugfile)
+			else:
+				print(msg)
 
 
 # shutit_global.shutit_objects have the pexpect sessions in their shutit_pexpect_sessions variable.
