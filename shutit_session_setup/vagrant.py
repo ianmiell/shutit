@@ -1,6 +1,7 @@
 import random
 import logging
 import string
+import time
 from shutit_session_setup import virtualization
 
 
@@ -49,7 +50,7 @@ def pre_build(shutit,
 			shutit.send('echo VAGRANT VERSION MAY BE TOO LOW SEE https://github.com/ianmiell/shutit-library/issues/1 && sleep 10')
 	return True
 
-                                                                                                                  
+
 def setup_machines(shutit,
                    vagrant_image,
                    virt_method,
@@ -97,7 +98,7 @@ def setup_machines(shutit,
   config.vm.define "''' + machine_name + '''" do |''' + machine_name + '''|
     ''' + machine_name + '''.vm.box = ''' + '"' + vagrant_image + '"' + '''
     ''' + machine_name + '''.vm.hostname = "''' + machine_name + '''.vagrant.test"
-    config.vm.provider :virtualbox do |vb|
+    ''' + machine_name + '''.vm.provider :virtualbox do |vb|
       vb.name = "''' + machine_name + '''"
     end
   end'''
@@ -116,13 +117,12 @@ end'''
 	if pw == '':
 		shutit.log("""You can get round this manual step by creating a 'secret' with your password: 'touch secret && chmod 700 secret'""",level=logging.CRITICAL)
 		pw = shutit.get_env_pass()
-		import time
 		time.sleep(10)
 
 	# Set up the sessions.
-	shutit_host_session = shutit.create_session(session_type='bash')
+	shutit_host_session = shutit.create_session(session_type='bash', loglevel='DEBUG')
 	for machine in sorted(machines.keys()):
-		shutit_sessions.update({machine:shutit.create_session(session_type='bash', walkthrough=False)})
+		shutit_sessions.update({machine:shutit.create_session(session_type='bash', loglevel='DEBUG', walkthrough=False)})
 	# Set up and validate landrush.
 	for machine in sorted(machines.keys()):
 		shutit_session = shutit_sessions[machine]

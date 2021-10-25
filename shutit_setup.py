@@ -37,7 +37,7 @@ import shutit_global
 import shutit_util
 from shutit_module import ShutItModule
 from shutit_sendspec import ShutItSendSpec
-from shutit_pexpect import ShutItPexpectSession
+from shutit_pexpect_session import ShutItPexpectSession
 
 
 class ShutItConnModule(ShutItModule):

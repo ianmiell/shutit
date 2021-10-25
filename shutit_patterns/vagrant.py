@@ -171,7 +171,7 @@ If you want to change a config, choose the number: ''')
     ''' + machine_name + """.vm.box = ''' + '"' + vagrant_image + '"' + '''
     """ + machine_name + '''.vm.hostname = "''' + machine_fqdn + '''"''' +
     '''
-    config.vm.provider :virtualbox do |vb|
+    ''' + machine_name + '''.vm.provider :virtualbox do |vb|
       vb.name = "''' + skel_module_name + '_' + str(m) + '''"
     end
   end''')
@@ -185,7 +185,6 @@ If you want to change a config, choose the number: ''')
 		if pw == '':
 			shutit.log("""You can get round this manual step by creating a 'secret' with your password: 'touch secret && chmod 700 secret'""",level=logging.CRITICAL)
 			pw = shutit.get_env_pass()
-			import time
 			time.sleep(10)'''
 
 
@@ -203,7 +202,7 @@ If you want to change a config, choose the number: ''')
 		# Set up the sessions
 		shutit_sessions = {}
 		for machine in sorted(machines.keys()):
-			shutit_sessions.update({machine:shutit.create_session('bash')})
+			shutit_sessions.update({machine:shutit.create_session('bash', loglevel='DEBUG')})
 		# Set up and validate landrush
 		for machine in sorted(machines.keys()):
 			shutit_session = shutit_sessions[machine]
@@ -293,7 +292,7 @@ swapon /swapfile
 swapon -s
 grep -i --color swap /proc/meminfo
 echo "\n/swapfile none            swap    sw              0       0" >> /etc/fstab\'\'\')
-			shutit_session.multisend('adduser person',{'Enter new UNIX password':'person','Retype new UNIX password:':'person','Full Name':'','Phone':'','Room':'','Other':'','Is the information correct':'Y'})'''
+			shutit_session.multisend('adduser person',{'password:':'person','Enter new UNIX password':'person','Retype new UNIX password:':'person','Full Name':'','Phone':'','Room':'','Other':'','Is the information correct':'Y'})'''
 	machine_seed_code = '''
 		for machine in sorted(machines.keys()):
 			shutit_session = shutit_sessions[machine]
@@ -358,7 +357,8 @@ import datetime
 import logging
 import string
 import os
-import inspect'''
+import inspect
+import time'''
 ################################################################################
 # END TEXT GOBBETS
 ################################################################################
