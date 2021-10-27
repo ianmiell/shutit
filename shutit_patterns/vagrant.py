@@ -190,6 +190,8 @@ If you want to change a config, choose the number: ''')
 
 	vagrant_dir_section_1 = """
 		if shutit.build['vagrant_run_dir'] is None:
+			################################################################################
+			# Set up the Vagrant run directory
 			shutit.build['vagrant_run_dir'] = os.path.dirname(os.path.abspath(inspect.getsourcefile(lambda:0))) + '/vagrant_run'
 			timestamp = datetime.datetime.now().strftime("%Y%m%d%H%M%S")
 			shutit.build['module_name'] = '""" + skel_module_name + """_' + timestamp
@@ -199,6 +201,7 @@ If you want to change a config, choose the number: ''')
 		shutit.send(' command mkdir -p ' + shutit.build['this_vagrant_run_dir'] + ' && command cd ' + shutit.build['this_vagrant_run_dir'])"""
 
 	vagrant_setup = r"""
+		################################################################################
 		# Set up the sessions
 		shutit_sessions = {}
 		for machine in sorted(machines.keys()):
@@ -206,10 +209,11 @@ If you want to change a config, choose the number: ''')
 		# Set up and validate landrush
 		for machine in sorted(machines.keys()):
 			shutit_session = shutit_sessions[machine]
+			# Move into the vagrant run directory.
 			shutit_session.send('cd ' + shutit.build['this_vagrant_run_dir'])
 			# Remove any existing landrush entry.
 			shutit_session.send('vagrant landrush rm ' + machines[machine]['fqdn'])
-			# Needs to be done serially for stability reasons.
+			# 'vagrant up' needs to be done serially for stability reasons.
 			try:
 				shutit_session.multisend('vagrant up --provider ' + shutit.cfg['shutit-library.virtualization.virtualization.virtualization']['virt_method'] + ' ' + machine,{'assword for':pw,'assword:':pw})
 			except NameError:
@@ -217,34 +221,40 @@ If you want to change a config, choose the number: ''')
 			if shutit.send_and_get_output("vagrant status 2> /dev/null | grep -w ^" + machine + " | awk '{print $2}'") != 'running':
 				shutit.pause_point("machine: " + machine + " appears not to have come up cleanly")
 			ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''')
+			# Set up machines dictionary with IP address.
 			machines.get(machine).update({'ip':ip})
+			# Log onto the vagrant host, and get root.
 			shutit_session.login(command='vagrant ssh ' + machine)
 			shutit_session.login(command='sudo su - ')
+			# Allow IPv4 routing.
 			shutit_session.send('sysctl -w net.ipv4.conf.all.route_localnet=1')
-			# Correct /etc/hosts
+			# Correct /etc/hosts.
 			shutit_session.send(r'''cat <(echo $(ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/') $(hostname)) <(cat /etc/hosts | grep -v $(hostname -s)) > /tmp/hosts && mv -f /tmp/hosts /etc/hosts''')
 			# Correct any broken ip addresses.
 			if shutit.send_and_get_output('''vagrant landrush ls | grep ''' + machine + ''' | grep 10.0.2.15 | wc -l''') != '0':
 				shutit_session.log('A 10.0.2.15 landrush ip was detected for machine: ' + machine + ', correcting.',level=logging.WARNING)
-				# This beaut gets all the eth0 addresses from the machine and picks the first one that it not 10.0.2.15.
+				# This gets all the eth0 addresses from the machine and picks the first one that it not 10.0.2.15.
 				while True:
 					ipaddr = shutit_session.send_and_get_output(r'''ip -4 -o addr show scope global | grep -v 10.0.2.15 | head -1 | awk '{print $4}' | sed 's/\(.*\)\/.*/\1/' ''')
 					if ipaddr[0] not in ('1','2','3','4','5','6','7','8','9'):
 						time.sleep(10)
 					else:
 						break
-				# Send this on the host (shutit, not shutit_session)
+				# Send this on the host (ie calling the global shutit object, not shutit_session)
 				shutit.send('vagrant landrush set ' + machines[machine]['fqdn'] + ' ' + ipaddr)
 			# Check that the landrush entry is there.
 			shutit.send('vagrant landrush ls | grep -w ' + machines[machine]['fqdn'])
-		# Gather landrush info
+		# Gather landrush info.
 		for machine in sorted(machines.keys()):
 			ip = shutit.send_and_get_output('''vagrant landrush ls 2> /dev/null | grep -w ^''' + machines[machine]['fqdn'] + ''' | awk '{print $2}' ''')
+			# Set up machines dictionary with IP address.
 			machines.get(machine).update({'ip':ip})"""
 
 
 	if ssh_access:
 		copy_keys_code = '''
+		################################################################################
+		# Set ssh access.
 		for machine in sorted(machines.keys()):
 			shutit_session = shutit_sessions[machine]
 			root_password = 'root'
@@ -265,6 +275,8 @@ If you want to change a config, choose the number: ''')
 
 	if docker:
 		docker_code = '''
+		################################################################################
+		# Set up docker.
 		for machine in sorted(machines.keys()):
 			shutit_session = shutit_sessions[machine]
 			# Workaround for docker networking issues + landrush.
@@ -278,8 +290,11 @@ If you want to change a config, choose the number: ''')
 	else:
 		docker_code = ''
 	user_code = '''
+		################################################################################
+		# Set up user and swapfile.
 		for machine in sorted(machines.keys()):
 			shutit_session = shutit_sessions[machine]
+			# Set up swapfile
 			shutit_session.run_script(r\'\'\'#!/bin/sh
 # See https://raw.githubusercontent.com/ianmiell/vagrant-swapfile/master/vagrant-swapfile.sh
 fallocate -l \'\'\' + shutit.cfg[self.module_id]['swapsize'] + r\'\'\' /swapfile
@@ -302,6 +317,8 @@ echo "\n/swapfile none            swap    sw              0       0" >> /etc/fst
 		# TODO: add 'copy to snapshot folder function'
 		# TODO: create snapshot subfolder
 		snapshot_code = '''
+		################################################################################
+		# Set up snapshots of Vagrant machines.
 		for machine in sorted(machines.keys()):
 			shutit.send('vagrant snapshot save ' + machine,note='Snapshot the vagrant machine')'''
 	else:
@@ -309,7 +326,9 @@ echo "\n/swapfile none            swap    sw              0       0" >> /etc/fst
 
 	if upload:
 		upload_code = '''
-		# Create a stable box name for this particular build
+		################################################################################
+		# Upload snapshots.
+		# Create a stable box name for this particular build.
 		boxname_base = shutit.build['module_name'] + '_' + str(int(time.time()))
 		for machine in sorted(machines.keys()):
 			boxname = boxname_base + '_' + machine + '.box'
@@ -565,6 +584,8 @@ so you can upload vagrant boxes.
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
+		################################################################################
+		# Set up vagrant run dir
 		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
@@ -695,6 +716,8 @@ shutit.core.module.build:yes''')
 """ + shutit.cfg['skeleton']['header_section'] + """
 
 	def build(self, shutit):
+		################################################################################
+		# Set up vagrant run dir
 		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']
 		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
 		gui = shutit.cfg[self.module_id]['gui']
