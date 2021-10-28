@@ -733,8 +733,7 @@ shutit.core.module.build:yes''')
 		new_module_filename = skel_path + '/' + skel_module_name + '.py'
 		module_file = open(new_module_filename,'w+')
 
-		#template = jinja2.Template((header + shared_imports + '\n'
-		template = jinja2.Template(('\n'
+		template = jinja2.Template((header + shared_imports + '\n'
 		                            "{{ shutit.cfg['skeleton']['header_section'] }}\n"
 		                            '\n'
 		                            '	def build(self, shutit):\n'
