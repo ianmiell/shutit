@@ -6,3 +6,5 @@ future>=0.15
 cjkwrap
 curtsies>=0.3.0
 pygithub
+jinja2>=3.0.0
+MarkupSafe>=2.0
