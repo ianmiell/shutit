@@ -389,112 +389,128 @@ import time'''
 	# .gitignore
 	gitignore_filename = skel_path + '/.gitignore'
 	gitignore_file = open(gitignore_filename,'w+')
-	gitignore_file.write('''*pyc
-vagrant_run
-secret''')
+	gitignore_file.write('*pyc\n'
+	                     'vagrant_run\n'
+	                     'secret\n')
 	gitignore_file.close()
 	os.chmod(gitignore_filename,0o700)
 
+	# secret
 	secretfile_filename = skel_path + '/secret'
 	secretfile_file = open(secretfile_filename,'w+')
 	secretfile_file.write(sudo_password)
 	secretfile_file.close()
 	os.chmod(secretfile_filename,0o400)
 
+	# run.py
+	run_filename = skel_path + '/run.py'
+	run_file = open(run_filename,'w+')
+	run_file.write('def run(shutit_sessions, machines):\n'
+	               "	print('machines:')\n"
+	               '	print(machines)\n'
+	               '	for machine in sorted(machines.keys()):\n'
+	               '		term = shutit_sessions[machine]\n')
+	for m in range(1,num_machines+1):
+		machine_name = machine_prefix + str(m)
+		machine_fqdn = machine_name + '.vagrant.test'
+		machine_session_name = machine_name + '_term'
+		run_file.write('		' + machine_session_name + " = shutit_sessions['" + machine_name + "']\n")
+		run_file.write('		' + machine_session_name + ".send('echo in terminal $(hostname)')\n")
+	run_file.close()
+	os.chmod(run_filename,0o644)
+
 	# README.md
 	readme_filename = skel_path + '/README.md'
 	readme_file = open(readme_filename,'w+')
-	readme_file.write('''
-
-## Install
-
-- virtualbox
-- vagrant
-- git
-- python-pip
-
-## Run
-
-```
-git clone --recursive [this repo]
-cd [this repo file]
-./run.sh
-```
-''')
+	readme_file.write('\n'
+	                  '\n'
+	                  '## Install\n'
+	                  '\n'
+	                  '- virtualbox\n'
+	                  '- vagrant\n'
+	                  '- git\n'
+	                  '- python-pip\n'
+	                  '\n'
+	                  '## Run\n'
+	                  '\n'
+	                  '```\n'
+	                  'git clone --recursive [this repo]\n'
+	                  'cd [this repo file]\n'
+	                  './run.sh\n'
+	                  '```\n')
 	readme_file.close()
 	os.chmod(readme_filename,0o700)
 
 	# run.sh
 	runsh_filename = skel_path + '/run.sh'
 	runsh_file = open(runsh_filename,'w+')
-	runsh_file.write('''#!/bin/bash
-set -e
-[[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"
-[[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"
-if [[ ! -a "$SHUTIT" ]]
-then
-	echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"
-	exit 1
-fi
-./destroy_vms.sh
-$SHUTIT build --echo -d bash -m shutit-library/vagrant -m shutit-library/virtualization -l debug "$@"
-if [[ $? != 0 ]]
-then
-	exit 1
-fi''')
+	runsh_file.write('#!/bin/bash\n'
+	                 'set -e\n'
+	                 '[[ -z "$SHUTIT" ]] && SHUTIT="$1/shutit"\n'
+	                 '[[ ! -a "$SHUTIT" ]] || [[ -z "$SHUTIT" ]] && SHUTIT="$(which shutit)"\n'
+	                 'if [[ ! -a "$SHUTIT" ]]\n'
+	                 'then\n'
+	                 '	echo "Must have shutit on path, eg export PATH=$PATH:/path/to/shutit_dir"\n'
+	                 '	exit 1\n'
+	                 'fi\n'
+	                 './destroy_vms.sh\n'
+	                 '$SHUTIT build --echo -d bash -m shutit-library/vagrant -m shutit-library/virtualization -l debug "$@"\n'
+	                 'if [[ $? != 0 ]]\n'
+	                 'then\n'
+	                 '	exit 1\n'
+	                 'fi\n')
 	runsh_file.close()
 	os.chmod(runsh_filename,0o755)
 
 	# destroy_vms.sh
 	destroyvmssh_filename = skel_path + '/destroy_vms.sh'
 	destroyvmssh_file = open(destroyvmssh_filename,'w+')
-	destroyvmssh_file_contents = '''#!/bin/bash'''
+	destroyvmssh_file_contents = '#!/bin/bash\n'
 	if snapshot:
-		destroyvmssh_file_contents += '''
-FOLDER=$( ls $( cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )/vagrant_run 2> /dev/null)
-ANSWER='y'
-if [[ $FOLDER != '' ]]
-then
-	echo "This is snapshotted - sure you want to continue deleting? (y/n)"
-	echo See folder: vagrant_run/${FOLDER}
-	read ANSWER
-fi
-if [[ ${ANSWER} != 'y' ]]
-then
-	echo Refusing to continue
-	exit 1
-fi'''
-	destroyvmssh_file_contents += '''
-MODULE_NAME=''' + skel_module_name + '''
-rm -rf $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/vagrant_run/*
-XARGS_FLAG='--no-run-if-empty'
-if ! echo '' | xargs --no-run-if-empty >/dev/null 2>&1
-then
-	XARGS_FLAG=''
-fi
-if [[ $(command -v VBoxManage) != '' ]]
-then
-	while true
-	do
-		VBoxManage list runningvms | grep ${MODULE_NAME} | awk '{print $1}' | xargs $XARGS_FLAG -IXXX VBoxManage controlvm 'XXX' poweroff && VBoxManage list vms | grep ''' + skel_module_name + ''' | awk '{print $1}'  | xargs -IXXX VBoxManage unregistervm 'XXX' --delete
-		# The xargs removes whitespace
-		if [[ $(VBoxManage list vms | grep ${MODULE_NAME} | wc -l | xargs) -eq '0' ]]
-		then
-			break
-		else
-			ps -ef | grep virtualbox | grep ${MODULE_NAME} | awk '{print $2}' | xargs kill
-			sleep 10
-		fi
-	done
-fi
-if [[ $(command -v virsh) ]] && [[ $(kvm-ok 2>&1 | command grep 'can be used') != '' ]]
-then
-	if [[ $(id -u) != '0' ]]
-	then
-	    echo If using kvm, then you may need to be root or give perms to this user to destroy the pre-existing machines
-	fi
-	virsh list | grep ${MODULE_NAME} | awk '{print $1}' | xargs $XARGS_FLAG -n1 virsh destroy
-fi'''
+		destroyvmssh_file_contents += ('\n'
+	                                   'FOLDER=$( ls $( cd $( dirname "${BASH_SOURCE[0]}" ) && pwd )/vagrant_run 2> /dev/null)\n'
+	                                   "ANSWER='y'\n"
+	                                   'if [[ $FOLDER != '' ]]\n'
+	                                   'then\n'
+	                                   '	echo "This is snapshotted - sure you want to continue deleting? (y/n)"\n'
+	                                   '	echo See folder: vagrant_run/${FOLDER}\n'
+	                                   '	read ANSWER\n'
+	                                   'fi\n'
+	                                   "if [[ ${ANSWER} != 'y' ]]\n"
+	                                   'then\n'
+	                                   '	echo Refusing to continue\n'
+	                                   '	exit 1\n'
+	                                   'fi\n')
+	destroyvmssh_file_contents += ('\nMODULE_NAME=' + skel_module_name + '\n'
+	                               '''rm -rf $( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/vagrant_run/*\n'''
+	                               "XARGS_FLAG='--no-run-if-empty'\n"
+	                               "if ! echo '' | xargs --no-run-if-empty >/dev/null 2>&1\n"
+	                               'then\n'
+	                               "	XARGS_FLAG=''\n"
+	                               'fi\n'
+	                               "if [[ $(command -v VBoxManage) != '' ]]\n"
+	                               'then\n'
+	                               '	while true\n'
+	                               '	do\n'
+	                               '''		VBoxManage list runningvms | grep ${MODULE_NAME} | awk '{print $1}' | xargs $XARGS_FLAG -IXXX VBoxManage controlvm 'XXX' poweroff && VBoxManage list vms | grep ''' + skel_module_name + ''' | awk '{print $1}'  | xargs -IXXX VBoxManage unregistervm 'XXX' --delete\n'''
+	                               '		# The xargs removes whitespace\n'
+	                               "		if [[ $(VBoxManage list vms | grep ${MODULE_NAME} | wc -l | xargs) -eq '0' ]]\n"
+	                               '		then\n'
+	                               '			break\n'
+	                               '		else\n'
+	                               "			ps -ef | grep virtualbox | grep ${MODULE_NAME} | awk '{print $2}' | xargs kill\n"
+	                               '			sleep 10\n'
+	                               '		fi\n'
+	                               '	done\n'
+	                               'fi\n'
+	                               "if [[ $(command -v virsh) ]] && [[ $(kvm-ok 2>&1 | command grep 'can be used') != '' ]]\n"
+	                               'then\n'
+	                               "	if [[ $(id -u) != '0' ]]\n"
+	                               '	then\n'
+	                               '	    echo If using kvm, then you may need to be root or give perms to this user to destroy the pre-existing machines\n'
+	                               '	fi\n'
+	                               "	virsh list | grep ${MODULE_NAME} | awk '{print $1}' | xargs $XARGS_FLAG -n1 virsh destroy\n"
+	                               'fi\n')
 	destroyvmssh_file.write(destroyvmssh_file_contents)
 	destroyvmssh_file.close()
 	os.chmod(destroyvmssh_filename,0o755)
@@ -509,42 +525,41 @@ fi'''
 	os.system('git submodule update')
 
 	# User message
-	log_message = '''
-# Run:
-cd ''' + skel_path + ''' && ./run.sh
+	log_message = ('\n'
+	               '# Run:\n'
+	               'cd ' + skel_path + ' && ./run.sh\n'
+	               '\n'
+	               '# to run.\n')
 
-# to run.
-'''
 	if upload:
-		log_message += r'''
-
-As you have chosen to upload, you may want to install maven and set your
-~/.m2/settings.xml file to contain these settings:
-
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                       https://maven.apache.org/xsd/settings-1.0.0.xsd">
-   <localRepository/>
-   <interactiveMode/>
-   <usePluginRegistry/>
-   <offline/>
-   <pluginGroups/>
-   <servers>
-       <server>
-         <id>nexus.meirionconsulting.com</id>
-         <username>uploader</username>
-         <password>uploader</password>
-       </server>
-   </servers>
-   <mirrors/>
-   <proxies/>
-   <profiles/>
-   <activeProfiles/>
-</settings>
-
-so you can upload vagrant boxes.
-'''
+		log_message += r('\n'
+		                 '\n'
+		                 'As you have chosen to upload, you may want to install maven and set your\n'
+		                 '~/.m2/settings.xml file to contain these settings:\n'
+		                 '\n'
+		                 '<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"\n'
+		                 '   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
+		                 '   xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0\n'
+		                 '                       https://maven.apache.org/xsd/settings-1.0.0.xsd">\n'
+		                 '   <localRepository/>\n'
+		                 '   <interactiveMode/>\n'
+		                 '   <usePluginRegistry/>\n'
+		                 '   <offline/>\n'
+		                 '   <pluginGroups/>\n'
+		                 '   <servers>\n'
+		                 '       <server>\n'
+		                 '         <id>nexus.meirionconsulting.com</id>\n'
+		                 '         <username>uploader</username>\n'
+		                 '         <password>uploader</password>\n'
+		                 '       </server>\n'
+		                 '   </servers>\n'
+		                 '   <mirrors/>\n'
+		                 '   <proxies/>\n'
+		                 '   <profiles/>\n'
+		                 '   <activeProfiles/>\n'
+		                 '</settings>\n'
+		                 '\n'
+		                 'so you can upload vagrant boxes.\n')
 	shutit.log(log_message,transient=True)
 ################################################################################
 # FILE SETUP END
@@ -614,6 +629,11 @@ end''')
 """ + shutit.cfg['skeleton']['build_section'] + """
 """ + snapshot_code + """
 """ + upload_code + """
+		################################################################################
+		# Your code here
+		import run
+		run.run(shutit_session, machines)
+
 		return True
 
 """ + get_config_section + """
@@ -747,6 +767,11 @@ end''')
 """ + machine_seed_code + """
 """ + snapshot_code + """
 """ + upload_code + """
+		################################################################################
+		# Your code here
+		import run
+		run.run(shutit_sessions, machines)
+
 		return True
 
 """ + get_config_section + """

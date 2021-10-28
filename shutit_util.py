@@ -121,7 +121,7 @@ def get_wide_hex(char):
 	return r'\u' + hex(0x10000 + (ord(char[0]) - 0xD800) * 0x400 + (ord(char[1]) - 0xDC00))[2:]
 
 # CTRL-\ HANDLING CODE STARTS
-def ctrl_quit_signal_handler(_,frame):
+def ctrl_quit_signal_handler(_, frame):
 	shutit_global.shutit_global_object.shutit_print(r'CRTL-\ caught, hard-exiting ShutIt')
 	shutit_frame = get_shutit_frame(frame)
 	if shutit_frame:
@@ -155,7 +155,7 @@ def ctrl_c_signal_handler(_, frame):
 		if shutit_frame:
 			shutit_global.shutit_global_object.shutit_print('\n')
 			shutit = shutit_frame.f_locals['shutit']
-			shutit.log(msg,level=logging.CRITICAL)
+			shutit.log(msg, level=logging.CRITICAL)
 		else:
 			shutit_global.shutit_global_object.shutit_print(msg)
 		shutit_global.shutit_global_object.handle_exit(exit_code=1)
@@ -164,7 +164,7 @@ def ctrl_c_signal_handler(_, frame):
 		if shutit.build['ctrlc_passthrough']:
 			shutit.self.get_current_shutit_pexpect_session().pexpect_child.sendline(r'')
 			return
-		shutit_global.shutit_global_object.shutit_print(colorise(31,"\r" + r"You may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit."))
+		shutit_global.shutit_global_object.shutit_print(colorise(31, "\r" + r"You may need to wait for a command to complete before a pause point is available. Alternatively, CTRL-\ to quit."))
 		shutit.build['ctrlc_stop'] = True
 		t = threading.Thread(target=ctrlc_background)
 		t.daemon = True
@@ -172,9 +172,9 @@ def ctrl_c_signal_handler(_, frame):
 		# Reset the ctrl-c calls
 		ctrl_c_calls = 0
 		return
-	shutit_global.shutit_global_object.shutit_print(colorise(31,'\n' + '*' * 80))
-	shutit_global.shutit_global_object.shutit_print(colorise(31,"CTRL-c caught, CTRL-c twice to quit."))
-	shutit_global.shutit_global_object.shutit_print(colorise(31,'*' * 80))
+	shutit_global.shutit_global_object.shutit_print(colorise(31, '\n' + '*' * 80))
+	shutit_global.shutit_global_object.shutit_print(colorise(31, "CTRL-c caught, CTRL-c twice to quit."))
+	shutit_global.shutit_global_object.shutit_print(colorise(31, '*' * 80))
 	t = threading.Thread(target=ctrlc_background)
 	t.daemon = True
 	t.start()
@@ -225,7 +225,7 @@ def sanitize_terminal():
 	os.system('stty sane')
 
 def exit_cleanup():
-	countdown = range(60,1,-1)
+	countdown = range(60, 1, -1)
 	sys.stdout.write('\n\r')
 	for s in countdown:
 		sys.stdout.write('ShutIt has exited, resetting terminal in ' + str(s) + ' unless you CTRL-C...\n\r')
@@ -293,11 +293,11 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color=No
 	log_trace_when_idle_original_value = shutit_global.shutit_global_object.log_trace_when_idle
 	shutit_global.shutit_global_object.log_trace_when_idle = False
 	if boolean and valid is None:
-		valid = ('yes','y','Y','1','true','no','n','N','0','false')
+		valid = ('yes', 'y', 'Y', '1', 'true', 'no', 'n', 'N', '0', 'false')
 	if color:
-		answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
+		answer = util_raw_input(prompt=colorise(color, msg),ispass=ispass)
 	else:
-		answer = util_raw_input(msg,ispass=ispass)
+		answer = util_raw_input(msg, ispass=ispass)
 	if boolean and answer in ('', None) and default != '':
 		# Revert log trace value to original
 		shutit_global.shutit_global_object.log_trace_when_idle = log_trace_when_idle_original_value
@@ -306,9 +306,9 @@ def get_input(msg, default='', valid=None, boolean=False, ispass=False, color=No
 		while answer not in valid:
 			shutit_global.shutit_global_object.shutit_print('Answer must be one of: ' + str(valid),transient=True)
 			if color:
-				answer = util_raw_input(prompt=colorise(color,msg),ispass=ispass)
+				answer = util_raw_input(prompt=colorise(color, msg),ispass=ispass)
 			else:
-				answer = util_raw_input(msg,ispass=ispass)
+				answer = util_raw_input(msg, ispass=ispass)
 	if boolean:
 		if answer.lower() in ('yes','y','1','true','t'):
 			# Revert log trace value to original
@@ -336,7 +336,7 @@ def print_debug(exc_info=None, msg=''):
 	shutit_global.shutit_global_object.shutit_print('Python version: '         + 'sys.version_info: ' + str(sys.version_info) + ', sys.version: ' + str(sys.version), debugfile=f)
 	shutit_global.shutit_global_object.shutit_print('Shutit version: '         + shutit.shutit_version, debugfile=f)
 	shutit_global.shutit_global_object.shutit_print('Server: '                 + socket.gethostname(), debugfile=f)
-	shutit_global.shutit_global_object.shutit_print('Environment: '            + environ_string.replace(';','\n'), debugfile=f)
+	shutit_global.shutit_global_object.shutit_print('Environment: '            + environ_string.replace(';', '\n'), debugfile=f)
 	shutit_global.shutit_global_object.shutit_print('Command was: '            + sys.executable + (' ').join(sys.argv), debugfile=f)
 	shutit_global.shutit_global_object.shutit_print('ShutIt global state: '    + str(shutit_global.shutit_global_object), debugfile=f)
 	if exc_info:
