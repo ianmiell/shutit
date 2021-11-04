@@ -251,6 +251,11 @@ If you want to change a config, choose the number: ''')
 			# Set up machines dictionary with IP address.
 			machines.get(machine).update({'ip':ip})"""
 
+	hosts_file_code = ('\n'
+	                   '		for machine in sorted(machines.keys()):\n'
+	                   '			for machine_k in sorted(machines.keys()):\n'
+	                   '''				shutit_session.send('echo ' + machines[machine_k]['ip'] + ' ' + machine_k + ' ' + machines[machine_k]['fqdn'] + ' >> /etc/hosts')\n''')
+
 
 	if ssh_access:
 		copy_keys_code = '''
@@ -312,7 +317,7 @@ If you want to change a config, choose the number: ''')
 	machine_seed_code = ('\n'
 	                     '		for machine in sorted(machines.keys()):\n'
 	                     '			shutit_session = shutit_sessions[machine]\n'
-	                     '			shutit_session.send('hostname')''')
+	                     "			shutit_session.send('hostname')")
 
 	if snapshot:
 		# TODO: add 'copy to snapshot folder function'
@@ -596,7 +601,7 @@ If you want to change a config, choose the number: ''')
 
 			# We only write out the heavy stuff for vagrant on the first time round
 			if _count == 1:
-				template = jinja2.Template((header + shared_imports + '\n{{ shutit.cfg['skeleton']['header_section'] }}\n'
+				template = jinja2.Template((header + shared_imports + "\n{{ shutit.cfg['skeleton']['header_section'] }}\n"
 				                            '\n'
 				                            '	def build(self, shutit):\n'
 				                            '		################################################################################\n'
@@ -611,19 +616,20 @@ If you want to change a config, choose the number: ''')
 				                            "		if shutit.send_and_get_output('vagrant plugin list | grep vagrant-disksize') == '':\n"
 				                            "			shutit.send('vagrant plugin install vagrant-disksize')\n"
 				                            "		shutit.send('vagrant init ' + vagrant_image)\n"
-				                            "		shutit.send_file(shutit.build['this_vagrant_run_dir'] + '/Vagrantfile','''Vagrant.configure("2") do |config|\n"
+				                            """		shutit.send_file(shutit.build['this_vagrant_run_dir'] + '/Vagrantfile','''Vagrant.configure("2") do |config|\n"""
 				                            '  config.landrush.enabled = true\n'
 				                            '''  config.disksize.size = '""" + disk_size + """\n'''
 				                            '  config.vm.provider "virtualbox" do |vb|\n'
 				                            "    vb.gui = ''' + gui + '''\n"
 				                            """    vb.memory = "''' + memory + '''"\n"""
-				                            '  end\n"
+				                            '  end\n'
 				                            '{{ machine_stanzas }}\n'
 				                            "end''')\n"
 				                            '{{ machines_update }}\n'
 				                            '{{ vagrant_up_section }}\n'
 				                            '{{ vagrant_setup }}\n'
 				                            '{{ copy_keys_code }}\n'
+				                            '{{ hosts_file_code }}\n'
 				                            '{{ docker_code }}\n'
 				                            '{{ user_code }}\n'
 				                            "{{ shutit.cfg['skeleton']['build_section'] }}\n"
@@ -664,7 +670,7 @@ If you want to change a config, choose the number: ''')
 				                            "		delivery_methods=['bash'],\n"
 				                            "		depends=['{{ skel_depends }}','shutit-library.virtualization.virtualization.virtualization','tk.shutit.vagrant.vagrant.vagrant']\n"
 				                            '	)""")\n'
-				                            '			# In the non-first one, we don't have all the setup stuff (but we do have some!)\n'
+				                            "			# In the non-first one, we don't have all the setup stuff (but we do have some!)\n"
 				                            '			else:\n'
 				                            '				module_file.write(header + shared_imports + """\n'
 				                            "{{ shutit.cfg['skeleton']['header_section'] }}\n"
@@ -705,7 +711,7 @@ If you want to change a config, choose the number: ''')
 			build_cnf_filename = skel_path + '/configs/build.cnf'
 			if _count == 1:
 				build_cnf_file = open(build_cnf_filename,'w+')
-				build_cnf_file.write(('###############################################################################'\n'
+				build_cnf_file.write(('###############################################################################\n'
 				                      '# PLEASE NOTE: This file should be changed only by the maintainer.\n'
 				                      '# PLEASE NOTE: This file is only sourced if the "shutit build" command is run\n'
 				                      '#              and this file is in the relative path: configs/build.cnf\n'
@@ -766,6 +772,8 @@ If you want to change a config, choose the number: ''')
 		                            '{{ vagrant_setup }}\n'
 		                            '\n'
 		                            '{{ copy_keys_code }}\n'
+		                            '\n'
+				                    '{{ hosts_file_code }}\n'
 		                            '\n'
 		                            '{{ docker_code }}\n'
 		                            '\n'
