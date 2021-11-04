@@ -33,7 +33,8 @@ def setup_vagrant_pattern(shutit,
 	else:
 		num_machines = skel_vagrant_num_machines
 	if skel_vagrant_machine_prefix is None:
-		options.append({'name':'machine_prefix','question':'What do you want to call the machines (eg superserver)?','value':'machine','ok_values':[]})
+		# Add random word to default machine name to avoid vagrant machine name clash.
+		options.append({'name':'machine_prefix','question':'What do you want to call the machines (eg superserver)?','value':'machine-' + shutit_util.random_word(),'ok_values':[]})
 	else:
 		machine_prefix = skel_vagrant_machine_prefix
 	if skel_vagrant_ssh_access is None:
@@ -164,7 +165,7 @@ If you want to change a config, choose the number: ''')
 		# machines is a dict of dicts containing information about each machine for you to use.
 		machines = {}'''
 	for m in range(1,num_machines+1):
-		machine_name = machine_prefix + str(m)
+		machine_name = machine_prefix + '-' + str(m)
 		machine_fqdn = machine_name + '.vagrant.test'
 		# vagrant_image is calculated within the code later
 		machine_stanzas += ('''
