@@ -275,44 +275,44 @@ If you want to change a config, choose the number: ''')
 		copy_keys_code = ''
 
 	if docker:
-		docker_code = '''
-		################################################################################
-		# Set up docker.
-		for machine in sorted(machines.keys()):
-			shutit_session = shutit_sessions[machine]
-			# Workaround for docker networking issues + landrush.
-			shutit_session.install('docker')
-			shutit_session.insert_text('Environment=GODEBUG=netdns=cgo','/lib/systemd/system/docker.service',pattern='.Service.')
-			shutit_session.send('mkdir -p /etc/docker',note='Create the docker config folder')
-			shutit_session.send_file('/etc/docker/daemon.json',"""{
-  "dns": ["8.8.8.8"]
-}""",note='Use the google dns server rather than the vagrant one. Change to the value you want if this does not work, eg if google dns is blocked.')
-			shutit_session.send('systemctl daemon-reload && systemctl restart docker')'''
+		docker_code = ('\n'
+		               '		################################################################################\n'
+		               '		# Set up docker.\n'
+		               '		for machine in sorted(machines.keys()):\n'
+		               '			shutit_session = shutit_sessions[machine]\n'
+		               '			# Workaround for docker networking issues + landrush.\n'
+		               "			shutit_session.install('docker')\n"
+		               "			shutit_session.insert_text('Environment=GODEBUG=netdns=cgo','/lib/systemd/system/docker.service',pattern='.Service.')\n"
+		               "			shutit_session.send('mkdir -p /etc/docker',note='Create the docker config folder')\n"
+		               '''			shutit_session.send_file('/etc/docker/daemon.json',"""{\n'''
+		               '  "dns": ["8.8.8.8"]\n'
+		               '''}""",note='Use the google dns server rather than the vagrant one. Change to the value you want if this does not work, eg if google dns is blocked.')\n'''
+		               "			shutit_session.send('systemctl daemon-reload && systemctl restart docker')")
 	else:
 		docker_code = ''
-	user_code = '''
-		################################################################################
-		# Set up user and swapfile.
-		for machine in sorted(machines.keys()):
-			shutit_session = shutit_sessions[machine]
-			# Set up swapfile
-			shutit_session.run_script(r\'\'\'#!/bin/sh
-# See https://raw.githubusercontent.com/ianmiell/vagrant-swapfile/master/vagrant-swapfile.sh
-fallocate -l \'\'\' + shutit.cfg[self.module_id]['swapsize'] + r\'\'\' /swapfile
-ls -lh /swapfile
-chown root:root /swapfile
-chmod 0600 /swapfile
-ls -lh /swapfile
-mkswap /swapfile
-swapon /swapfile
-swapon -s
-grep -i --color swap /proc/meminfo
-echo "\n/swapfile none            swap    sw              0       0" >> /etc/fstab\'\'\')
-			shutit_session.multisend('adduser person',{'password:':'person','Enter new UNIX password':'person','Retype new UNIX password:':'person','Full Name':'','Phone':'','Room':'','Other':'','Is the information correct':'Y'})'''
-	machine_seed_code = '''
-		for machine in sorted(machines.keys()):
-			shutit_session = shutit_sessions[machine]
-			shutit_session.send('hostname')'''
+	user_code = ('\n'
+	             '		################################################################################\n'
+	             '		# Set up user and swapfile.\n'
+	             '		for machine in sorted(machines.keys()):\n'
+	             '			shutit_session = shutit_sessions[machine]\n'
+	             '			# Set up swapfile\n'
+	             "			shutit_session.run_script(r\'\'\'#!/bin/sh\n"
+	             '# See https://raw.githubusercontent.com/ianmiell/vagrant-swapfile/master/vagrant-swapfile.sh\n'
+	             "fallocate -l \'\'\' + shutit.cfg[self.module_id]['swapsize'] + r\'\'\' /swapfile\n"
+	             'ls -lh /swapfile\n'
+	             'chown root:root /swapfile\n'
+	             'chmod 0600 /swapfile\n'
+	             'ls -lh /swapfile\n'
+	             'mkswap /swapfile\n'
+	             'swapon /swapfile\n'
+	             'swapon -s\n'
+	             'grep -i --color swap /proc/meminfo\n'
+	             '''echo "\n/swapfile none            swap    sw              0       0" >> /etc/fstab\'\'\')\n'''
+	             "			shutit_session.multisend('adduser person',{'password:':'person','Enter new UNIX password':'person','Retype new UNIX password:':'person','Full Name':'','Phone':'','Room':'','Other':'','Is the information correct':'Y'})")
+	machine_seed_code = ('\n'
+	                     '		for machine in sorted(machines.keys()):\n'
+	                     '			shutit_session = shutit_sessions[machine]\n'
+	                     '			shutit_session.send('hostname')''')
 
 	if snapshot:
 		# TODO: add 'copy to snapshot folder function'
@@ -596,110 +596,110 @@ echo "\n/swapfile none            swap    sw              0       0" >> /etc/fst
 
 			# We only write out the heavy stuff for vagrant on the first time round
 			if _count == 1:
-				module_file.write(header + shared_imports + """
-""" + shutit.cfg['skeleton']['header_section'] + """
-
-	def build(self, shutit):
-		################################################################################
-		# Set up vagrant run dir
-		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']
-		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']
-		gui = shutit.cfg[self.module_id]['gui']
-		memory = shutit.cfg[self.module_id]['memory']
-""" + vagrant_dir_section_1 + """
-		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':
-			shutit.send('vagrant plugin install landrush')
-		if shutit.send_and_get_output('vagrant plugin list | grep vagrant-disksize') == '':
-			shutit.send('vagrant plugin install vagrant-disksize')
-		shutit.send('vagrant init ' + vagrant_image)
-		shutit.send_file(shutit.build['this_vagrant_run_dir'] + '/Vagrantfile','''Vagrant.configure("2") do |config|
-  config.landrush.enabled = true
-  config.disksize.size = '""" + disk_size + """'
-  config.vm.provider "virtualbox" do |vb|
-    vb.gui = ''' + gui + '''
-    vb.memory = "''' + memory + '''"
-  end
-""" + machine_stanzas + """
-end''')
-""" + machines_update + """
-""" + vagrant_up_section + """
-""" + vagrant_setup + """
-""" + copy_keys_code + """
-""" + docker_code + """
-""" + user_code + """
-""" + shutit.cfg['skeleton']['build_section'] + """
-""" + snapshot_code + """
-""" + upload_code + """
-		################################################################################
-		# Your code here
-		import run
-		run.run(shutit_session, machines)
-
-		return True
-
-""" + get_config_section + """
-
-""" + shutit.cfg['skeleton']['config_section'] + """		return True
-
-	def test(self, shutit):
-""" + shutit.cfg['skeleton']['test_section'] + """		return True
-
-	def finalize(self, shutit):
-""" + shutit.cfg['skeleton']['finalize_section'] + """		return True
-
-	def is_installed(self, shutit):
-""" + shutit.cfg['skeleton']['isinstalled_section'] + """
-		return False
-
-	def start(self, shutit):
-""" + shutit.cfg['skeleton']['start_section'] + """		return True
-
-	def stop(self, shutit):
-""" + shutit.cfg['skeleton']['stop_section'] + """		return True
-
-def module():
-	return """ + skel_module_name + module_modifier + """(
-		'""" + skel_module_id + """', """ + skel_domain_hash + """.000""" + str(_count) + """,
-		description='',
-		maintainer='',
-		delivery_methods=['bash'],
-		depends=['""" + skel_depends + """','shutit-library.virtualization.virtualization.virtualization','tk.shutit.vagrant.vagrant.vagrant']
-	)""")
-			# In the non-first one, we don't have all the setup stuff (but we do have some!)
-			else:
-				module_file.write(header + shared_imports + """
-""" + shutit.cfg['skeleton']['header_section'] + """
-
-	def build(self, shutit):
-""" + vagrant_dir_section_n + """
-""" + shutit.cfg['skeleton']['build_section'] + """
-
-""" + shutit.cfg['skeleton']['config_section'] + """		return True
-
-	def test(self, shutit):
-""" + shutit.cfg['skeleton']['test_section'] + """		return True
-
-	def finalize(self, shutit):
-""" + shutit.cfg['skeleton']['finalize_section'] + """		return True
-
-	def is_installed(self, shutit):
-""" + shutit.cfg['skeleton']['isinstalled_section'] + """
-		return False
-
-	def start(self, shutit):
-""" + shutit.cfg['skeleton']['start_section'] + """		return True
-
-	def stop(self, shutit):
-""" + shutit.cfg['skeleton']['stop_section'] + """		return True
-
-def module():
-	return """ + skel_module_name + module_modifier + """(
-		'""" + skel_module_id + """',""" + skel_domain_hash + """.000""" + str(_count) + """,
-		description='',
-		maintainer='',
-		delivery_methods=['bash'],
-		depends=['""" + skel_depends + """','shutit-library.virtualization.virtualization.virtualization','tk.shutit.vagrant.vagrant.vagrant']
-	)""")
+				template = jinja2.Template((header + shared_imports + '\n{{ shutit.cfg['skeleton']['header_section'] }}\n'
+				                            '\n'
+				                            '	def build(self, shutit):\n'
+				                            '		################################################################################\n'
+				                            '		# Set up vagrant run dir\n'
+				                            "		vagrant_image = shutit.cfg[self.module_id]['vagrant_image']\n"
+				                            "		vagrant_provider = shutit.cfg[self.module_id]['vagrant_provider']\n"
+				                            "		gui = shutit.cfg[self.module_id]['gui']\n"
+				                            "		memory = shutit.cfg[self.module_id]['memory']\n"
+				                            '{{ vagrant_dir_section_1 }}\n'
+				                            "		if shutit.send_and_get_output('vagrant plugin list | grep landrush') == '':\n"
+				                            "			shutit.send('vagrant plugin install landrush')\n"
+				                            "		if shutit.send_and_get_output('vagrant plugin list | grep vagrant-disksize') == '':\n"
+				                            "			shutit.send('vagrant plugin install vagrant-disksize')\n"
+				                            "		shutit.send('vagrant init ' + vagrant_image)\n"
+				                            "		shutit.send_file(shutit.build['this_vagrant_run_dir'] + '/Vagrantfile','''Vagrant.configure("2") do |config|\n"
+				                            '  config.landrush.enabled = true\n'
+				                            '''  config.disksize.size = '""" + disk_size + """\n'''
+				                            '  config.vm.provider "virtualbox" do |vb|\n'
+				                            "    vb.gui = ''' + gui + '''\n"
+				                            """    vb.memory = "''' + memory + '''"\n"""
+				                            '  end\n"
+				                            '{{ machine_stanzas }}\n'
+				                            "end''')\n"
+				                            '{{ machines_update }}\n'
+				                            '{{ vagrant_up_section }}\n'
+				                            '{{ vagrant_setup }}\n'
+				                            '{{ copy_keys_code }}\n'
+				                            '{{ docker_code }}\n'
+				                            '{{ user_code }}\n'
+				                            "{{ shutit.cfg['skeleton']['build_section'] }}\n"
+				                            '{{ snapshot_code }}\n'
+				                            '{{ upload_code }}\n'
+				                            '		################################################################################\n'
+				                            '		# Your code here\n'
+				                            '		import run\n'
+				                            '		run.run(shutit_session, machines)\n'
+				                            '\n'
+				                            '		return True\n'
+				                            '\n'
+				                            '{{ get_config_section }}\n'
+				                            '\n'
+				                            "{{ shutit.cfg['skeleton']['config_section'] }}		return True\n"
+				                            '\n'
+				                            '	def test(self, shutit):\n'
+				                            "{{ shutit.cfg['skeleton']['test_section'] }}		return True\n"
+				                            '\n'
+				                            '	def finalize(self, shutit):\n'
+				                            "{{ shutit.cfg['skeleton']['finalize_section'] }}		return True\n"
+				                            '\n'
+				                            '	def is_installed(self, shutit):\n'
+				                            "{{ shutit.cfg['skeleton']['isinstalled_section'] }}\n"
+				                            '		return False\n'
+				                            '\n'
+				                            '	def start(self, shutit):\n'
+				                            "{{ shutit.cfg['skeleton']['start_section'] }}		return True\n"
+				                            '\n'
+				                            '	def stop(self, shutit):\n'
+				                            "{{ shutit.cfg['skeleton']['stop_section'] }}		return True\n"
+				                            '\n'
+				                            'def module():\n'
+				                            '	return {{ skel_module_name }}{{ module_modifier }}(\n'
+				                            "		'{{ skel_module_id }}', {{ skel_domain_hash }}.000{{ str(_count) }},\n"
+				                            "		description='',\n"
+				                            "		maintainer='',\n"
+				                            "		delivery_methods=['bash'],\n"
+				                            "		depends=['{{ skel_depends }}','shutit-library.virtualization.virtualization.virtualization','tk.shutit.vagrant.vagrant.vagrant']\n"
+				                            '	)""")\n'
+				                            '			# In the non-first one, we don't have all the setup stuff (but we do have some!)\n'
+				                            '			else:\n'
+				                            '				module_file.write(header + shared_imports + """\n'
+				                            "{{ shutit.cfg['skeleton']['header_section'] }}\n"
+				                            '\n'
+				                            '	def build(self, shutit):\n'
+				                            '{{ vagrant_dir_section_n }}\n'
+				                            "{{ shutit.cfg['skeleton']['build_section'] }}\n"
+				                            '\n'
+				                            "{{ shutit.cfg['skeleton']['config_section'] }}		return True\n"
+				                            '\n'
+				                            '	def test(self, shutit):\n'
+				                            "{{ shutit.cfg['skeleton']['test_section'] }}		return True\n"
+				                            '\n'
+				                            '	def finalize(self, shutit):\n'
+				                            "{{ shutit.cfg['skeleton']['finalize_section'] }}		return True\n"
+				                            '\n'
+				                            '	def is_installed(self, shutit):\n'
+				                            "{{ shutit.cfg['skeleton']['isinstalled_section'] }}\n"
+				                            '		return False\n'
+				                            '\n'
+				                            '	def start(self, shutit):\n'
+				                            "{{ shutit.cfg['skeleton']['start_section'] }}		return True\n"
+				                            '\n'
+				                            '	def stop(self, shutit):\n'
+				                            "{{ shutit.cfg['skeleton']['stop_section'] }}		return True\n"
+				                            '\n'
+				                            'def module():\n'
+				                            '	return {{ skel_module_name }}{{ module_modifier }}(\n'
+				                            "		'{{ skel_module_id }}',{{ skel_domain_hash }}.000{{ str(_count) }},\n"
+				                            "		description='',\n"
+				                            "		maintainer='',\n"
+				                            "		delivery_methods=['bash'],\n"
+				                            "		depends=['{{ skel_depends }}','shutit-library.virtualization.virtualization.virtualization','tk.shutit.vagrant.vagrant.vagrant']\n"
+				                            '	)"""\n'))
+				module_file.write(template.render(vars()))
 			module_file.close()
 			# Set up build.cnf
 			build_cnf_filename = skel_path + '/configs/build.cnf'
