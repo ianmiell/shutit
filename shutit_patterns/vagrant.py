@@ -254,6 +254,7 @@ If you want to change a config, choose the number: ''')
 	hosts_file_code = ('\n'
 	                   '		for machine in sorted(machines.keys()):\n'
 	                   '			for machine_k in sorted(machines.keys()):\n'
+	                   '				shutit_session = shutit_sessions[machine]\n'
 	                   '''				shutit_session.send('echo ' + machines[machine_k]['ip'] + ' ' + machine_k + ' ' + machines[machine_k]['fqdn'] + ' >> /etc/hosts')\n''')
 
 
