@@ -1784,8 +1784,11 @@ class ShutIt(object):
 		return val
 
 
-	def step_through(self, msg='', shutit_pexpect_child=None, level=1, print_input=True, value=True):
+	def step_through(self, msg='', shutit_pexpect_child=None, print_input=True, value=True):
 		"""Implements a step-through function, using pause_point.
+		Calling this function switches on a pause point on every send.
+		If you call with value=False, then it will switch off the step-through.
+		Useful if you want to debug a series of commands during a run.
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
@@ -1794,7 +1797,7 @@ class ShutIt(object):
 			shutit_global.shutit_global_object.interactive < level):
 			return True
 		self.build['step_through'] = value
-		shutit_pexpect_session.pause_point(msg, print_input=print_input, level=level)
+		shutit_pexpect_session.pause_point(msg, print_input=print_input)
 		return True
 
 
