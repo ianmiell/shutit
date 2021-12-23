@@ -320,7 +320,7 @@ class ShutItGlobal(object):
 		"""
 		if self.pane_manager is None:
 			if debugfile is not None:
-				print('Printing debug to file: ' + debugfile)
+				print('Printing debug to file: ' + str(debugfile))
 				print(msg, file=debugfile)
 			else:
 				print(msg)

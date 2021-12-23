@@ -1677,7 +1677,7 @@ class ShutIt(object):
 	             host_path,
 	             note=None,
 	             loglevel=logging.DEBUG):
-		"""Copy a file from the target machine to the host machine
+		"""Copy a file from the target machine to the host machine in docker. DEPRECATED
 
 		@param target_path: path to file in the target
 		@param host_path:   path to file on the host machine (e.g. copy test)
@@ -1784,17 +1784,19 @@ class ShutIt(object):
 		return val
 
 
-	def step_through(self, msg='', shutit_pexpect_child=None, print_input=True, value=True):
+	def step_through(self, msg='', shutit_pexpect_child=None, level=1, print_input=True, value=True):
 		"""Implements a step-through function, using pause_point.
 		Calling this function switches on a pause point on every send.
 		If you call with value=False, then it will switch off the step-through.
 		Useful if you want to debug a series of commands during a run.
+		BROKEN?
 		"""
 		shutit_global.shutit_global_object.yield_to_draw()
 		shutit_pexpect_child = shutit_pexpect_child or self.get_current_shutit_pexpect_session().pexpect_child
 		shutit_pexpect_session = self.get_shutit_pexpect_session_from_child(shutit_pexpect_child)
-		if (not shutit_global.shutit_global_object.determine_interactive() or not shutit_global.shutit_global_object.interactive or
-			shutit_global.shutit_global_object.interactive < level):
+		if (not shutit_global.shutit_global_object.determine_interactive() or
+		    not shutit_global.shutit_global_object.interactive or
+		    shutit_global.shutit_global_object.interactive < level):
 			return True
 		self.build['step_through'] = value
 		shutit_pexpect_session.pause_point(msg, print_input=print_input)
