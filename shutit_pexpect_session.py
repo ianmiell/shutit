@@ -1447,14 +1447,14 @@ class ShutItPexpectSession(object):
 				if self.shutit.loglevel > logging.DEBUG:
 					opts += ' -qq'
 				self.send(ShutItSendSpec(self,
-				                         send='apt-get ' + opts + ' update',
+				                         send='apt-get -qq ' + opts + ' update',
 				                         loglevel=logging.INFO,
 				                         echo=echo,
 				                         run_in_background=False,
 				                         ignore_background=False,
 				                         block_other_commands=True))
 				shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
-			cmd += 'DEBIAN_FRONTEND=noninteractive apt-get install'
+			cmd += 'DEBIAN_FRONTEND=noninteractive apt-get -qq install'
 			if 'apt' in options:
 				opts = options['apt']
 			else:
@@ -1677,7 +1677,7 @@ class ShutItPexpectSession(object):
 			# If this is a none build, installing is invalid.
 			shutit.fail('ShutiIt has no install type for the identified OS, so cannot use install method. Inform maintainers if believed to be a bug.') # pragma: no cover
 		if install_type == 'apt':
-			cmd += 'apt-get purge'
+			cmd += 'apt-get -qq purge'
 			opts = options['apt'] if 'apt' in options else '-qq -y'
 		elif install_type == 'yum':
 			cmd += 'yum erase'
@@ -1931,8 +1931,8 @@ class ShutItPexpectSession(object):
 		as possible.
 
 		Note: if the install type is apt, it issues the following:
-		    - apt-get update
-		    - apt-get install -y -qq lsb-release
+		    - apt-get -qq update
+		    - apt-get -qq install -y lsb-release
 
 		"""
 		shutit = self.shutit
@@ -1949,7 +1949,7 @@ class ShutItPexpectSession(object):
 					if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 						shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
 						self.send(ShutItSendSpec(self,
-						                         send='DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y -qq lsb-release',
+						                         send='DEBIAN_FRONTEND=noninteractive apt-get -qq update && apt-get -qq install -y lsb-release',
 						                         loglevel=loglevel,
 						                         ignore_background=True))
 				d = self.lsb_release()
@@ -2095,11 +2095,11 @@ class ShutItPexpectSession(object):
 					if not shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] and self.whoami() == 'root':
 						shutit.get_current_shutit_pexpect_session_environment().build['apt_update_done'] = True
 						self.send(ShutItSendSpec(self,
-						                         send='DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y -qq lsb-release',
+						                         send='DEBIAN_FRONTEND=noninteractive apt-get -qq update && apt-get -qq install -y lsb-release',
 						                         loglevel=loglevel,
 						                         ignore_background=True))
 					self.send(ShutItSendSpec(self,
-					                         send='DEBIAN_FRONTEND=noninteractive apt-get install -y -qq lsb-release',
+					                         send='DEBIAN_FRONTEND=noninteractive apt-get -qq install -y lsb-release',
 					                         loglevel=loglevel,
 					                         ignore_background=True))
 				d = self.lsb_release()

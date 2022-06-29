@@ -2222,8 +2222,8 @@ class ShutIt(object):
 		as possible.
 
 		Note: if the install type is apt, it issues the following:
-		    - apt-get update
-		    - apt-get install -y -qq lsb-release
+		    - apt-get -qq update
+		    - apt-get -qq install -y lsb-release
 
 		@param shutit_pexpect_child:       See send()
 		"""

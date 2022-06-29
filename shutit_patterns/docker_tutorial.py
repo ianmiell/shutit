@@ -32,7 +32,7 @@ name:git_101_tutorial"""
 dockerfile_file = """
 FROM debian
 # Step 2 done
-RUN apt-get update && apt-get install -y git lsb-release vim bsdmainutils man-db manpages && mkdir -p myproject && touch /root/.bash_history
+RUN apt-get -qq update && apt-get -qq install -y git lsb-release vim bsdmainutils man-db manpages && mkdir -p myproject && touch /root/.bash_history
 # Step 3 done
 WORKDIR /myproject
 # Step 4 done
@@ -180,8 +180,8 @@ rm:false
 	dockerfile_file = open(dockerfile_filename,'w+')
 	dockerfile_file.write('''FROM ''' + shutit.shutitfile['base_image'] + '''
 
-RUN apt-get update
-RUN apt-get install -y -qq git python-pip python-dev
+RUN apt-get -qq update
+RUN apt-get -qq install -y git python-pip python-dev
 RUN pip install shutit
 
 WORKDIR /opt

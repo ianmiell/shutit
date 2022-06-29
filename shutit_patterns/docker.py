@@ -134,8 +134,8 @@ rm:false
 	dockerfile_file = open(dockerfile_filename,'w+')
 	dockerfile_file.write('''FROM ''' + shutit.shutitfile['base_image'] + '''
 
-RUN apt-get update
-RUN apt-get install -y -qq git python-pip python-dev
+RUN apt-get -qq update
+RUN apt-get -qq install -y git python-pip python-dev
 RUN pip install shutit
 
 WORKDIR /opt
