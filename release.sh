@@ -3,6 +3,8 @@
 set -x
 set -u
 i=0
+#https://towardsdatascience.com/how-to-upload-your-python-package-to-pypi-de1b363a1b3
+pip install twine
 while true
 do
 	rm -rf build
@@ -17,6 +19,7 @@ do
 	#if python setup.py sdist bdist_wheel upload
 	if python setup.py sdist
 	then
+		twine upload dist/*
 		break
 	fi
 	# wait a minute
